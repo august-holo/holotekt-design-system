@@ -1,0 +1,4 @@
+[
+  { "text": "color.text.primary", "background": "color.surface.page", "min": 4.5 },
+  { "text": "color.text.primary", "background": "color.surface.raised", "min": 4.5 }
+]

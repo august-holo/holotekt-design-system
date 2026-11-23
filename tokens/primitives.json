@@ -1,0 +1,29 @@
+{
+  "color": {
+    "$type": "color",
+    "orange": {
+      "500": {
+        "$value": "#FF6600",
+        "$description": "Placeholder taken from the portfolio's code; replaced after the color session."
+      },
+      "600": {
+        "$value": "#E55A00",
+        "$description": "Placeholder taken from the portfolio's code; replaced after the color session."
+      }
+    },
+    "neutral": {
+      "0": {
+        "$value": "#FFFFFF",
+        "$description": "Placeholder taken from the portfolio's code; replaced after the color session."
+      },
+      "100": {
+        "$value": "#F0EFE8",
+        "$description": "Placeholder taken from the portfolio's code; replaced after the color session."
+      },
+      "900": {
+        "$value": "#1A1A1A",
+        "$description": "Placeholder taken from the portfolio's code; replaced after the color session."
+      }
+    }
+  }
+}

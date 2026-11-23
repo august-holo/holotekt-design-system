@@ -1,0 +1,31 @@
+{
+  "color": {
+    "$type": "color",
+    "text": {
+      "primary": {
+        "$value": "{color.neutral.900}",
+        "$description": "Placeholder. Body text and headings on any surface."
+      }
+    },
+    "surface": {
+      "page": {
+        "$value": "{color.neutral.100}",
+        "$description": "Placeholder. The page background."
+      },
+      "raised": {
+        "$value": "{color.neutral.0}",
+        "$description": "Placeholder. Cards and panels that sit on the page."
+      }
+    },
+    "accent": {
+      "default": {
+        "$value": "{color.orange.500}",
+        "$description": "Placeholder. Links, primary actions and emphasis."
+      },
+      "hover": {
+        "$value": "{color.orange.600}",
+        "$description": "Placeholder. The accent in its hover state."
+      }
+    }
+  }
+}

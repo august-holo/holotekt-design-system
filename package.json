@@ -1,0 +1,52 @@
+{
+  "name": "holotekt-design-system",
+  "version": "0.0.0",
+  "description": "Design tokens and documentation for the holotekt design system.",
+  "license": "MIT",
+  "private": false,
+  "type": "module",
+  "repository": "github:august-holo/holotekt-design-system",
+  "homepage": "https://designsystem.holotekt.com",
+  "files": [
+    "dist",
+    "tokens",
+    "scripts/build-tokens.mjs",
+    "scripts/lib"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/tokens.d.ts",
+      "default": "./dist/tokens.js"
+    },
+    "./tokens.css": "./dist/tokens.css",
+    "./tokens.json": "./dist/tokens.json"
+  },
+  "scripts": {
+    "tokens:check": "node scripts/check-tokens.mjs",
+    "tokens:build": "node scripts/build-tokens.mjs",
+    "tokens:diff": "node scripts/diff-tokens.mjs",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit -p site",
+    "build:site": "next build site && node scripts/place-twins.mjs",
+    "check": "npm run tokens:check && npm run tokens:build && npm run lint && npm run typecheck && npm run build:site",
+    "dev": "node scripts/dev.mjs",
+    "release": "node scripts/release.mjs",
+    "deploy": "scripts/deploy.sh",
+    "prepare": "node scripts/build-tokens.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "gray-matter": "^4.0.3",
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "style-dictionary": "^5.8.0",
+    "typescript": "^5"
+  }
+}
