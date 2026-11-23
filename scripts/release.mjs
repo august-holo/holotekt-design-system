@@ -37,7 +37,7 @@ execFileSync("npm", ["version", bump, "--no-git-tag-version"], { cwd: ROOT, stdi
 const { version } = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
 const date = new Date().toISOString().slice(0, 10);
 
-const updated = changelog.replace(m[0], `## [Unreleased]\n\n## [${version}] - ${date}\n${entries}\n\n`);
+const updated = changelog.replace(m[0], `## [Unreleased]\n\n## [${version}] - ${date}\n\n${entries}\n\n`);
 fs.writeFileSync(changelogPath, updated.replace(/\n{3,}/g, "\n\n"));
 
 const files = ["package.json", "CHANGELOG.md"];

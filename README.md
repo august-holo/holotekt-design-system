@@ -11,7 +11,7 @@ Token values are decided in Figma and flow one way: Figma → JSON in `tokens/` 
 ## Using the tokens
 
 ```sh
-npm i github:august-holo/holotekt-design-system#v0.1.0
+npm i github:august-holo/holotekt-design-system#v0.0.1
 ```
 
 ```css
@@ -28,10 +28,11 @@ page at the page's address plus `.md`, and `/tokens.json`.
 | Path | What |
 |---|---|
 | `tokens/` | `primitives.json`, `semantic.json` (DTCG format) and `contrast-pairs.json` |
-| `scripts/` | build, check, diff, release, deploy |
+| `scripts/` | build, check, diff, release, deploy; `scripts/figma/` holds the read-only Figma script |
 | `dist/` | build output, gitignored: `tokens.css`, `tokens.js`, `tokens.d.ts`, `tokens.json` |
 | `site/` | the docs site, Next.js static export, generated from `dist/tokens.json` |
 | `content/decisions/` | public decision notes, one markdown file each |
+| `.claude/skills/publish-tokens/` | the one-command publish from Figma, for Claude Code |
 | `infra/` | Terraform for S3, CloudFront, the domain and the deploy role |
 
 ## Run
@@ -44,8 +45,40 @@ npm run check          # what CI runs: tokens check + build, lint, typecheck, si
 
 ## Releasing
 
-Written properly once the loop has been run end to end. See `SPEC.md` section 6 for the intended
-steps.
+Every release is a tagged commit on `main`, cut locally and pushed. Pushing deploys the site. Both
+paths below were followed as written for v0.0.1.
+
+### One command, from Figma
+
+In Claude Code, in this repo, after changing variables in Figma:
+
+```
+/publish-tokens
+```
+
+It reads the variables through the Figma MCP connector (read-only), writes `tokens/`, runs the diff
+and the checks, shows a summary (changes, contrast table, uncovered colours, proposed bump, drafted
+changelog lines), and on your confirmation commits, runs the release and prints the push command. It
+stops without changing anything if a check fails; the fix is in Figma. See
+`.claude/skills/publish-tokens/SKILL.md` for the exact steps, `scripts/figma/read-variables.js` for
+the only code it runs in Figma, and `scripts/figma-to-dtcg.mjs` for the conversion.
+
+### By hand
+
+1. Get the tokens into `tokens/`: either run the Figma read script and the converter yourself, or
+   edit the JSON from Figma's own export. `tokens/contrast-pairs.json` is always edited by hand.
+2. `npm run tokens:diff` shows what changed since the last tag and suggests a bump.
+   `npm run tokens:diff -- --changelog` drafts the changelog lines.
+3. Put the changelog lines under `## [Unreleased]` in `CHANGELOG.md` and commit everything
+   (the release script refuses a dirty tree).
+4. `npm run release -- <patch|minor|major>`. It runs `npm run check`, bumps `package.json`, dates
+   the Unreleased entries under a new heading, commits `release: vX.Y.Z` and tags `vX.Y.Z`.
+   It refuses off `main` or with nothing under Unreleased.
+5. `git push origin main --follow-tags`. GitHub Actions runs the check again and deploys. The site
+   shows the new version in the footer, `/llms.txt` and `/tokens.json` within a minute or two.
+
+Version plan: `0.0.1` loop dry run · `0.1.0` color · `0.2.0` typography · `0.3.0` spacing and layout ·
+`0.4.0` shape and elevation · `0.5.0` components · `1.0.0` once both sites consume it.
 
 ## Deploying
 

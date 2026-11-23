@@ -21,6 +21,7 @@ https://designsystem.holotekt.com. `SPEC.md` is the full brief; this file is the
 - `npm run check` runs everything CI runs: check, build, lint, typecheck, site build.
 - `npm run dev` builds tokens and serves the site at http://localhost:3000, rebuilding on token changes.
 - `npm run release -- <patch|minor|major>` cuts a release locally. It never pushes.
+- `/publish-tokens` (a project skill) does the whole Figma → tokens → release loop; see the README.
 
 **Run `npm run check` before you finish.**
 
