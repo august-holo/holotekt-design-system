@@ -7,7 +7,7 @@
 // cannot be mapped faithfully, rather than guessing or flattening.
 import fs from "node:fs";
 import path from "node:path";
-import { ROOT } from "./lib/tokens.mjs";
+import { ROOT, MODE_FILE } from "./lib/tokens.mjs";
 
 const args = process.argv.slice(2);
 const file = args.find((a) => !a.startsWith("--"));
@@ -48,7 +48,6 @@ if (!data.collections?.length) {
 }
 
 const byId = new Map(data.variables.map((v) => [v.id, v]));
-const collectionById = new Map(data.collections.map((c) => [c.id, c]));
 const toPath = (name) => name.split("/").map((s) => s.trim()).filter(Boolean).join(".");
 
 const toHex = ({ r, g, b, a = 1 }) => {
@@ -106,10 +105,18 @@ for (const c of data.collections) {
     problems.push(`collection "${c.name}" has no target file. Pass --map "${c.name}=primitives" or "${c.name}=semantic".`);
     continue;
   }
-  if (c.modes.length > 1) {
-    notes.push(`collection "${c.name}" has ${c.modes.length} modes (${c.modes.map((m) => m.name).join(", ")}); only the default mode "${c.modes.find((m) => m.id === c.defaultModeId)?.name}" is exported. A second mode is a later decision (semantic.dark.json).`);
+  if (c.modes.length > 1 && target !== "semantic") {
+    problems.push(`collection "${c.name}" has ${c.modes.length} modes (${c.modes.map((m) => m.name).join(", ")}). Only the Semantic collection may have modes; primitives hold one value.`);
+    continue;
   }
-  const tree = (files[target] ??= {});
+  // The default mode is the file itself; every other mode becomes semantic.<mode>.json.
+  const slug = (name) => name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const modeTargets = c.modes.map((m) => ({ modeId: m.id, target: m.id === c.defaultModeId ? target : `${target}.${slug(m.name)}`, isDefault: m.id === c.defaultModeId, name: m.name }));
+  for (const mt of modeTargets) {
+    if (!mt.isDefault && !MODE_FILE.test(`${mt.target}.json`)) problems.push(`collection "${c.name}": mode "${mt.name}" cannot be named as a file (${mt.target}.json).`);
+    if (!mt.isDefault) notes.push(`collection "${c.name}": mode "${mt.name}" → tokens/${mt.target}.json`);
+  }
+  const trees = Object.fromEntries(modeTargets.map((mt) => [mt.modeId, (files[mt.target] ??= {})]));
   for (const id of c.variableIds) {
     const v = byId.get(id);
     if (!v) continue;
@@ -118,23 +125,33 @@ for (const c of data.collections) {
       problems.push(`${v.name}: a ${v.resolvedType} variable with scopes [${(v.scopes ?? []).join(", ")}] has no DTCG type. Give it a scope that implies one (FONT_FAMILY, FONT_WEIGHT, a size scope) or leave it out of the system.`);
       continue;
     }
-    const raw = v.valuesByMode[c.defaultModeId];
-    const value = convertValue(v, raw, type);
-    if (value === undefined) continue;
-    const segs = toPath(v.name).split(".");
-    let node = tree;
-    for (const s of segs.slice(0, -1)) {
-      if (node[s] && "$value" in node[s]) {
-        problems.push(`${v.name}: its group "${s}" is also a token. Rename one in Figma.`);
-        break;
+    for (const mt of modeTargets) {
+      const raw = v.valuesByMode[mt.modeId];
+      if (raw === undefined) {
+        problems.push(`${v.name}: has no value in mode "${mt.name}".`);
+        continue;
       }
-      node = node[s] ??= {};
+      const value = convertValue(v, raw, type);
+      if (value === undefined) continue;
+      const segs = toPath(v.name).split(".");
+      let node = trees[mt.modeId];
+      let clash = false;
+      for (const s of segs.slice(0, -1)) {
+        if (node[s] && "$value" in node[s]) {
+          problems.push(`${v.name}: its group "${s}" is also a token. Rename one in Figma.`);
+          clash = true;
+          break;
+        }
+        node = node[s] ??= {};
+      }
+      if (clash) continue;
+      const leaf = segs[segs.length - 1];
+      if (node[leaf]) problems.push(`${v.name}: defined twice.`);
+      const token = { $type: type, $value: value };
+      // Descriptions live with the default mode; a mode file only restates values.
+      if (mt.isDefault && v.description?.trim()) token.$description = v.description.trim();
+      node[leaf] = token;
     }
-    const leaf = segs[segs.length - 1];
-    if (node[leaf]) problems.push(`${v.name}: defined twice.`);
-    const token = { $type: type, $value: value };
-    if (v.description?.trim()) token.$description = v.description.trim();
-    node[leaf] = token;
   }
 }
 
@@ -158,4 +175,14 @@ for (const [target, tree] of Object.entries(files)) {
 }
 for (const target of ["primitives", "semantic"]) {
   if (!files[target]) console.log(`! no collection mapped to tokens/${target}.json; the existing file was left alone.`);
+}
+// A mode that no longer exists in Figma must not linger as a file.
+for (const f of fs.readdirSync(path.join(ROOT, "tokens"))) {
+  if (MODE_FILE.test(f) && !files[f.replace(/\.json$/, "")] && files.semantic) {
+    if (dryRun) console.log(`(dry run) would delete tokens/${f}: that mode is no longer in Figma`);
+    else {
+      fs.unlinkSync(path.join(ROOT, "tokens", f));
+      console.log(`✓ deleted tokens/${f}: that mode is no longer in Figma`);
+    }
+  }
 }

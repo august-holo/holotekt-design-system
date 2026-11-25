@@ -13,7 +13,7 @@ const result = checkTokens(data);
 
 console.log(`${data.list.length} tokens (${data.list.filter((t) => t.tier === "primitive").length} primitive, ${data.list.filter((t) => t.tier === "semantic").length} semantic)\n`);
 console.log("Contrast pairs");
-console.log(formatPairsTable(result.pairs));
+console.log(formatPairsTable(result.pairs, result.modes));
 console.log();
 for (const w of result.warnings) console.log(`! ${w}`);
 if (result.errors.length) {

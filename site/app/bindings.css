@@ -1,0 +1,19 @@
+/* Not a design: the minimum binding so the published tokens, and the theme toggle, are visible.
+   Everything else stays at browser defaults until the site is styled (backlog B-050). */
+:root {
+  color-scheme: light dark;
+}
+body {
+  background: var(--ht-color-surface-page, Canvas);
+  color: var(--ht-color-text-primary, CanvasText);
+}
+a {
+  color: var(--ht-color-text-link, LinkText);
+}
+a:hover {
+  color: var(--ht-color-text-link-hover, var(--ht-color-text-link, LinkText));
+}
+:focus-visible {
+  outline: 2px solid var(--ht-color-border-focus, Highlight);
+  outline-offset: 2px;
+}

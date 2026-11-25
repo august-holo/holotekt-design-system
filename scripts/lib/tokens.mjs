@@ -1,6 +1,10 @@
 // Shared token logic for the scripts: reading the DTCG files, resolving aliases, naming CSS
 // variables, computing WCAG contrast, and the checks. The site never imports this; it reads
 // dist/tokens.json, which build-tokens.mjs writes from here.
+//
+// Modes: tokens/semantic.json holds the default mode. tokens/semantic.<mode>.json (for example
+// semantic.dark.json) restates the same semantic tokens with other aliases. Primitives have one
+// mode. Every semantic token must have a value in every mode, and a mode may not add tokens.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -8,12 +12,15 @@ import { fileURLToPath } from "node:url";
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const PREFIX = "ht";
+export const DEFAULT_MODE = "default";
 
 export const FILES = {
   primitives: "tokens/primitives.json",
   semantic: "tokens/semantic.json",
   pairs: "tokens/contrast-pairs.json",
 };
+export const MODE_FILE = /^semantic\.([a-z0-9-]+)\.json$/;
+export const modeFile = (mode) => `tokens/semantic.${mode}.json`;
 
 // Types the system knows today (the spec's six) plus the rest of the DTCG set, so a new kind of
 // token arriving later is not rejected for being new, only for being malformed.
@@ -48,6 +55,15 @@ export function parseJson(text, label) {
 
 export function readJson(file) {
   return parseJson(fs.readFileSync(path.join(ROOT, file), "utf8"), file);
+}
+
+/** The mode files present in tokens/, sorted: [{ mode: "dark", file: "tokens/semantic.dark.json" }]. */
+export function listModeFiles(root = ROOT) {
+  return fs
+    .readdirSync(path.join(root, "tokens"))
+    .filter((f) => MODE_FILE.test(f))
+    .sort()
+    .map((f) => ({ mode: MODE_FILE.exec(f)[1], file: `tokens/${f}` }));
 }
 
 /** Walk a DTCG tree. A token is any object with `$value`; `$type` is inherited from groups. */
@@ -85,10 +101,14 @@ export function cssName(tokenPath) {
   return `--${PREFIX}-${kebab}`;
 }
 
-/** Build the token set from the two files' contents (strings or parsed objects). */
-export function parseTokenSet({ primitives, semantic }) {
-  const prim = typeof primitives === "string" ? parseJson(primitives, FILES.primitives) : primitives;
-  const sem = typeof semantic === "string" ? parseJson(semantic, FILES.semantic) : semantic;
+/**
+ * Build the token set from file contents (strings or parsed objects).
+ * `modes` maps a mode name to that mode's semantic file content.
+ */
+export function parseTokenSet({ primitives, semantic, modes = {} }) {
+  const parse = (src, label) => (typeof src === "string" ? parseJson(src, label) : src);
+  const prim = parse(primitives, FILES.primitives);
+  const sem = parse(semantic, FILES.semantic);
   const list = [
     ...flatten(prim ?? {}, "primitive", FILES.primitives),
     ...flatten(sem ?? {}, "semantic", FILES.semantic),
@@ -101,7 +121,32 @@ export function parseTokenSet({ primitives, semantic }) {
     }
     byPath.set(t.path, t);
   }
-  return { list, byPath, errors };
+
+  const modeNames = Object.keys(modes).sort();
+  for (const mode of modeNames) {
+    const source = modeFile(mode);
+    const tree = parse(modes[mode], source);
+    const seen = new Set();
+    for (const mt of flatten(tree ?? {}, "semantic", source)) {
+      const base = byPath.get(mt.path);
+      if (!base || base.tier !== "semantic") {
+        errors.push(`${source}: ${mt.path} is not a semantic token in ${FILES.semantic}. A mode can only restate tokens that exist there.`);
+        continue;
+      }
+      if (mt.type && base.type && mt.type !== base.type) {
+        errors.push(`${source}: ${mt.path} is a ${mt.type} here but a ${base.type} in ${FILES.semantic}.`);
+      }
+      base.modes ??= {};
+      base.modes[mode] = { value: mt.value, alias: isRef(mt.value) ? refTarget(mt.value) : null, source };
+      seen.add(mt.path);
+    }
+    for (const t of list) {
+      if (t.tier === "semantic" && !seen.has(t.path)) {
+        errors.push(`${source}: ${t.path} has no ${mode} value. Every semantic token needs a value in every mode.`);
+      }
+    }
+  }
+  return { list, byPath, errors, modeNames };
 }
 
 /** Resolve every alias in a value, deeply. Throws on a missing or circular reference. */
@@ -122,7 +167,7 @@ export function resolveValue(value, byPath, seen = []) {
   return value;
 }
 
-/** Adds `resolved`, `alias` (direct target path or null) and `css` to each token; collects errors. */
+/** Adds `resolved`, `alias` (direct target path or null) and `css` to each token and each mode value; collects errors. */
 export function resolveAll(set) {
   const errors = [...set.errors];
   for (const t of set.list) {
@@ -133,6 +178,14 @@ export function resolveAll(set) {
     } catch (e) {
       errors.push(`${t.path}: ${e.message}.`);
       t.resolved = undefined;
+    }
+    for (const [mode, mv] of Object.entries(t.modes ?? {})) {
+      try {
+        mv.resolved = resolveValue(mv.value, set.byPath);
+      } catch (e) {
+        errors.push(`${t.path} (${mode}): ${e.message}.`);
+        mv.resolved = undefined;
+      }
     }
   }
   return errors;
@@ -185,18 +238,23 @@ export function contrastRatio(hexA, hexB) {
 
 export function loadTokens(root = ROOT) {
   const read = (f) => fs.readFileSync(path.join(root, f), "utf8");
-  const set = parseTokenSet({ primitives: read(FILES.primitives), semantic: read(FILES.semantic) });
+  const modes = Object.fromEntries(listModeFiles(root).map(({ mode, file }) => [mode, read(file)]));
+  const set = parseTokenSet({ primitives: read(FILES.primitives), semantic: read(FILES.semantic), modes });
   const pairs = parseJson(read(FILES.pairs), FILES.pairs);
   return { ...set, pairs };
 }
 
+/** The resolved value of a token in a mode ("default" is semantic.json itself). */
+export const valueIn = (t, mode) => (mode === DEFAULT_MODE ? t.resolved : t.modes?.[mode]?.resolved);
+
 /**
  * Every check from the spec. Returns errors (fail the build), warnings (report only), the contrast
- * pairs with their ratios, and semantic colour tokens that no pair covers.
+ * pairs with their ratios in every mode, and semantic colour tokens that no pair covers.
  */
 export function checkTokens(data) {
   const errors = resolveAll(data);
   const warnings = [];
+  const allModes = [DEFAULT_MODE, ...(data.modeNames ?? [])];
 
   const cssSeen = new Map();
   for (const t of data.list) {
@@ -216,12 +274,22 @@ export function checkTokens(data) {
           `${t.path}: a semantic token must alias a primitive, like "{color.neutral.900}", not hold a raw value (${JSON.stringify(t.value)}). Add the primitive to primitives.json and alias it.`,
         );
       }
+      for (const [mode, mv] of Object.entries(t.modes ?? {})) {
+        if (!isRef(mv.value)) {
+          errors.push(`${t.path} (${mode}): must alias a primitive, not hold a raw value (${JSON.stringify(mv.value)}).`);
+        }
+      }
       if (!t.description) {
         errors.push(`${t.path}: needs a $description that says when to use it, in one plain sentence.`);
       }
     }
-    if (t.type === "color" && t.resolved !== undefined && toHex(t.resolved) === null) {
-      errors.push(`${t.path}: colour value ${JSON.stringify(t.resolved)} is not a hex string or an sRGB colour object.`);
+    if (t.type === "color") {
+      for (const mode of allModes) {
+        const v = valueIn(t, mode);
+        if (v !== undefined && toHex(v) === null) {
+          errors.push(`${t.path}${mode === DEFAULT_MODE ? "" : ` (${mode})`}: colour value ${JSON.stringify(v)} is not a hex string or an sRGB colour object.`);
+        }
+      }
     }
   }
 
@@ -238,18 +306,25 @@ export function checkTokens(data) {
       errors.push(`${FILES.pairs}: pair ${JSON.stringify(p)} names a token that does not exist or has no numeric min.`);
       continue;
     }
-    const textHex = toHex(text.resolved);
-    const bgHex = toHex(bg.resolved);
-    if (!textHex || !bgHex) continue; // already reported above
-    const ratio = contrastRatio(textHex, bgHex);
-    const passes = ratio >= min;
-    pairs.push({ text: p.text, background: p.background, textValue: textHex, backgroundValue: bgHex, ratio: Number(ratio.toFixed(2)), min, passes });
-    covered.add(p.text).add(p.background);
-    if (!passes) {
-      errors.push(
-        `contrast: ${p.text} (${textHex}) on ${p.background} (${bgHex}) is ${ratio.toFixed(2)}:1, below the ${min}:1 minimum. The fix belongs in Figma: adjust the colour there and publish again.`,
-      );
+    const perMode = {};
+    let allPass = true;
+    for (const mode of allModes) {
+      const textHex = toHex(valueIn(text, mode));
+      const bgHex = toHex(valueIn(bg, mode));
+      if (!textHex || !bgHex) continue; // already reported above
+      const ratio = contrastRatio(textHex, bgHex);
+      const passes = ratio >= min;
+      perMode[mode] = { textValue: textHex, backgroundValue: bgHex, ratio: Number(ratio.toFixed(2)), passes };
+      if (!passes) {
+        allPass = false;
+        errors.push(
+          `contrast${mode === DEFAULT_MODE ? "" : ` (${mode})`}: ${p.text} (${textHex}) on ${p.background} (${bgHex}) is ${ratio.toFixed(2)}:1, below the ${min}:1 minimum. The fix belongs in Figma: adjust the colour there and publish again.`,
+        );
+      }
     }
+    if (!perMode[DEFAULT_MODE]) continue;
+    pairs.push({ text: p.text, background: p.background, min, ...perMode[DEFAULT_MODE], passes: allPass, modes: perMode });
+    covered.add(p.text).add(p.background);
   }
   const uncovered = data.list
     .filter((t) => t.tier === "semantic" && t.type === "color" && !covered.has(t.path))
@@ -258,13 +333,20 @@ export function checkTokens(data) {
     warnings.push(`not covered by a contrast pair: ${uncovered.join(", ")}. Add pairs to ${FILES.pairs} if text is ever set on or in these colours.`);
   }
 
-  return { errors, warnings, pairs, uncovered };
+  return { errors, warnings, pairs, uncovered, modes: allModes };
 }
 
-export function formatPairsTable(pairs) {
+export function formatPairsTable(pairs, modes = [DEFAULT_MODE]) {
   if (!pairs.length) return "(no contrast pairs)";
-  const rows = pairs.map((p) => [p.text, p.background, `${p.ratio.toFixed(2)}:1`, `${p.min}:1`, p.passes ? "pass" : "FAIL"]);
-  const head = ["text", "background", "ratio", "min", "result"];
+  const ratioCols = modes.map((m) => (m === DEFAULT_MODE && modes.length === 1 ? "ratio" : `ratio (${m === DEFAULT_MODE ? "default" : m})`));
+  const head = ["text", "background", "min", ...ratioCols, "result"];
+  const rows = pairs.map((p) => [
+    p.text,
+    p.background,
+    `${p.min}:1`,
+    ...modes.map((m) => (p.modes[m] ? `${p.modes[m].ratio.toFixed(2)}:1` : "-")),
+    p.passes ? "pass" : "FAIL",
+  ]);
   const widths = head.map((h, i) => Math.max(h.length, ...rows.map((r) => r[i].length)));
   const line = (r) => r.map((c, i) => c.padEnd(widths[i])).join("  ");
   return [line(head), widths.map((w) => "-".repeat(w)).join("  "), ...rows.map(line)].join("\n");
@@ -277,6 +359,7 @@ export function resolvedJson(data, checked, { version }) {
     version,
     generatedAt: new Date().toISOString(),
     prefix: PREFIX,
+    modes: checked.modes,
     tokens: data.list.map((t) => ({
       path: t.path,
       css: t.css,
@@ -285,6 +368,7 @@ export function resolvedJson(data, checked, { version }) {
       value: t.resolved,
       alias: t.alias,
       description: t.description ?? null,
+      ...(t.modes ? { modes: Object.fromEntries(Object.entries(t.modes).map(([m, mv]) => [m, { value: mv.resolved, alias: mv.alias }])) } : {}),
     })),
     contrastPairs: checked.pairs,
     uncovered: checked.uncovered,

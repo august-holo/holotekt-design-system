@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { ROOT, FILES, parseTokenSet, resolveAll } from "./lib/tokens.mjs";
+import { ROOT, FILES, MODE_FILE, parseTokenSet, resolveAll, listModeFiles } from "./lib/tokens.mjs";
 
 const args = new Set(process.argv.slice(2));
 const git = (...a) => execFileSync("git", a, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
@@ -26,13 +26,23 @@ const atTag = (file) => {
 };
 const now = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
 
-const before = parseTokenSet({ primitives: atTag(FILES.primitives), semantic: atTag(FILES.semantic) });
-const after = parseTokenSet({ primitives: now(FILES.primitives), semantic: now(FILES.semantic) });
+const modesAtTag = {};
+if (tag) {
+  for (const f of git("ls-tree", "--name-only", tag, "tokens/").split("\n")) {
+    const m = MODE_FILE.exec(path.basename(f));
+    if (m) modesAtTag[m[1]] = atTag(f);
+  }
+}
+const modesNow = Object.fromEntries(listModeFiles().map(({ mode, file }) => [mode, now(file)]));
+const before = parseTokenSet({ primitives: atTag(FILES.primitives), semantic: atTag(FILES.semantic), modes: modesAtTag });
+const after = parseTokenSet({ primitives: now(FILES.primitives), semantic: now(FILES.semantic), modes: modesNow });
 resolveAll(before);
 resolveAll(after);
 
 const show = (v) => (typeof v === "string" ? v : JSON.stringify(v));
 const key = (t) => `${t.type}:${show(t.resolved)}`;
+// A token's modes as one comparable string: "dark=#F7F7F1→color.neutral.50".
+const modesKey = (t) => Object.entries(t.modes ?? {}).map(([m, v]) => `${m}=${show(v.resolved)}→${v.alias}`).sort().join("|");
 
 const added = [];
 const removed = [];
@@ -41,7 +51,7 @@ const described = [];
 for (const t of after.list) {
   const old = before.byPath.get(t.path);
   if (!old) added.push(t);
-  else if (show(old.resolved) !== show(t.resolved) || old.alias !== t.alias || old.type !== t.type) changed.push({ old, t });
+  else if (show(old.resolved) !== show(t.resolved) || old.alias !== t.alias || old.type !== t.type || modesKey(old) !== modesKey(t)) changed.push({ old, t });
   else if ((old.description ?? "") !== (t.description ?? "")) described.push({ old, t });
 }
 for (const t of before.list) if (!after.byPath.has(t.path)) removed.push(t);
@@ -64,10 +74,18 @@ if (removed.length || renamed.length) bump = under1 ? "minor" : "major";
 else if (added.length) bump = "minor";
 else if (changed.length || described.length) bump = "patch";
 
-const describeChange = ({ old, t }) =>
-  old.alias !== t.alias && t.alias
-    ? `now aliases ${t.alias}${old.alias ? ` (was ${old.alias})` : ""}; ${show(old.resolved)} → ${show(t.resolved)}`
-    : `${show(old.resolved)} → ${show(t.resolved)}`;
+const describeChange = ({ old, t }) => {
+  const parts = [];
+  if (old.alias !== t.alias && t.alias) parts.push(`now aliases ${t.alias}${old.alias ? ` (was ${old.alias})` : ""}; ${show(old.resolved)} → ${show(t.resolved)}`);
+  else if (show(old.resolved) !== show(t.resolved)) parts.push(`${show(old.resolved)} → ${show(t.resolved)}`);
+  for (const [m, v] of Object.entries(t.modes ?? {})) {
+    const o = old.modes?.[m];
+    if (!o) parts.push(`${m} mode added (${show(v.resolved)}${v.alias ? `, aliases ${v.alias}` : ""})`);
+    else if (show(o.resolved) !== show(v.resolved) || o.alias !== v.alias) parts.push(`${m}: ${show(o.resolved)} → ${show(v.resolved)}${v.alias ? ` (aliases ${v.alias})` : ""}`);
+  }
+  for (const m of Object.keys(old.modes ?? {})) if (!t.modes?.[m]) parts.push(`${m} mode removed`);
+  return parts.join("; ");
+};
 
 if (args.has("--json")) {
   console.log(
@@ -78,7 +96,7 @@ if (args.has("--json")) {
         added: added.map((t) => ({ path: t.path, value: t.resolved, alias: t.alias })),
         removed: removed.map((t) => ({ path: t.path, value: t.resolved })),
         renamed: renamed.map((r) => ({ from: r.from.path, to: r.to.path, value: r.to.resolved })),
-        changed: changed.map(({ old, t }) => ({ path: t.path, from: old.resolved, to: t.resolved, alias: t.alias, wasAlias: old.alias })),
+        changed: changed.map(({ old, t }) => ({ path: t.path, from: old.resolved, to: t.resolved, alias: t.alias, wasAlias: old.alias, detail: describeChange({ old, t }) })),
         descriptionOnly: described.map(({ t }) => t.path),
       },
       null,
