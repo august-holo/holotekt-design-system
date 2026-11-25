@@ -13,6 +13,11 @@ https://designsystem.holotekt.com. `SPEC.md` is the full brief; this file is the
 - `content/decisions/`: public "why" notes. `docs/consumer-rules.md`: rules for sites using the system.
 - `infra/`: Terraform, applied by hand from a laptop. `.github/workflows/`: CI and deploy.
 
+## The task queue
+
+`BACKLOG.md`, when present, is the queue of work for the code session. It stays on August's machine
+and is not committed. Read it at the start of a session and follow its instructions.
+
 ## Commands
 
 - `npm run tokens:check` validates the tokens and prints the contrast table.

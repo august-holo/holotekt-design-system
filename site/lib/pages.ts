@@ -6,6 +6,8 @@ import {
   consumerRules,
   decisions,
   FIGMA_URL,
+  luminance,
+  modeLabel,
   REPO_URL,
   showValue,
   SITE_URL,
@@ -23,6 +25,7 @@ export type Block =
   | { kind: "list"; items: string[] }
   | { kind: "links"; items: { text: string; href: string; note?: string }[] }
   | { kind: "table"; columns: string[]; rows: Cell[][] }
+  | { kind: "ramp"; name: string; steps: { step: string; path: string; css: string; value: string }[] }
   | { kind: "md"; markdown: string };
 
 export interface Page {
@@ -67,6 +70,8 @@ const FOUNDATION_INFO: Record<Foundation, { title: string; description: string; 
   },
 };
 
+export const foundationTitle = (kind: Foundation) => FOUNDATION_INFO[kind].title;
+
 const valueCell = (t: Token): Cell => {
   const text = showValue(t.value);
   return t.type === "color" ? { text, swatch: text, code: true } : { text, code: true };
@@ -80,18 +85,29 @@ function primitiveTable(tokens: Token[]): Block {
   };
 }
 
-function semanticTable(tokens: Token[]): Block {
+function semanticTable(tokens: Token[], modes: string[]): Block {
+  const suffix = (m: string) => {
+    const label = modeLabel(m, modes);
+    return label ? ` (${label})` : "";
+  };
+  const modeCell = (t: Token, m: string): Cell[] => {
+    const v = m === "default" ? { value: t.value, alias: t.alias } : t.modes?.[m];
+    if (!v) return ["", ""];
+    const text = showValue(v.value);
+    return [{ text: v.alias ?? "", code: true }, t.type === "color" ? { text, swatch: text, code: true } : { text, code: true }];
+  };
   return {
     kind: "table",
-    columns: ["Token", "CSS variable", "Aliases", "Value", "When to use"],
-    rows: tokens.map((t) => [
-      { text: t.path, code: true },
-      { text: t.css, code: true },
-      { text: t.alias ?? "", code: true },
-      valueCell(t),
-      t.description ?? "",
-    ]),
+    columns: ["Token", "CSS variable", ...modes.flatMap((m) => [`Aliases${suffix(m)}`, `Value${suffix(m)}`]), "When to use"],
+    rows: tokens.map((t) => [{ text: t.path, code: true }, { text: t.css, code: true }, ...modes.flatMap((m) => modeCell(t, m)), t.description ?? ""]),
   };
+}
+
+/** Steps of a colour ramp ordered light to dark: by numeric step when every step is a number, else by luminance. */
+function rampSteps(tokens: Token[]) {
+  const steps = tokens.map((t) => ({ step: t.path.split(".").pop()!, path: t.path, css: t.css, value: showValue(t.value) }));
+  const numeric = steps.every((s) => /^\d+$/.test(s.step));
+  return steps.sort((a, b) => (numeric ? Number(a.step) - Number(b.step) : luminance(b.value) - luminance(a.value)));
 }
 
 export function foundationPage(kind: Foundation): Page {
@@ -119,14 +135,22 @@ export function foundationPage(kind: Foundation): Page {
     }
     for (const [name, list] of groups) {
       if (groups.size > 1) page.blocks.push({ kind: "h3", text: name });
+      if (kind === "color" && list.length >= 3) page.blocks.push({ kind: "ramp", name, steps: rampSteps(list) });
       page.blocks.push(primitiveTable(list));
     }
   }
 
   if (semantic.length) {
     page.blocks.push({ kind: "h2", text: "Semantic tokens" });
-    page.blocks.push({ kind: "p", text: "Purpose-named tokens. Pick one by its description. In CSS each one references its primitive, so the alias is visible in the browser's inspector." });
-    page.blocks.push(semanticTable(semantic));
+    const modeNote =
+      data.modes.length > 1
+        ? ` The ${data.modes
+            .slice(1)
+            .map((m) => modeLabel(m, data.modes).toLowerCase())
+            .join(" and ")} values apply when the system prefers that scheme, or when the page sets data-theme.`
+        : "";
+    page.blocks.push({ kind: "p", text: `Purpose-named tokens. Pick one by its description. In CSS each one references its primitive, so the alias is visible in the browser's inspector.${modeNote}` });
+    page.blocks.push(semanticTable(semantic, data.modes));
   }
 
   if (kind === "color") {
@@ -135,14 +159,18 @@ export function foundationPage(kind: Foundation): Page {
       kind: "p",
       text: "The text-on-background combinations the system allows, with their WCAG 2 contrast ratio. The build fails if any pair is below its minimum, so every pair listed here passes.",
     });
+    const ratioCol = (m: string) => {
+      const label = modeLabel(m, data.modes);
+      return label ? `Ratio (${label})` : "Ratio";
+    };
     page.blocks.push({
       kind: "table",
-      columns: ["Text", "Background", "Ratio", "Minimum", "Result"],
+      columns: ["Text", "Background", "Minimum", ...data.modes.map(ratioCol), "Result"],
       rows: data.contrastPairs.map((p) => [
         { text: p.text, swatch: p.textValue, code: true },
         { text: p.background, swatch: p.backgroundValue, code: true },
-        `${p.ratio.toFixed(2)}:1`,
         `${p.min}:1`,
+        ...data.modes.map((m) => (p.modes[m] ? `${p.modes[m].ratio.toFixed(2)}:1` : "")),
         p.passes ? "Pass" : "Fail",
       ]),
     });
@@ -186,7 +214,7 @@ export function homePage(): Page {
           { text: "Decisions", href: "/decisions", note: "Why things are the way they are." },
           { text: "Changelog", href: "/changelog", note: `What changed in each version. Now at ${v}.` },
           { text: "Rules for consuming sites", href: "/consumer-rules", note: "A block for a site's AGENTS.md." },
-          { text: "Accessibility", href: "/accessibility" },
+          { text: "Accessibility", href: "/accessibility", note: "What the system commits to, and how to report a problem." },
           { text: "Repository on GitHub", href: REPO_URL },
           { text: "Figma file", href: FIGMA_URL },
         ],
@@ -324,12 +352,15 @@ export function toMarkdown(page: Page): string {
         for (const r of b.rows) out.push(`| ${r.map(cellText).join(" | ")} |`);
         out.push("");
         break;
+      case "ramp":
+        // The table that follows carries the same data; Markdown has no strip.
+        break;
       case "md":
         out.push(b.markdown, "");
         break;
     }
   }
-  out.push(`---`, ``, `HTML version: ${SITE_URL}${page.route}`, "");
+  out.push(`HTML version: ${SITE_URL}${page.route}`, "");
   return out.join("\n");
 }
 

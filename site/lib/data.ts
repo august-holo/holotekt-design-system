@@ -25,16 +25,23 @@ export interface Token {
   value: unknown;
   alias: string | null;
   description: string | null;
+  /** Values in the other modes, keyed by mode name ("dark"). Absent on primitives and when there is one mode. */
+  modes?: Record<string, { value: unknown; alias: string | null }>;
 }
 
-export interface ContrastPair {
-  text: string;
-  background: string;
+export interface ModeContrast {
   textValue: string;
   backgroundValue: string;
   ratio: number;
-  min: number;
   passes: boolean;
+}
+
+export interface ContrastPair extends ModeContrast {
+  text: string;
+  background: string;
+  min: number;
+  /** Per-mode results; "default" is semantic.json itself. */
+  modes: Record<string, ModeContrast>;
 }
 
 export interface TokenData {
@@ -42,6 +49,8 @@ export interface TokenData {
   version: string;
   generatedAt: string;
   prefix: string;
+  /** "default" first, then the other modes in file order. */
+  modes: string[];
   tokens: Token[];
   contrastPairs: ContrastPair[];
   uncovered: string[];
@@ -106,4 +115,19 @@ export function showValue(value: unknown): string {
     return JSON.stringify(value);
   }
   return String(value);
+}
+
+/** A readable mode name: the default mode is "Light" once a dark mode exists, otherwise unlabelled. */
+export function modeLabel(mode: string, modes: string[]): string {
+  if (mode === "default") return modes.includes("dark") ? "Light" : "";
+  return mode[0].toUpperCase() + mode.slice(1);
+}
+
+/** WCAG relative luminance of a #rrggbb colour, for ordering ramps light to dark. */
+export function luminance(hex: string): number {
+  const chan = (i: number) => {
+    const c = parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16) / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * chan(0) + 0.7152 * chan(1) + 0.0722 * chan(2);
 }

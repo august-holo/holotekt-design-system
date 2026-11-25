@@ -72,6 +72,28 @@ function BlockView({ block }: { block: Block }) {
           </tbody>
         </table>
       );
+    case "ramp":
+      // The one place the page draws: an ordered strip of a hue's steps, light to dark. Sizes and
+      // colours are the token data; there is no decoration.
+      return (
+        <figure>
+          <figcaption>
+            {block.name}, {block.steps.length} steps from light to dark
+          </figcaption>
+          <ol style={{ display: "flex", listStyle: "none", margin: 0, padding: 0 }}>
+            {block.steps.map((s) => (
+              <li key={s.path} style={{ flex: 1, minWidth: 0 }}>
+                <span aria-hidden="true" style={{ display: "block", height: "2.5em", background: s.value, border: "1px solid currentColor" }} />
+                <small>
+                  {s.step}
+                  <br />
+                  <code>{s.value}</code>
+                </small>
+              </li>
+            ))}
+          </ol>
+        </figure>
+      );
     case "md":
       return <ReactMarkdown remarkPlugins={[remarkGfm]}>{block.markdown}</ReactMarkdown>;
   }

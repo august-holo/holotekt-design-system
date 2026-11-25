@@ -22,3 +22,7 @@ tfplan
 .DS_Store
 .env*
 **/.claude/settings.local.json
+
+# local working files; they stay on this machine
+/BACKLOG.md
+/docs/handoff/
