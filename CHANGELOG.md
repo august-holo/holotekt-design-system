@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-25
+
 ### Added
 - The colour foundations from the color session: six primitive ramps (orange, blue, yellow, green,
   red, neutral) at steps 50–950 plus neutral 0, and 36 semantic roles for text, surfaces, borders,
