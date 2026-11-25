@@ -1,4 +1,217 @@
 [
-  { "text": "color.text.primary", "background": "color.surface.page", "min": 4.5 },
-  { "text": "color.text.primary", "background": "color.surface.raised", "min": 4.5 }
+ {
+  "text": "color.text.primary",
+  "background": "color.surface.page",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.primary",
+  "background": "color.surface.raised",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.secondary",
+  "background": "color.surface.page",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.secondary",
+  "background": "color.surface.raised",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.muted",
+  "background": "color.surface.page",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.muted",
+  "background": "color.surface.raised",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.link",
+  "background": "color.surface.page",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.link",
+  "background": "color.surface.raised",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.link-hover",
+  "background": "color.surface.page",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.link-hover",
+  "background": "color.surface.raised",
+  "min": 4.5
+ },
+ {
+  "text": "color.status.working.text",
+  "background": "color.surface.page",
+  "min": 4.5
+ },
+ {
+  "text": "color.status.working.text",
+  "background": "color.surface.raised",
+  "min": 4.5
+ },
+ {
+  "text": "color.status.done.text",
+  "background": "color.surface.page",
+  "min": 4.5
+ },
+ {
+  "text": "color.status.done.text",
+  "background": "color.surface.raised",
+  "min": 4.5
+ },
+ {
+  "text": "color.status.caution.text",
+  "background": "color.surface.page",
+  "min": 4.5
+ },
+ {
+  "text": "color.status.caution.text",
+  "background": "color.surface.raised",
+  "min": 4.5
+ },
+ {
+  "text": "color.status.failed.text",
+  "background": "color.surface.page",
+  "min": 4.5
+ },
+ {
+  "text": "color.status.failed.text",
+  "background": "color.surface.raised",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.primary",
+  "background": "color.surface.sunken",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.primary",
+  "background": "color.surface.hover",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.secondary",
+  "background": "color.surface.sunken",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.secondary",
+  "background": "color.surface.hover",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.muted",
+  "background": "color.surface.sunken",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.muted",
+  "background": "color.surface.hover",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.primary",
+  "background": "color.surface.pressed",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.secondary",
+  "background": "color.surface.pressed",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.inverse",
+  "background": "color.surface.inverse",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.on-accent",
+  "background": "color.accent.default",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.on-accent",
+  "background": "color.accent.hover",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.on-accent",
+  "background": "color.accent.pressed",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.primary",
+  "background": "color.accent.subtle",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.on-accent",
+  "background": "color.status.working.fill",
+  "min": 4.5
+ },
+ {
+  "text": "color.status.working.text",
+  "background": "color.status.working.subtle",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.on-accent",
+  "background": "color.status.done.fill",
+  "min": 4.5
+ },
+ {
+  "text": "color.status.done.text",
+  "background": "color.status.done.subtle",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.on-accent",
+  "background": "color.status.caution.fill",
+  "min": 4.5
+ },
+ {
+  "text": "color.status.caution.text",
+  "background": "color.status.caution.subtle",
+  "min": 4.5
+ },
+ {
+  "text": "color.text.on-accent",
+  "background": "color.status.failed.fill",
+  "min": 4.5
+ },
+ {
+  "text": "color.status.failed.text",
+  "background": "color.status.failed.subtle",
+  "min": 4.5
+ },
+ {
+  "text": "color.border.focus",
+  "background": "color.surface.page",
+  "min": 3.0
+ },
+ {
+  "text": "color.border.strong",
+  "background": "color.surface.page",
+  "min": 3.0
+ },
+ {
+  "text": "color.border.focus",
+  "background": "color.surface.raised",
+  "min": 3.0
+ },
+ {
+  "text": "color.border.strong",
+  "background": "color.surface.raised",
+  "min": 3.0
+ }
 ]

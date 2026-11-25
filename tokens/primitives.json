@@ -1,28 +1,283 @@
 {
   "color": {
-    "$type": "color",
     "orange": {
+      "50": {
+        "$type": "color",
+        "$value": "#FFF4EF"
+      },
+      "100": {
+        "$type": "color",
+        "$value": "#FFE8DC"
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#FFD1B9"
+      },
+      "300": {
+        "$type": "color",
+        "$value": "#FEAF83"
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#FF802B"
+      },
       "500": {
-        "$value": "#FF6600",
-        "$description": "Placeholder taken from the portfolio's code; replaced after the color session."
+        "$type": "color",
+        "$value": "#D96711"
       },
       "600": {
-        "$value": "#E55A00",
-        "$description": "Placeholder taken from the portfolio's code; replaced after the color session."
+        "$type": "color",
+        "$value": "#B35100"
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#8C3E02"
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#682C00"
+      },
+      "900": {
+        "$type": "color",
+        "$value": "#451A00"
+      },
+      "950": {
+        "$type": "color",
+        "$value": "#2D0E00"
+      }
+    },
+    "blue": {
+      "50": {
+        "$type": "color",
+        "$value": "#F0F8FC"
+      },
+      "100": {
+        "$type": "color",
+        "$value": "#DDF1F8"
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#C0E3F1"
+      },
+      "300": {
+        "$type": "color",
+        "$value": "#94CEE5"
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#5FAECB"
+      },
+      "500": {
+        "$type": "color",
+        "$value": "#4F97B1"
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#3C7B92"
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#2A6073"
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#1A4655"
+      },
+      "900": {
+        "$type": "color",
+        "$value": "#0B2D39"
+      },
+      "950": {
+        "$type": "color",
+        "$value": "#031C24"
+      }
+    },
+    "yellow": {
+      "50": {
+        "$type": "color",
+        "$value": "#FAF7E9"
+      },
+      "100": {
+        "$type": "color",
+        "$value": "#FCEEAE"
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#FCDF51"
+      },
+      "300": {
+        "$type": "color",
+        "$value": "#E4C238"
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#CAA320"
+      },
+      "500": {
+        "$type": "color",
+        "$value": "#AF8507"
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#926A02"
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#755001"
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#573901"
+      },
+      "900": {
+        "$type": "color",
+        "$value": "#392400"
+      },
+      "950": {
+        "$type": "color",
+        "$value": "#251400"
+      }
+    },
+    "green": {
+      "50": {
+        "$type": "color",
+        "$value": "#F2F9EF"
+      },
+      "100": {
+        "$type": "color",
+        "$value": "#E4F2DE"
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#CEE5C3"
+      },
+      "300": {
+        "$type": "color",
+        "$value": "#ADD19C"
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#88B86F"
+      },
+      "500": {
+        "$type": "color",
+        "$value": "#639B44"
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#508134"
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#3C6524"
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#294A16"
+      },
+      "900": {
+        "$type": "color",
+        "$value": "#18300A"
+      },
+      "950": {
+        "$type": "color",
+        "$value": "#0C1D03"
+      }
+    },
+    "red": {
+      "50": {
+        "$type": "color",
+        "$value": "#FFF4F3"
+      },
+      "100": {
+        "$type": "color",
+        "$value": "#FEE7E4"
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#FFCFCB"
+      },
+      "300": {
+        "$type": "color",
+        "$value": "#FEABA5"
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#FF7873"
+      },
+      "500": {
+        "$type": "color",
+        "$value": "#ED4A4C"
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#C53439"
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#9D2328"
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#76141A"
+      },
+      "900": {
+        "$type": "color",
+        "$value": "#50080D"
+      },
+      "950": {
+        "$type": "color",
+        "$value": "#350205"
       }
     },
     "neutral": {
       "0": {
-        "$value": "#FFFFFF",
-        "$description": "Placeholder taken from the portfolio's code; replaced after the color session."
+        "$type": "color",
+        "$value": "#FFFFFF"
+      },
+      "50": {
+        "$type": "color",
+        "$value": "#F8F7F1"
       },
       "100": {
-        "$value": "#F0EFE8",
-        "$description": "Placeholder taken from the portfolio's code; replaced after the color session."
+        "$type": "color",
+        "$value": "#EEEDE7"
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#DEDCD7"
+      },
+      "300": {
+        "$type": "color",
+        "$value": "#C5C4BE"
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#A9A8A2"
+      },
+      "500": {
+        "$type": "color",
+        "$value": "#8D8C87"
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#73726C"
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#595853"
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#41403B"
       },
       "900": {
-        "$value": "#1A1A1A",
-        "$description": "Placeholder taken from the portfolio's code; replaced after the color session."
+        "$type": "color",
+        "$value": "#2A2926"
+      },
+      "950": {
+        "$type": "color",
+        "$value": "#191815"
       }
     }
   }

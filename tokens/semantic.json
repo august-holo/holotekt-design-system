@@ -1,30 +1,201 @@
 {
   "color": {
-    "$type": "color",
     "text": {
       "primary": {
-        "$value": "{color.neutral.900}",
-        "$description": "Placeholder. Body text and headings on any surface."
+        "$type": "color",
+        "$value": "{color.neutral.950}",
+        "$description": "Headings and body text on any surface."
+      },
+      "secondary": {
+        "$type": "color",
+        "$value": "{color.neutral.800}",
+        "$description": "Supporting text: ledes, summaries, descriptions."
+      },
+      "muted": {
+        "$type": "color",
+        "$value": "{color.neutral.700}",
+        "$description": "Meta, captions, dates and labels."
+      },
+      "on-accent": {
+        "$type": "color",
+        "$value": "{color.neutral.950}",
+        "$description": "Text and icons placed on an accent or status fill."
+      },
+      "link": {
+        "$type": "color",
+        "$value": "{color.orange.700}",
+        "$description": "Inline text links."
+      },
+      "disabled": {
+        "$type": "color",
+        "$value": "{color.neutral.400}",
+        "$description": "Text on unavailable controls. Exempt from contrast rules."
+      },
+      "inverse": {
+        "$type": "color",
+        "$value": "{color.neutral.50}",
+        "$description": "Text and icons on the inverse surface."
+      },
+      "link-hover": {
+        "$type": "color",
+        "$value": "{color.orange.800}",
+        "$description": "Inline text links while hovered."
       }
     },
     "surface": {
       "page": {
+        "$type": "color",
         "$value": "{color.neutral.100}",
-        "$description": "Placeholder. The page background."
+        "$description": "The page background."
       },
       "raised": {
+        "$type": "color",
         "$value": "{color.neutral.0}",
-        "$description": "Placeholder. Cards and panels that sit on the page."
+        "$description": "Cards, sheets and panels that sit on the page."
+      },
+      "sunken": {
+        "$type": "color",
+        "$value": "{color.neutral.200}",
+        "$description": "Inset areas such as thumbnails and wells."
+      },
+      "hover": {
+        "$type": "color",
+        "$value": "{color.neutral.200}",
+        "$description": "Rows and neutral controls while hovered."
+      },
+      "pressed": {
+        "$type": "color",
+        "$value": "{color.neutral.300}",
+        "$description": "Rows and neutral controls while pressed."
+      },
+      "disabled": {
+        "$type": "color",
+        "$value": "{color.neutral.200}",
+        "$description": "Fill of an unavailable control."
+      },
+      "inverse": {
+        "$type": "color",
+        "$value": "{color.neutral.950}",
+        "$description": "Tooltips and inverted buttons: the opposite of the page."
+      }
+    },
+    "border": {
+      "strong": {
+        "$type": "color",
+        "$value": "{color.neutral.950}",
+        "$description": "Heavy rules and outlined buttons."
+      },
+      "subtle": {
+        "$type": "color",
+        "$value": "{color.neutral.300}",
+        "$description": "Card hairlines and quiet outlines."
+      },
+      "divider": {
+        "$type": "color",
+        "$value": "{color.neutral.200}",
+        "$description": "Lines between rows in a list."
+      },
+      "focus": {
+        "$type": "color",
+        "$value": "{color.blue.700}",
+        "$description": "Keyboard focus ring on any interactive element."
+      },
+      "disabled": {
+        "$type": "color",
+        "$value": "{color.neutral.300}",
+        "$description": "Outline of an unavailable control."
       }
     },
     "accent": {
       "default": {
-        "$value": "{color.orange.500}",
-        "$description": "Placeholder. Links, primary actions and emphasis."
+        "$type": "color",
+        "$value": "{color.orange.400}",
+        "$description": "The one look-here fill: primary button, call to action, callout, focus of attention."
       },
       "hover": {
-        "$value": "{color.orange.600}",
-        "$description": "Placeholder. The accent in its hover state."
+        "$type": "color",
+        "$value": "{color.orange.300}",
+        "$description": "Accent fill while hovered."
+      },
+      "subtle": {
+        "$type": "color",
+        "$value": "{color.orange.100}",
+        "$description": "Tinted background for highlighted or selected areas."
+      },
+      "pressed": {
+        "$type": "color",
+        "$value": "{color.orange.500}",
+        "$description": "Accent fill while pressed."
+      }
+    },
+    "status": {
+      "working": {
+        "fill": {
+          "$type": "color",
+          "$value": "{color.blue.400}",
+          "$description": "Something is in progress: thinking, acting. Strong fill for badges and indicators; pair with text/on-accent."
+        },
+        "text": {
+          "$type": "color",
+          "$value": "{color.blue.700}",
+          "$description": "Something is in progress: thinking, acting. Text and icons on page or raised surfaces."
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{color.blue.100}",
+          "$description": "Something is in progress: thinking, acting. Tinted background for banners and rows; pair with the matching status text."
+        }
+      },
+      "done": {
+        "fill": {
+          "$type": "color",
+          "$value": "{color.green.500}",
+          "$description": "Something finished successfully. Strong fill for badges and indicators; pair with text/on-accent."
+        },
+        "text": {
+          "$type": "color",
+          "$value": "{color.green.700}",
+          "$description": "Something finished successfully. Text and icons on page or raised surfaces."
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{color.green.100}",
+          "$description": "Something finished successfully. Tinted background for banners and rows; pair with the matching status text."
+        }
+      },
+      "caution": {
+        "fill": {
+          "$type": "color",
+          "$value": "{color.yellow.200}",
+          "$description": "Needs attention or review; a warning. Strong fill for badges and indicators; pair with text/on-accent."
+        },
+        "text": {
+          "$type": "color",
+          "$value": "{color.yellow.700}",
+          "$description": "Needs attention or review; a warning. Text and icons on page or raised surfaces."
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{color.yellow.100}",
+          "$description": "Needs attention or review; a warning. Tinted background for banners and rows; pair with the matching status text."
+        }
+      },
+      "failed": {
+        "fill": {
+          "$type": "color",
+          "$value": "{color.red.500}",
+          "$description": "Something failed, or an action is destructive. Strong fill for badges and indicators; pair with text/on-accent."
+        },
+        "text": {
+          "$type": "color",
+          "$value": "{color.red.700}",
+          "$description": "Something failed, or an action is destructive. Text and icons on page or raised surfaces."
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{color.red.100}",
+          "$description": "Something failed, or an action is destructive. Tinted background for banners and rows; pair with the matching status text."
+        }
       }
     }
   }
