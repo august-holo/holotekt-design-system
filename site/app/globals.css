@@ -1,0 +1,6 @@
+/* The cascade, declared once. Later layers win over earlier ones regardless of specificity:
+   tokens (generated variables) < base (element defaults bound to tokens) < components (CSS Modules). */
+@layer tokens, base, components;
+
+@import "../../dist/tokens.css" layer(tokens);
+@import "./bindings.css" layer(base);

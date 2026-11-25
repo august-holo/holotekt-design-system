@@ -4,10 +4,9 @@ import { REPO_URL, SITE_URL, version } from "@/lib/data";
 import { FOUNDATIONS, foundationTitle } from "@/lib/pages";
 import { ThemeToggle } from "./theme-toggle";
 import { THEME_KEY } from "@/lib/theme";
-// The system's own variables, so the site picks tokens up as they are published, and the one
-// binding that lets the theme toggle be seen: page and text colours from the semantic tokens.
-import "../../dist/tokens.css";
-import "./bindings.css";
+// globals.css declares the cascade layers and imports the generated tokens and the minimal
+// element bindings. Components bring their own styles as CSS Modules.
+import "./globals.css";
 
 // Applies the visitor's stored theme before first paint. Runs once, inline, so there is no flash.
 const themeScript = `try{var t=localStorage.getItem(${JSON.stringify(THEME_KEY)});if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}`;

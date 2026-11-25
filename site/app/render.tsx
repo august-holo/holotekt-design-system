@@ -1,19 +1,18 @@
 // Renders a Page (lib/pages.ts) as HTML. Deliberately unstyled: semantic elements only, until the
-// system has tokens to style itself with. The one visual is the colour swatch, which is data.
+// system has tokens to style itself with. The swatch and ramp strip are the only visuals, and their
+// colours are data; their sizes live in render.module.css.
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Block, Cell, Page } from "@/lib/pages";
+import styles from "./render.module.css";
 
 function CellView({ cell }: { cell: Cell }) {
   if (typeof cell === "string") return <>{cell}</>;
   return (
     <>
       {cell.swatch && (
-        <span
-          aria-hidden="true"
-          style={{ display: "inline-block", width: "1em", height: "1em", verticalAlign: "middle", marginRight: "0.5em", background: cell.swatch, border: "1px solid currentColor" }}
-        />
+        <span aria-hidden="true" className={styles.swatch} style={{ background: cell.swatch }} />
       )}
       {cell.code ? <code>{cell.text}</code> : cell.text}
     </>
@@ -80,10 +79,10 @@ function BlockView({ block }: { block: Block }) {
           <figcaption>
             {block.name}, {block.steps.length} steps from light to dark
           </figcaption>
-          <ol style={{ display: "flex", listStyle: "none", margin: 0, padding: 0 }}>
+          <ol className={styles.ramp}>
             {block.steps.map((s) => (
-              <li key={s.path} style={{ flex: 1, minWidth: 0 }}>
-                <span aria-hidden="true" style={{ display: "block", height: "2.5em", background: s.value, border: "1px solid currentColor" }} />
+              <li key={s.path} className={styles.rampStep}>
+                <span aria-hidden="true" className={styles.rampSwatch} style={{ background: s.value }} />
                 <small>
                   {s.step}
                   <br />

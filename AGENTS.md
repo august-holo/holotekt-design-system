@@ -39,6 +39,17 @@ and is not committed. Read it at the start of a session and follow its instructi
   a check pass. If a contrast pair fails, the fix is in Figma.
 - Colours are hex strings or DTCG colour objects. Dimensions are `{ "value": 16, "unit": "px" }`.
 
+## Styling the docs site and, later, the components
+
+- Three cascade layers, declared in `site/app/globals.css`: `tokens` (the generated variables),
+  `base` (element defaults bound to tokens), `components`. New styles go in a layer; never fight
+  specificity.
+- Component styles are **CSS Modules**: one `name.module.css` next to the component, rules wrapped
+  in `@layer components { … }`, classes applied via the imported `styles` object.
+- Every colour, space, radius and shadow is a `var(--ht-…)`. No raw values, no theme object, no
+  runtime CSS-in-JS. The one exception is a colour set inline because it is the data being shown.
+- The site stays otherwise unstyled until the maintainer says otherwise.
+
 ## Rules
 
 - Do not choose, adjust or add token values beyond what Figma published.

@@ -1,0 +1,30 @@
+/* Scoped styles for the renderer's two data visuals. Sizes and borders only; every colour is set
+   inline from the token being displayed, because the colour is the data. */
+@layer components {
+  .swatch {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+    margin-right: 0.5em;
+    border: 1px solid currentColor;
+  }
+
+  .ramp {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .rampStep {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rampSwatch {
+    display: block;
+    height: 2.5em;
+    border: 1px solid currentColor;
+  }
+}
