@@ -214,6 +214,13 @@ function typographyPage(data: ReturnType<typeof tokenData>, info: (typeof FOUNDA
       return [showValue(t.value), f?.files.join(", ") ?? "", { text: f?.package ?? "", code: true }, f?.license ?? "", f?.source ?? ""];
     }),
   });
+  page.blocks.push({
+    kind: "links",
+    items: families.map((t) => {
+      const f = data.fonts[t.path];
+      return { text: `${showValue(t.value)} licence`, href: `/fonts/${(f?.package ?? "").split("/").pop()}/LICENSE.txt`, note: f?.license };
+    }),
+  });
   return page;
 }
 

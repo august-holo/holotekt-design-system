@@ -30,8 +30,12 @@ for (const [token, font] of Object.entries(stacks)) {
     fs.copyFileSync(from, path.join(out, name));
     copied++;
   }
+  // Always written with an extension: the CDN maps extension-less paths to .html pages.
   for (const lic of ["LICENSE", "LICENSE.md", "LICENSE.txt"]) {
-    if (fs.existsSync(path.join(pkgDir, lic))) fs.copyFileSync(path.join(pkgDir, lic), path.join(out, lic));
+    if (fs.existsSync(path.join(pkgDir, lic))) {
+      fs.copyFileSync(path.join(pkgDir, lic), path.join(out, "LICENSE.txt"));
+      break;
+    }
   }
 }
 console.log(`✓ copied ${copied} font files and their licences to site/public/fonts/`);
