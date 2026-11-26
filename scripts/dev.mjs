@@ -3,8 +3,10 @@
 import { spawn, spawnSync } from "node:child_process";
 import { ROOT } from "./lib/tokens.mjs";
 
-const first = spawnSync(process.execPath, ["scripts/build-tokens.mjs"], { cwd: ROOT, stdio: "inherit" });
-if (first.status !== 0) process.exit(first.status);
+for (const script of ["scripts/build-tokens.mjs", "scripts/copy-fonts.mjs"]) {
+  const run = spawnSync(process.execPath, [script], { cwd: ROOT, stdio: "inherit" });
+  if (run.status !== 0) process.exit(run.status);
+}
 
 const watcher = spawn(process.execPath, ["--watch-path=tokens", "--watch-preserve-output", "scripts/build-tokens.mjs"], { cwd: ROOT, stdio: "inherit" });
 const site = spawn("npx", ["next", "dev", "site", ...process.argv.slice(2)], { cwd: ROOT, stdio: "inherit" });

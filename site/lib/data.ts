@@ -20,11 +20,14 @@ export const FIGMA_URL = "https://www.figma.com/design/9PGHwdHaI5pEgpmTEnsU3A";
 export interface Token {
   path: string;
   css: string;
-  tier: "primitive" | "semantic";
+  tier: "primitive" | "semantic" | "style";
   type: string;
   value: unknown;
   alias: string | null;
   description: string | null;
+  /** Text styles only: the utility class and the unresolved value (aliases as written). */
+  className?: string;
+  raw?: Record<string, unknown>;
   /** Values in the other modes, keyed by mode name ("dark"). Absent on primitives and when there is one mode. */
   modes?: Record<string, { value: unknown; alias: string | null }>;
 }
@@ -51,7 +54,13 @@ export interface TokenData {
   prefix: string;
   /** "default" first, then the other modes in file order. */
   modes: string[];
+  /** The modes in which any colour changes; the contrast table has a column for each. */
+  colorModes: string[];
+  /** How each mode reaches CSS: a colour scheme, or a media query. */
+  modeCss: Record<string, { kind: "scheme" } | { kind: "media"; media: string; shrinkOnly?: boolean }>;
   tokens: Token[];
+  /** Font families keyed by token path: the fallback stack, the package, the files a site must load, the licence. */
+  fonts: Record<string, { stack: string[]; package: string; files: string[]; license: string; source: string }>;
   contrastPairs: ContrastPair[];
   uncovered: string[];
 }
@@ -119,8 +128,22 @@ export function showValue(value: unknown): string {
 
 /** A readable mode name: the default mode is "Light" once a dark mode exists, otherwise unlabelled. */
 export function modeLabel(mode: string, modes: string[]): string {
-  if (mode === "default") return modes.includes("dark") ? "Light" : "";
+  if (mode === "default") {
+    if (modes.includes("dark")) return "Light";
+    if (modes.includes("mobile")) return "Desktop";
+    return "";
+  }
   return mode[0].toUpperCase() + mode.slice(1);
+}
+
+/** A dimension as px and rem text: { value: 18, unit: "px" } → "18px · 1.125rem". */
+export function showSize(value: unknown): string {
+  if (value && typeof value === "object" && "value" in (value as object)) {
+    const v = value as { value: number; unit: string };
+    if (v.unit === "px") return `${v.value}px · ${Number((v.value / 16).toFixed(4))}rem`;
+    return `${v.value}${v.unit}`;
+  }
+  return showValue(value);
 }
 
 /** WCAG relative luminance of a #rrggbb colour, for ordering ramps light to dark. */

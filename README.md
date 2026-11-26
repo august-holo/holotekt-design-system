@@ -15,9 +15,14 @@ npm i github:august-holo/holotekt-design-system#v0.0.1
 ```
 
 ```css
-@import "holotekt-design-system/tokens.css";
+@import "holotekt-design-system/tokens.css";        /* every token as a CSS variable, light and dark, desktop and mobile */
+@import "holotekt-design-system/text-styles.css";   /* optional: one class per text style, .ht-heading-1 … */
 .page { background: var(--ht-color-surface-page); color: var(--ht-color-text-primary); }
+h1 { font: var(--ht-heading-display-font-weight) var(--ht-heading-display-font-size) / var(--ht-heading-display-line-height) var(--ht-heading-display-font-family); }
 ```
+
+Fonts are not in the package. Load the families yourself (self-hosted woff2 is what this site does); the
+typography page lists the files each family needs.
 
 Use semantic tokens only, chosen by their description. `docs/consumer-rules.md` is the block to paste
 into a consuming site's `AGENTS.md`. For agents, the site serves `/llms.txt`, a Markdown twin of every
@@ -27,9 +32,9 @@ page at the page's address plus `.md`, and `/tokens.json`.
 
 | Path | What |
 |---|---|
-| `tokens/` | `primitives.json`, `semantic.json` (DTCG format) and `contrast-pairs.json` |
+| `tokens/` | `primitives.json`, `semantic.json`, `typography.json`, `breakpoint.json` and their `<base>.<mode>.json` files (DTCG format); `contrast-pairs.json` and `font-stacks.json` by hand |
 | `scripts/` | build, check, diff, release, deploy; `scripts/figma/` holds the read-only Figma script |
-| `dist/` | build output, gitignored: `tokens.css`, `tokens.js`, `tokens.d.ts`, `tokens.json` |
+| `dist/` | build output, gitignored: `tokens.css`, `text-styles.css`, `tokens.js`, `tokens.d.ts`, `tokens.json`, plus `tokens.<mode>.js` per mode |
 | `site/` | the docs site, Next.js static export, generated from `dist/tokens.json` |
 | `content/decisions/` | public decision notes, one markdown file each |
 | `.claude/skills/publish-tokens/` | the one-command publish from Figma, for Claude Code |

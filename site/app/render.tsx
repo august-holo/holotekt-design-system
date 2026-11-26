@@ -93,6 +93,13 @@ function BlockView({ block }: { block: Block }) {
           </ol>
         </figure>
       );
+    case "specimen":
+      // A live sample set with a text style's class or a family/size variable. The style is the data.
+      return (
+        <p className={block.className} style={block.style} aria-label={block.label}>
+          {block.text}
+        </p>
+      );
     case "md":
       return <ReactMarkdown remarkPlugins={[remarkGfm]}>{block.markdown}</ReactMarkdown>;
   }

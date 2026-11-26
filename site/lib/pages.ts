@@ -9,6 +9,7 @@ import {
   luminance,
   modeLabel,
   REPO_URL,
+  showSize,
   showValue,
   SITE_URL,
   tokenData,
@@ -26,6 +27,7 @@ export type Block =
   | { kind: "links"; items: { text: string; href: string; note?: string }[] }
   | { kind: "table"; columns: string[]; rows: Cell[][] }
   | { kind: "ramp"; name: string; steps: { step: string; path: string; css: string; value: string }[] }
+  | { kind: "specimen"; text: string; className?: string; style?: Record<string, string>; label?: string }
   | { kind: "md"; markdown: string };
 
 export interface Page {
@@ -52,7 +54,7 @@ const FOUNDATION_INFO: Record<Foundation, { title: string; description: string; 
   },
   typography: {
     title: "Typography",
-    description: "Font families, weights, sizes, line heights and letter spacing.",
+    description: "Five font families with one job each, a nine-step size scale, the sizes that step down on small screens, and fourteen text styles as live specimens.",
     session: "typography",
     match: (t) => ["fontFamily", "fontWeight", "typography"].includes(t.type) || rootIn(["font", "typography", "text", "lineHeight", "letterSpacing"])(t),
   },
@@ -110,9 +112,115 @@ function rampSteps(tokens: Token[]) {
   return steps.sort((a, b) => (numeric ? Number(a.step) - Number(b.step) : luminance(b.value) - luminance(a.value)));
 }
 
+const SPECIMEN = "The quick brown fox jumps over the lazy dog. 0123456789";
+
+/** The typography page: families, the size scale, the breakpoint steps, and every text style as a live specimen. */
+function typographyPage(data: ReturnType<typeof tokenData>, info: (typeof FOUNDATION_INFO)[Foundation]): Page {
+  const page: Page = { route: "/foundations/typography", title: info.title, description: info.description, blocks: [] };
+  const families = data.tokens.filter((t) => t.type === "fontFamily");
+  const sizes = data.tokens.filter((t) => t.type === "dimension" && t.path.startsWith("font.size."));
+  const steps = data.tokens.filter((t) => t.type === "dimension" && t.tier === "semantic");
+  const styles = data.tokens.filter((t) => t.type === "typography");
+  if (!families.length && !styles.length) {
+    page.blocks.push({ kind: "p", text: `Not published yet. Tokens for typography arrive with the ${info.session} session.` });
+    return page;
+  }
+  const byPath = new Map(data.tokens.map((t) => [t.path, t]));
+  const mediaModes = data.modes.filter((m) => data.modeCss[m]?.kind === "media");
+  // In a size table the default column is the desktop value, whatever colour modes exist.
+  const sizeLabel = (m: string) => (m === "default" ? "Desktop" : m[0].toUpperCase() + m.slice(1));
+
+  page.blocks.push({ kind: "h2", text: "Families" });
+  page.blocks.push({ kind: "p", text: "Five faces, each with one job. The token holds the family name; the CSS variable carries the fallback stack." });
+  for (const t of families) {
+    page.blocks.push({ kind: "specimen", text: `${showValue(t.value)}: ${SPECIMEN}`, style: { fontFamily: `var(${t.css})`, fontSize: "1.5rem" }, label: t.path });
+  }
+  page.blocks.push({
+    kind: "table",
+    columns: ["Token", "CSS variable", "Family", "Fallback stack", "Job"],
+    rows: families.map((t) => [{ text: t.path, code: true }, { text: t.css, code: true }, showValue(t.value), { text: (data.fonts[t.path]?.stack ?? []).slice(1).join(", "), code: true }, t.description ?? ""]),
+  });
+
+  if (sizes.length) {
+    page.blocks.push({ kind: "h2", text: "Size scale" });
+    page.blocks.push({ kind: "p", text: "Nine steps. Figma holds pixels; the CSS is in rem so text follows the reader's browser setting." });
+    for (const t of sizes) page.blocks.push({ kind: "specimen", text: `${t.path.split(".").pop()} · ${showSize(t.value)}`, style: { fontSize: `var(${t.css})`, fontFamily: "var(--ht-font-family-sans)" } });
+    page.blocks.push({
+      kind: "table",
+      columns: ["Token", "CSS variable", "Size", "Description"],
+      rows: sizes.map((t) => [{ text: t.path, code: true }, { text: t.css, code: true }, showSize(t.value), t.description ?? ""]),
+    });
+  }
+
+  if (steps.length) {
+    page.blocks.push({ kind: "h2", text: "Sizes that change with the viewport" });
+    const media = mediaModes.map((m) => (data.modeCss[m] as { media: string }).media).join(", ");
+    page.blocks.push({ kind: "p", text: `The largest styles step down one size on small screens. The ${mediaModes.join(" and ")} values apply inside ${media}; that width is provisional until the spacing and layout session.` });
+    page.blocks.push({
+      kind: "table",
+      columns: ["Token", "CSS variable", ...["default", ...mediaModes].flatMap((m) => [`Aliases (${sizeLabel(m)})`, `Size (${sizeLabel(m)})`]), "Description"],
+      rows: steps.map((t) => [
+        { text: t.path, code: true },
+        { text: t.css, code: true },
+        ...["default", ...mediaModes].flatMap((m) => {
+          const v = m === "default" ? { value: t.value, alias: t.alias } : (t.modes?.[m] ?? { value: t.value, alias: t.alias });
+          return [{ text: v.alias ?? "", code: true } as Cell, showSize(v.value)];
+        }),
+        t.description ?? "",
+      ]),
+    });
+  }
+
+  if (styles.length) {
+    page.blocks.push({ kind: "h2", text: "Text styles" });
+    page.blocks.push({ kind: "p", text: `${styles.length} styles. Each has six CSS variables and one utility class; the specimen below each heading is set with its class, in the real font.` });
+    const sizeOf = (t: Token, mode: string) => {
+      const v = mode === "default" ? t.value : (t.modes?.[mode]?.value ?? t.value);
+      return showSize((v as { fontSize?: unknown })?.fontSize);
+    };
+    for (const t of styles) {
+      const raw = (t.raw ?? {}) as Record<string, unknown>;
+      const sizeAlias = typeof raw.fontSize === "string" ? raw.fontSize.replace(/[{}]/g, "") : "";
+      const familyAlias = typeof raw.fontFamily === "string" ? raw.fontFamily.replace(/[{}]/g, "") : "";
+      const steppy = sizeAlias && byPath.get(sizeAlias)?.tier === "semantic";
+      page.blocks.push({ kind: "h3", text: t.path });
+      page.blocks.push({ kind: "specimen", text: t.description ? `${t.description} ${SPECIMEN}` : SPECIMEN, className: t.className });
+      const sizeCells: Cell[] = steppy ? ["default", ...mediaModes].map((m) => `${sizeLabel(m)}: ${sizeOf(t, m)}`) : [sizeOf(t, "default")];
+      page.blocks.push({
+        kind: "table",
+        columns: ["Property", "Value"],
+        rows: [
+          ["Use", t.description ?? ""],
+          ["Family", { text: `${familyAlias} (${showValue((t.value as { fontFamily?: unknown }).fontFamily)})`, code: true }],
+          ["Size", { text: `${sizeAlias}: ${sizeCells.join("; ")}`, code: true }],
+          ["Weight", String(raw.fontWeight ?? "")],
+          ["Line height", String(raw.lineHeight ?? "")],
+          ["Letter spacing", showValue(raw.letterSpacing ?? 0)],
+          ["Case", String(raw.textTransform ?? "none")],
+          ["CSS variables", { text: ["font-family", "font-size", "font-weight", "line-height", "letter-spacing", "text-transform"].map((p) => `${t.css}-${p}`).join(" "), code: true }],
+          ["Class", { text: `.${t.className}`, code: true }],
+        ],
+      });
+    }
+  }
+
+  page.blocks.push({ kind: "h2", text: "Loading the fonts" });
+  page.blocks.push({ kind: "p", text: "The token package ships family names and fallback stacks, not font files. A site that uses the system loads these files itself, self-hosted as woff2 with font-display: swap. This site loads the Latin subset from the @fontsource packages." });
+  page.blocks.push({
+    kind: "table",
+    columns: ["Family", "Files to load", "Package", "Licence", "Source"],
+    rows: families.map((t) => {
+      const f = data.fonts[t.path];
+      return [showValue(t.value), f?.files.join(", ") ?? "", { text: f?.package ?? "", code: true }, f?.license ?? "", f?.source ?? ""];
+    }),
+  });
+  return page;
+}
+
 export function foundationPage(kind: Foundation): Page {
   const info = FOUNDATION_INFO[kind];
   const data = tokenData();
+  if (kind === "typography") return typographyPage(data, info);
   const tokens = data.tokens.filter(info.match);
   const page: Page = { route: `/foundations/${kind}`, title: info.title, description: info.description, blocks: [] };
 
@@ -143,14 +251,14 @@ export function foundationPage(kind: Foundation): Page {
   if (semantic.length) {
     page.blocks.push({ kind: "h2", text: "Semantic tokens" });
     const modeNote =
-      data.modes.length > 1
-        ? ` The ${data.modes
+      data.colorModes.length > 1
+        ? ` The ${data.colorModes
             .slice(1)
             .map((m) => modeLabel(m, data.modes).toLowerCase())
             .join(" and ")} values apply when the system prefers that scheme, or when the page sets data-theme.`
         : "";
     page.blocks.push({ kind: "p", text: `Purpose-named tokens. Pick one by its description. In CSS each one references its primitive, so the alias is visible in the browser's inspector.${modeNote}` });
-    page.blocks.push(semanticTable(semantic, data.modes));
+    page.blocks.push(semanticTable(semantic, data.colorModes));
   }
 
   if (kind === "color") {
@@ -165,12 +273,12 @@ export function foundationPage(kind: Foundation): Page {
     };
     page.blocks.push({
       kind: "table",
-      columns: ["Text", "Background", "Minimum", ...data.modes.map(ratioCol), "Result"],
+      columns: ["Text", "Background", "Minimum", ...data.colorModes.map(ratioCol), "Result"],
       rows: data.contrastPairs.map((p) => [
         { text: p.text, swatch: p.textValue, code: true },
         { text: p.background, swatch: p.backgroundValue, code: true },
         `${p.min}:1`,
-        ...data.modes.map((m) => (p.modes[m] ? `${p.modes[m].ratio.toFixed(2)}:1` : "")),
+        ...data.colorModes.map((m) => (p.modes[m] ? `${p.modes[m].ratio.toFixed(2)}:1` : "")),
         p.passes ? "Pass" : "Fail",
       ]),
     });
@@ -354,6 +462,9 @@ export function toMarkdown(page: Page): string {
         break;
       case "ramp":
         // The table that follows carries the same data; Markdown has no strip.
+        break;
+      case "specimen":
+        if (b.label) out.push(`*Specimen (${b.label}):* ${b.text}`, "");
         break;
       case "md":
         out.push(b.markdown, "");

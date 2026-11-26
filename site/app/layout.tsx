@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { preload } from "react-dom";
 import { REPO_URL, SITE_URL, version } from "@/lib/data";
 import { FOUNDATIONS, foundationTitle } from "@/lib/pages";
 import { ThemeToggle } from "./theme-toggle";
@@ -27,8 +28,12 @@ const NAV: { text: string; href: string }[] = [
   { text: "Accessibility", href: "/accessibility" },
 ];
 
+// Only the heading and interface faces are preloaded; the others load on first use.
+const PRELOAD_FONTS = ["/fonts/arvo/arvo-latin-400-normal.woff2", "/fonts/space-grotesk/space-grotesk-latin-400-normal.woff2"];
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const v = version();
+  for (const href of PRELOAD_FONTS) preload(href, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

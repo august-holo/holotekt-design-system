@@ -1,11 +1,15 @@
-/* Not a design: the minimum binding so the published tokens, and the theme toggle, are visible.
-   Everything else stays at browser defaults until the site is styled (backlog B-050). */
+/* The site set in its own system: colours and type come from the published tokens, nothing else is
+   decided here. Spacing, shape and the rest stay at browser defaults until their sessions (B-050). */
 :root {
   color-scheme: light dark;
 }
 body {
   background: var(--ht-color-surface-page, Canvas);
   color: var(--ht-color-text-primary, CanvasText);
+  font-family: var(--ht-ui-body-font-family, system-ui, sans-serif);
+  font-size: var(--ht-ui-body-font-size, 1rem);
+  font-weight: var(--ht-ui-body-font-weight, 400);
+  line-height: var(--ht-ui-body-line-height, 1.5);
 }
 a {
   color: var(--ht-color-text-link, LinkText);
@@ -16,4 +20,70 @@ a:hover {
 :focus-visible {
   outline: 2px solid var(--ht-color-border-focus, Highlight);
   outline-offset: 2px;
+}
+
+/* Headings: the page title is heading/display, then heading/1 to heading/3 for the levels below. */
+h1 {
+  font-family: var(--ht-heading-display-font-family);
+  font-size: var(--ht-heading-display-font-size);
+  font-weight: var(--ht-heading-display-font-weight);
+  line-height: var(--ht-heading-display-line-height);
+  letter-spacing: var(--ht-heading-display-letter-spacing);
+}
+h2 {
+  font-family: var(--ht-heading-1-font-family);
+  font-size: var(--ht-heading-1-font-size);
+  font-weight: var(--ht-heading-1-font-weight);
+  line-height: var(--ht-heading-1-line-height);
+  letter-spacing: var(--ht-heading-1-letter-spacing);
+}
+h3 {
+  font-family: var(--ht-heading-2-font-family);
+  font-size: var(--ht-heading-2-font-size);
+  font-weight: var(--ht-heading-2-font-weight);
+  line-height: var(--ht-heading-2-line-height);
+  letter-spacing: var(--ht-heading-2-letter-spacing);
+}
+h4 {
+  font-family: var(--ht-heading-3-font-family);
+  font-size: var(--ht-heading-3-font-size);
+  font-weight: var(--ht-heading-3-font-weight);
+  line-height: var(--ht-heading-3-line-height);
+}
+
+/* Interface text: tables and navigation are ui/small, column headers are ui/label, quiet details are ui/meta. */
+table,
+nav {
+  font-size: var(--ht-ui-small-font-size);
+  line-height: var(--ht-ui-small-line-height);
+}
+th {
+  font-family: var(--ht-ui-label-font-family);
+  font-size: var(--ht-ui-label-font-size);
+  font-weight: var(--ht-ui-label-font-weight);
+  line-height: var(--ht-ui-label-line-height);
+  letter-spacing: var(--ht-ui-label-letter-spacing);
+  text-transform: var(--ht-ui-label-text-transform);
+  text-align: left;
+}
+footer,
+figcaption,
+small,
+legend {
+  font-size: var(--ht-ui-meta-font-size);
+  line-height: var(--ht-ui-meta-line-height);
+  color: var(--ht-color-text-muted, inherit);
+}
+code {
+  font-family: var(--ht-font-family-machine, ui-monospace, monospace);
+}
+
+/* Wide tables scroll within themselves rather than widening the page on a phone. Structure, not design. */
+table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+code {
+  overflow-wrap: anywhere;
 }

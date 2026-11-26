@@ -5,6 +5,7 @@
 /dist
 /site/.next
 /site/out
+/site/public/fonts
 *.tsbuildinfo
 next-env.d.ts
 
