@@ -1,0 +1,28 @@
+{
+  "text": {
+    "display": {
+      "size": {
+        "$type": "dimension",
+        "$value": "{font.size.800}"
+      }
+    },
+    "heading-1": {
+      "size": {
+        "$type": "dimension",
+        "$value": "{font.size.700}"
+      }
+    },
+    "heading-2": {
+      "size": {
+        "$type": "dimension",
+        "$value": "{font.size.600}"
+      }
+    },
+    "lede": {
+      "size": {
+        "$type": "dimension",
+        "$value": "{font.size.400}"
+      }
+    }
+  }
+}

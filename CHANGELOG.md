@@ -7,6 +7,19 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Added
+- Typography from the typography session: five font families with one job each, a nine-step size
+  scale, four sizes that step down on small screens (a `mobile` mode, provisionally below 640px), and
+  fourteen text styles as composite tokens. Each style is six CSS variables (`--ht-heading-1-font-size`
+  …) and one class (`.ht-heading-1`) in `text-styles.css`.
+- `publish-tokens` reads the `Typography` and `Breakpoint` collections and the Figma text styles.
+- `tokens/font-stacks.json`: the fallback stack, package, files and licence for each family. The
+  package ships names and stacks; sites load the fonts themselves.
+- The docs site set in its own type, with self-hosted fonts and a typography page of live specimens.
+
+### Changed
+- Dimensions in px are emitted in rem (px ÷ 16) in the CSS and JS.
+
 ## [0.1.0] - 2026-11-25
 
 ### Added

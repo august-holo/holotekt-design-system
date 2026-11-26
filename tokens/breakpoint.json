@@ -1,0 +1,32 @@
+{
+  "text": {
+    "display": {
+      "size": {
+        "$type": "dimension",
+        "$value": "{font.size.900}",
+        "$description": "Size of heading/display. Steps down on phones."
+      }
+    },
+    "heading-1": {
+      "size": {
+        "$type": "dimension",
+        "$value": "{font.size.800}",
+        "$description": "Size of heading/1. Steps down on phones."
+      }
+    },
+    "heading-2": {
+      "size": {
+        "$type": "dimension",
+        "$value": "{font.size.700}",
+        "$description": "Size of heading/2. Steps down on phones."
+      }
+    },
+    "lede": {
+      "size": {
+        "$type": "dimension",
+        "$value": "{font.size.500}",
+        "$description": "Size of reading/lede. Steps down on phones."
+      }
+    }
+  }
+}

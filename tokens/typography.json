@@ -1,0 +1,323 @@
+{
+  "font": {
+    "family": {
+      "heading": {
+        "$type": "fontFamily",
+        "$value": "Arvo",
+        "$description": "Page titles and section headings. Never for running text."
+      },
+      "sans": {
+        "$type": "fontFamily",
+        "$value": "Space Grotesk",
+        "$description": "Interface text: labels, buttons, navigation, cards, tables, alerts, technical language."
+      },
+      "reading": {
+        "$type": "fontFamily",
+        "$value": "Newsreader",
+        "$description": "Long-form paragraphs in posts and case studies. Never for interface controls."
+      },
+      "machine": {
+        "$type": "fontFamily",
+        "$value": "Courier Prime",
+        "$description": "Machine voice: callouts and status text where an agent is speaking. Never for human-written content."
+      },
+      "human": {
+        "$type": "fontFamily",
+        "$value": "Diphylleia",
+        "$description": "Human voice: callouts and asides where a person is speaking. Never for anything the system or an agent says."
+      }
+    },
+    "size": {
+      "100": {
+        "$type": "dimension",
+        "$value": {
+          "value": 12,
+          "unit": "px"
+        },
+        "$description": "Labels, meta, captions."
+      },
+      "200": {
+        "$type": "dimension",
+        "$value": {
+          "value": 14,
+          "unit": "px"
+        },
+        "$description": "Dense interface text, tables, buttons."
+      },
+      "300": {
+        "$type": "dimension",
+        "$value": {
+          "value": 16,
+          "unit": "px"
+        },
+        "$description": "Default interface text."
+      },
+      "400": {
+        "$type": "dimension",
+        "$value": {
+          "value": 18,
+          "unit": "px"
+        },
+        "$description": "Long-form reading text."
+      },
+      "500": {
+        "$type": "dimension",
+        "$value": {
+          "value": 20,
+          "unit": "px"
+        },
+        "$description": "Lede paragraphs and small headings."
+      },
+      "600": {
+        "$type": "dimension",
+        "$value": {
+          "value": 24,
+          "unit": "px"
+        },
+        "$description": "Card and subsection headings."
+      },
+      "700": {
+        "$type": "dimension",
+        "$value": {
+          "value": 30,
+          "unit": "px"
+        },
+        "$description": "Section headings."
+      },
+      "800": {
+        "$type": "dimension",
+        "$value": {
+          "value": 38,
+          "unit": "px"
+        },
+        "$description": "Major headings."
+      },
+      "900": {
+        "$type": "dimension",
+        "$value": {
+          "value": 48,
+          "unit": "px"
+        },
+        "$description": "Page titles."
+      }
+    }
+  },
+  "heading": {
+    "1": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.heading}",
+        "fontSize": "{text.heading-1.size}",
+        "fontWeight": 400,
+        "lineHeight": 1.15,
+        "letterSpacing": {
+          "value": -0.01,
+          "unit": "em"
+        },
+        "textTransform": "none"
+      },
+      "$description": "Major section heading."
+    },
+    "2": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.heading}",
+        "fontSize": "{text.heading-2.size}",
+        "fontWeight": 400,
+        "lineHeight": 1.15,
+        "letterSpacing": {
+          "value": -0.005,
+          "unit": "em"
+        },
+        "textTransform": "none"
+      },
+      "$description": "Section heading."
+    },
+    "3": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.heading}",
+        "fontSize": "{font.size.600}",
+        "fontWeight": 400,
+        "lineHeight": 1.2,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "em"
+        },
+        "textTransform": "none"
+      },
+      "$description": "Card or subsection title."
+    },
+    "4": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.heading}",
+        "fontSize": "{font.size.500}",
+        "fontWeight": 400,
+        "lineHeight": 1.35,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "em"
+        },
+        "textTransform": "none"
+      },
+      "$description": "Small heading."
+    },
+    "display": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.heading}",
+        "fontSize": "{text.display.size}",
+        "fontWeight": 400,
+        "lineHeight": 1.15,
+        "letterSpacing": {
+          "value": -0.01,
+          "unit": "em"
+        },
+        "textTransform": "none"
+      },
+      "$description": "Page title. One per page."
+    }
+  },
+  "reading": {
+    "lede": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.reading}",
+        "fontSize": "{text.lede.size}",
+        "fontWeight": 400,
+        "lineHeight": 1.55,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "em"
+        },
+        "textTransform": "none"
+      },
+      "$description": "Opening paragraph of a post or case study."
+    },
+    "body": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.reading}",
+        "fontSize": "{font.size.400}",
+        "fontWeight": 400,
+        "lineHeight": 1.7,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "em"
+        },
+        "textTransform": "none"
+      },
+      "$description": "Long-form paragraphs. Keep lines to about 66 characters."
+    }
+  },
+  "ui": {
+    "body": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.300}",
+        "fontWeight": 400,
+        "lineHeight": 1.5,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "em"
+        },
+        "textTransform": "none"
+      },
+      "$description": "Card content and descriptions."
+    },
+    "small": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.200}",
+        "fontWeight": 400,
+        "lineHeight": 1.5,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "em"
+        },
+        "textTransform": "none"
+      },
+      "$description": "Tables and dense interface text."
+    },
+    "label": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.100}",
+        "fontWeight": 700,
+        "lineHeight": 1.35,
+        "letterSpacing": {
+          "value": 0.08,
+          "unit": "em"
+        },
+        "textTransform": "uppercase"
+      },
+      "$description": "Eyebrows and column headers."
+    },
+    "meta": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.100}",
+        "fontWeight": 400,
+        "lineHeight": 1.35,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "em"
+        },
+        "textTransform": "none"
+      },
+      "$description": "Dates, captions and other quiet details."
+    },
+    "button": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.200}",
+        "fontWeight": 700,
+        "lineHeight": 1.35,
+        "letterSpacing": {
+          "value": 0.08,
+          "unit": "em"
+        },
+        "textTransform": "uppercase"
+      },
+      "$description": "Button labels."
+    }
+  },
+  "voice": {
+    "machine": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.machine}",
+        "fontSize": "{font.size.300}",
+        "fontWeight": 400,
+        "lineHeight": 1.6,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "em"
+        },
+        "textTransform": "none"
+      },
+      "$description": "An agent or the system is speaking."
+    },
+    "human": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.human}",
+        "fontSize": "{font.size.400}",
+        "fontWeight": 400,
+        "lineHeight": 1.55,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "em"
+        },
+        "textTransform": "none"
+      },
+      "$description": "A person is speaking: asides and author notes."
+    }
+  }
+}
