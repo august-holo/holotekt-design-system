@@ -5,8 +5,11 @@ https://designsystem.holotekt.com. `SPEC.md` is the full brief; this file is the
 
 ## What is where
 
-- `tokens/primitives.json`, `tokens/semantic.json`: the tokens, DTCG format (`$value`, `$type`, `$description`).
-- `tokens/contrast-pairs.json`: the text-on-background pairs the system allows, maintained by hand.
+- `tokens/primitives.json`, `tokens/semantic.json`, `tokens/typography.json`, `tokens/breakpoint.json`: the
+  tokens, DTCG format (`$value`, `$type`, `$description`). `<base>.<mode>.json` restates a base file for a
+  mode (`semantic.dark.json`, `breakpoint.mobile.json`); `scripts/lib/modes.mjs` says how a mode reaches CSS.
+- `tokens/contrast-pairs.json` (allowed text-on-background pairs) and `tokens/font-stacks.json` (fallback
+  stacks, packages, files and licences per font family) are maintained by hand.
 - `scripts/`: build, check, diff and release. `scripts/lib/tokens.mjs` holds the shared logic.
 - `dist/`: build output (gitignored). The site and consumers read `dist/tokens.json`.
 - `site/`: the Next.js docs site, a static export. Pages are built from `dist/tokens.json`.
@@ -37,7 +40,11 @@ and is not committed. Read it at the start of a session and follow its instructi
 - Names are lowercase and dot-separated, general to specific. CSS: `--ht-` plus the path in kebab case.
 - Figma is the source of truth for values. Tokens arrive here as JSON; do not hand-edit a value to make
   a check pass. If a contrast pair fails, the fix is in Figma.
-- Colours are hex strings or DTCG colour objects. Dimensions are `{ "value": 16, "unit": "px" }`.
+- Colours are hex strings or DTCG colour objects. Dimensions are `{ "value": 16, "unit": "px" }`; px becomes
+  rem in the CSS. A text style is a composite `typography` token named after the Figma style (`heading.1`,
+  `ui.label`): `fontFamily` and `fontSize` are aliases, `fontWeight`, `lineHeight`, `letterSpacing` and
+  `textTransform` are plain values. It becomes six variables (`--ht-heading-1-font-size` …) and one class
+  (`.ht-heading-1`) in `dist/text-styles.css`.
 
 ## Styling the docs site and, later, the components
 
@@ -46,9 +53,11 @@ and is not committed. Read it at the start of a session and follow its instructi
   specificity.
 - Component styles are **CSS Modules**: one `name.module.css` next to the component, rules wrapped
   in `@layer components { … }`, classes applied via the imported `styles` object.
-- Every colour, space, radius and shadow is a `var(--ht-…)`. No raw values, no theme object, no
-  runtime CSS-in-JS. The one exception is a colour set inline because it is the data being shown.
-- The site stays otherwise unstyled until the maintainer says otherwise.
+- Every colour, space, radius, shadow and type value is a `var(--ht-…)`. No raw values, no theme object, no
+  runtime CSS-in-JS. The one exception is a colour or font set inline because it is the data being shown.
+- The site is set in its own colour and type tokens (`site/app/bindings.css`); spacing and shape stay at
+  browser defaults until their sessions. Fonts are self-hosted from `@fontsource` packages, copied into
+  `site/public/fonts/` by `scripts/copy-fonts.mjs`; the token package ships names and stacks, not files.
 
 ## Rules
 

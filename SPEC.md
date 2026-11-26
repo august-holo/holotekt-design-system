@@ -104,7 +104,7 @@ Tokens are JSON in the Design Tokens Community Group (DTCG) format: `$value`, `$
 
 **CSS output:** one custom property per token, prefixed `--ht-` (see open questions), kebab-cased: `color.text.primary` → `--ht-color-text-primary`. Semantic properties must reference the primitive property (`var(--ht-color-neutral-900)`), not repeat the value, so the alias survives into CSS.
 
-**Modes:** there is one mode today. Structure the build so a second mode (dark) could be added later as `semantic.dark.json` without renaming anything. Do not build dark mode now.
+**Modes:** a mode is `tokens/<base>.<mode>.json`, restating every token of its base file with other aliases. `semantic.dark.json` (decided 25 Nov 2026, B-007) and `breakpoint.mobile.json` (B-020) exist; `scripts/lib/modes.mjs` says how each mode reaches CSS.
 
 **Contrast pairs:** `tokens/contrast-pairs.json` lists the text-on-background pairs the system allows:
 
@@ -152,7 +152,7 @@ These will be replaced wholesale after the color session. Do not add more.
 Provide a project-level Claude Code command (a slash command or skill, whichever is the current convention; name it `publish-tokens`) that August runs in this repo after changing variables in Figma. It must:
 
 1. Read all local variables from the Figma file (key `9PGHwdHaI5pEgpmTEnsU3A`) through the Figma MCP connector: collections, modes, names, values, aliases, descriptions. Confirm at build time that the connector can return all of these; if it cannot return aliases or descriptions, stop and tell August rather than flattening them.
-2. Map collections to files (`Primitives` → `primitives.json`, `Semantic` → `semantic.json`; ask if the collection names differ) and write DTCG JSON per section 5. Aliases stay aliases.
+2. Map collections to files (`Primitives` → `primitives.json`, `Semantic` → `semantic.json`, `Typography` → `typography.json`, `Breakpoint` → `breakpoint.json`; a collection's non-default modes become `<file>.<mode>.json`; ask if the collection names differ) and write DTCG JSON per section 5. Figma text styles become composite `typography` tokens in `typography.json`. Aliases stay aliases.
 3. Run `npm run tokens:diff` and `npm run check`.
 4. If a check fails, stop. Report exactly what failed (for contrast: the pair, the ratio, the minimum) and say that the fix belongs in Figma. Do not edit token values to make a check pass.
 5. If nothing changed, say so and stop.

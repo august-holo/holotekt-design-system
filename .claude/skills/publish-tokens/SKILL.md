@@ -33,13 +33,17 @@ publish" and stop.
 node scripts/figma-to-dtcg.mjs <scratch-file> --dry-run
 ```
 
-Collections map by name: `Primitives` → `tokens/primitives.json`, `Semantic` → `tokens/semantic.json`.
-If the collections are named differently, ask August which is which, then pass
-`--map "Name=primitives,Other=semantic"`. If the converter lists problems (a variable with no DTCG
+Collections map by name: `Primitives` → `tokens/primitives.json`, `Semantic` → `tokens/semantic.json`,
+`Typography` → `tokens/typography.json`, `Breakpoint` → `tokens/breakpoint.json`. A collection's modes
+after its default become `<file>.<mode>.json` (`semantic.dark.json`, `breakpoint.mobile.json`), and the
+file's text styles become composite `typography` tokens in `typography.json`. If the collections are
+named differently, ask August which is which, then pass `--map "Name=primitives,Other=semantic"`.
+A new mode name needs a CSS rule in `scripts/lib/modes.mjs` before the check will pass; a new font
+family needs its fallback stack in `tokens/font-stacks.json`. Both are hand-maintained; say so and stop. If the converter lists problems (a variable with no DTCG
 type, an alias to a library variable, a collection with no target), report them exactly and stop.
 The fix is in Figma, not here. When the dry run is clean, run it again without `--dry-run`.
 
-`tokens/contrast-pairs.json` is maintained by hand and is not touched.
+`tokens/contrast-pairs.json` and `tokens/font-stacks.json` are maintained by hand and are not touched.
 
 ## 3. Diff and check
 
