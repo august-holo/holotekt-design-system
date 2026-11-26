@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-26
+
 ### Added
 - Typography from the typography session: five font families with one job each, a nine-step size
   scale, four sizes that step down on small screens (a `mobile` mode, provisionally below 640px), and
