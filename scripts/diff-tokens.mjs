@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { ROOT, FILES, MODE_FILE, parseTokenSet, resolveAll, listModeFiles } from "./lib/tokens.mjs";
+import { ROOT, BASES, MODE_FILE, parseTokenSet, resolveAll, listModeFiles } from "./lib/tokens.mjs";
 
 const args = new Set(process.argv.slice(2));
 const git = (...a) => execFileSync("git", a, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
@@ -17,7 +17,6 @@ try {
   /* no release tag yet */
 }
 const atTag = (file) => {
-  if (!tag) return "{}";
   try {
     return git("show", `${tag}:${file}`);
   } catch {
@@ -26,16 +25,16 @@ const atTag = (file) => {
 };
 const now = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
 
-const modesAtTag = {};
-if (tag) {
-  for (const f of git("ls-tree", "--name-only", tag, "tokens/").split("\n")) {
-    const m = MODE_FILE.exec(path.basename(f));
-    if (m) modesAtTag[m[1]] = atTag(f);
-  }
-}
-const modesNow = Object.fromEntries(listModeFiles().map(({ mode, file }) => [mode, now(file)]));
-const before = parseTokenSet({ primitives: atTag(FILES.primitives), semantic: atTag(FILES.semantic), modes: modesAtTag });
-const after = parseTokenSet({ primitives: now(FILES.primitives), semantic: now(FILES.semantic), modes: modesNow });
+const taggedFiles = tag ? git("ls-tree", "--name-only", tag, "tokens/").split("\n").filter(Boolean) : [];
+const filesAtTag = Object.fromEntries(BASES.filter((b) => taggedFiles.includes(b.file)).map((b) => [b.base, atTag(b.file)]));
+const modesAtTag = taggedFiles
+  .map((f) => ({ f, m: MODE_FILE.exec(path.basename(f)) }))
+  .filter(({ m }) => m)
+  .map(({ f, m }) => ({ base: m[1], mode: m[2], content: atTag(f) }));
+const filesNow = Object.fromEntries(BASES.filter((b) => fs.existsSync(path.join(ROOT, b.file))).map((b) => [b.base, now(b.file)]));
+const modesNow = listModeFiles().map((m) => ({ ...m, content: now(m.file) }));
+const before = parseTokenSet({ files: filesAtTag, modes: modesAtTag });
+const after = parseTokenSet({ files: filesNow, modes: modesNow });
 resolveAll(before);
 resolveAll(after);
 

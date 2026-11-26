@@ -11,9 +11,10 @@ try {
 }
 const result = checkTokens(data);
 
-console.log(`${data.list.length} tokens (${data.list.filter((t) => t.tier === "primitive").length} primitive, ${data.list.filter((t) => t.tier === "semantic").length} semantic)\n`);
+const n = (tier) => data.list.filter((t) => t.tier === tier).length;
+console.log(`${data.list.length} tokens (${n("primitive")} primitive, ${n("semantic")} semantic, ${n("style")} text styles)${data.modeNames.length ? `; modes: ${data.modeNames.join(", ")}` : ""}\n`);
 console.log("Contrast pairs");
-console.log(formatPairsTable(result.pairs, result.modes));
+console.log(formatPairsTable(result.pairs, result.colorModes));
 console.log();
 for (const w of result.warnings) console.log(`! ${w}`);
 if (result.errors.length) {

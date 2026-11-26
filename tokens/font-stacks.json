@@ -1,0 +1,37 @@
+{
+  "font.family.heading": {
+    "stack": ["Arvo", "Rockwell", "Georgia", "serif"],
+    "package": "@fontsource/arvo",
+    "files": ["400"],
+    "license": "OFL-1.1",
+    "source": "https://fonts.google.com/specimen/Arvo"
+  },
+  "font.family.sans": {
+    "stack": ["Space Grotesk", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+    "package": "@fontsource/space-grotesk",
+    "files": ["400", "700"],
+    "license": "OFL-1.1",
+    "source": "https://fonts.google.com/specimen/Space+Grotesk"
+  },
+  "font.family.reading": {
+    "stack": ["Newsreader", "Georgia", "Times New Roman", "serif"],
+    "package": "@fontsource/newsreader",
+    "files": ["400", "400 italic"],
+    "license": "OFL-1.1",
+    "source": "https://fonts.google.com/specimen/Newsreader"
+  },
+  "font.family.machine": {
+    "stack": ["Courier Prime", "Courier New", "ui-monospace", "monospace"],
+    "package": "@fontsource/courier-prime",
+    "files": ["400"],
+    "license": "OFL-1.1",
+    "source": "https://fonts.google.com/specimen/Courier+Prime"
+  },
+  "font.family.human": {
+    "stack": ["Diphylleia", "Georgia", "serif"],
+    "package": "@fontsource/diphylleia",
+    "files": ["400"],
+    "license": "OFL-1.1",
+    "source": "https://fonts.google.com/specimen/Diphylleia"
+  }
+}
