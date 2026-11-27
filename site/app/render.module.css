@@ -1,35 +1,347 @@
-/* Scoped styles for the renderer's two data visuals. Sizes and borders only; every colour is set
-   inline from the token being displayed, because the colour is the data. */
+/* The layer order, restated so it holds wherever the bundler places this file. */
+@layer tokens, base, components;
+
+/* The page body. Only token variables, proportions and layout live here; no raw colour, size or
+   spacing. Rows stack on narrow screens through intrinsic sizing, not a breakpoint. */
 @layer components {
+  .article {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ht-gap-lg);
+  }
+  .article > h2 {
+    margin-top: calc(var(--ht-layout-section-gap) - var(--ht-gap-lg));
+  }
+  .titleBlock {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ht-gap-md);
+  }
+  .titleBlock p {
+    margin: 0;
+  }
+  .lede {
+    max-width: var(--ht-layout-width-reading);
+  }
+  .muted {
+    color: var(--ht-color-text-muted);
+  }
+  .secondary {
+    color: var(--ht-color-text-secondary);
+  }
+
+  /* Role names inside scenario text: one size up from the mock, in the primary text colour. */
+  .role {
+    font-family: var(--ht-ui-body-font-family);
+    font-size: var(--ht-ui-body-font-size);
+    color: var(--ht-color-text-primary);
+  }
+
+  /* Tables as rows: hairlines between, a strong rule above the header when asked. */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  .table th {
+    padding-block: var(--ht-space-200);
+    border-bottom: var(--ht-border-width-thin) solid var(--ht-color-border-divider);
+    color: var(--ht-color-text-muted);
+    vertical-align: bottom;
+  }
+  .strongRule th {
+    border-bottom-color: var(--ht-color-border-strong);
+  }
+  .table td {
+    padding-block: var(--ht-space-400);
+    padding-right: var(--ht-gap-lg);
+    border-bottom: var(--ht-border-width-thin) solid var(--ht-color-border-divider);
+    vertical-align: middle;
+    color: var(--ht-color-text-secondary);
+    overflow-wrap: anywhere;
+  }
+  .table td:first-child {
+    color: var(--ht-color-text-primary);
+  }
+  .table td:last-child {
+    padding-right: 0;
+  }
+  .headless td {
+    padding-block: var(--ht-space-300);
+  }
+  .headless tbody tr:first-child td {
+    border-top: var(--ht-border-width-thin) solid var(--ht-color-border-divider);
+  }
+  .srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  /* Row lists: cells wrap on narrow screens because their bases come from the width tokens. */
+  .rows {
+    width: 100%;
+    font-size: var(--ht-ui-small-font-size);
+    line-height: var(--ht-ui-small-line-height);
+  }
+  .rowsHead,
+  .rowsRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--ht-gap-lg);
+    row-gap: var(--ht-space-100);
+    border-bottom: var(--ht-border-width-thin) solid var(--ht-color-border-divider);
+  }
+  .rowsHead {
+    padding-block: var(--ht-space-200);
+    color: var(--ht-color-text-muted);
+    font-family: var(--ht-ui-label-font-family);
+    font-size: var(--ht-ui-label-font-size);
+    font-weight: var(--ht-ui-label-font-weight);
+    line-height: var(--ht-ui-label-line-height);
+    letter-spacing: var(--ht-ui-label-letter-spacing);
+    text-transform: var(--ht-ui-label-text-transform);
+  }
+  .strongRule .rowsHead {
+    border-bottom-color: var(--ht-color-border-strong);
+  }
+  .rows:not(.strongRule) .rowsRow:first-of-type {
+    border-top: var(--ht-border-width-thin) solid var(--ht-color-border-divider);
+  }
+  .rowsRow {
+    padding-block: var(--ht-space-300);
+    color: var(--ht-color-text-secondary);
+  }
+  .strongRule .rowsRow {
+    padding-block: var(--ht-space-400);
+  }
+  .rowsRow > div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .rowsFirst {
+    color: var(--ht-color-text-primary);
+  }
+
+  /* Reference tables keep every column and scroll within themselves. */
+  .scroll {
+    overflow-x: auto;
+  }
+  .reference {
+    table-layout: auto;
+    font-size: var(--ht-ui-small-font-size);
+    line-height: var(--ht-ui-small-line-height);
+  }
+  .reference td {
+    padding-block: var(--ht-space-200);
+    vertical-align: top;
+  }
   .swatch {
     display: inline-block;
-    width: 1em;
-    height: 1em;
+    width: var(--ht-font-size-300);
+    height: var(--ht-font-size-300);
     vertical-align: middle;
-    margin-right: 0.5em;
-    border: 1px solid currentColor;
+    margin-right: var(--ht-gap-sm);
+    border: var(--ht-border-width-thin) solid currentColor;
+    border-radius: var(--ht-radius-sm);
+  }
+  .swatchLarge {
+    display: block;
+    width: var(--ht-space-700);
+    height: var(--ht-space-700);
+    border-radius: var(--ht-radius-sm);
+  }
+  .bar {
+    display: inline-block;
+    height: var(--ht-space-400);
+    min-width: var(--ht-border-width-thin);
+    background: var(--ht-color-accent-default);
+    vertical-align: middle;
   }
 
+  /* Ramps: a name at the left, the steps as one strip. */
+  .rampRow {
+    display: flex;
+    align-items: center;
+    gap: var(--ht-gap-md);
+  }
+  .rampRow > span {
+    flex: 0 0 calc(var(--ht-space-800) + var(--ht-space-400));
+  }
   .ramp {
     display: flex;
-    list-style: none;
+    flex: 1 1 0;
+    height: var(--ht-space-700);
     margin: 0;
     padding: 0;
+    list-style: none;
+  }
+  .ramp li {
+    flex: 1 1 0;
+  }
+  .rampRow + .rampRow {
+    margin-top: calc(var(--ht-gap-sm) - var(--ht-gap-lg));
   }
 
-  .rampStep {
-    flex: 1;
+  /* Samples and rows of them. */
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ht-gap-lg);
+    align-items: flex-start;
+  }
+  .row > * {
+    flex: 1 1 calc(var(--ht-layout-width-reading) / 2);
     min-width: 0;
   }
-
+  .figure {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ht-gap-sm);
+    margin: 0;
+    flex: 0 1 auto;
+  }
+  /* Cards and the demo share the row equally; small samples keep their own size. */
+  .figure:has(.card),
+  .figure:has(.demo) {
+    flex: 1 1 calc(var(--ht-layout-width-reading) / 2);
+  }
+  .figure figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ht-space-50);
+  }
   .sample {
     box-sizing: border-box;
-    min-height: 0.25rem;
+  }
+  .card {
+    min-height: calc(var(--ht-space-900) + var(--ht-space-800));
+  }
+  .chip {
+    display: inline-block;
+    padding: var(--ht-space-100) var(--ht-space-300);
+    border-radius: var(--ht-radius-full);
+  }
+  .button {
+    display: inline-block;
+    padding: var(--ht-space-200) var(--ht-inset-md);
+    border-radius: var(--ht-radius-sm);
+  }
+  .demo {
+    width: 100%;
+  }
+  .demoCard .innerHead {
+    font-family: var(--ht-heading-3-font-family);
+    font-size: var(--ht-heading-3-font-size);
+    font-weight: var(--ht-heading-3-font-weight);
+    line-height: var(--ht-heading-3-line-height);
+  }
+  .demoCard .innerLine {
+    color: var(--ht-color-text-secondary);
+  }
+  .demoMenu .innerHead,
+  .demoMenu .innerLine {
+    padding: var(--ht-space-200) var(--ht-inset-md);
+    font-size: var(--ht-ui-small-font-size);
+    line-height: var(--ht-ui-small-line-height);
+  }
+  .demoMenu .innerLine:nth-child(2) {
+    background: var(--ht-color-surface-hover);
   }
 
-  .rampSwatch {
-    display: block;
-    height: 2.5em;
-    border: 1px solid currentColor;
+  /* Home. */
+  .bigLinks,
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ht-gap-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .bigLinks a {
+    color: var(--ht-color-text-link);
+    text-decoration: none;
+  }
+  .bigLinks a:hover {
+    color: var(--ht-color-text-link-hover);
+  }
+  .tiles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ht-gap-md);
+  }
+  .tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* The mock's 288 × 192 tile: three and two steps of space/900. */
+    width: calc(3 * var(--ht-space-900));
+    max-width: 100%;
+    aspect-ratio: 3 / 2;
+    background: var(--ht-color-surface-sunken);
+    border-radius: var(--ht-radius-sm);
+  }
+
+  /* The Foundations index. */
+  .index {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: var(--ht-border-width-thin) solid var(--ht-color-border-strong);
+  }
+  .index li {
+    border-bottom: var(--ht-border-width-thin) solid var(--ht-color-border-divider);
+  }
+  .indexLink {
+    display: flex;
+    align-items: center;
+    gap: var(--ht-gap-lg);
+    padding-block: var(--ht-space-500);
+    color: inherit;
+    text-decoration: none;
+  }
+  .indexText {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: var(--ht-space-100);
+  }
+  .arrow {
+    color: var(--ht-color-text-link);
+  }
+
+  /* The reference, closed by default. */
+  .details summary {
+    cursor: pointer;
+    color: var(--ht-color-text-link);
+    list-style: none;
+  }
+  .details summary::-webkit-details-marker {
+    display: none;
+  }
+  .detailsBody {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ht-gap-lg);
+    padding-top: var(--ht-gap-lg);
+  }
+
+  .pager {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--ht-gap-lg);
+    padding-block: var(--ht-space-400);
+    border-top: var(--ht-border-width-thin) solid var(--ht-color-border-divider);
+  }
+  .pager a {
+    color: var(--ht-color-text-secondary);
+    text-decoration: none;
+  }
+  .prose {
+    max-width: var(--ht-layout-width-reading);
   }
 }
