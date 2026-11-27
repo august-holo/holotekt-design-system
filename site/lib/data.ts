@@ -65,6 +65,8 @@ export interface TokenData {
   fonts: Record<string, { stack: string[]; package: string; files: string[]; license: string; source: string }>;
   contrastPairs: ContrastPair[];
   uncovered: string[];
+  /** Semantic colours deliberately outside every contrast pair, each with its reason. */
+  exempt: { token: string; reason: string }[];
 }
 
 const read = (rel: string) => fs.readFileSync(path.join(ROOT, rel), "utf8");

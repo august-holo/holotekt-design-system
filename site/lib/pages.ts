@@ -67,7 +67,7 @@ const FOUNDATION_INFO: Record<Foundation, { title: string; description: string; 
   },
   shape: {
     title: "Shape and elevation",
-    description: "Corner radii, borders, strokes and shadows.",
+    description: "Four corner radii, two border widths, the five border recipes, and tonal elevation: depth is a surface colour with a border on what overlaps. No shadows.",
     session: "shape and elevation",
     match: (t) => ["shadow", "border", "strokeStyle"].includes(t.type) || rootIn(["radius", "border", "shadow", "elevation", "stroke"])(t),
   },
@@ -296,11 +296,113 @@ function spacingPage(data: ReturnType<typeof tokenData>, info: (typeof FOUNDATIO
   return page;
 }
 
+/** The shape and elevation page: radii and borders on samples, and the tonal surface ladder in both themes. */
+function shapePage(data: ReturnType<typeof tokenData>, info: (typeof FOUNDATION_INFO)[Foundation]): Page {
+  const page: Page = { route: "/foundations/shape", title: info.title, description: info.description, blocks: [] };
+  const shape = data.tokens.filter((t) => t.base === "shape");
+  if (!shape.length) {
+    page.blocks.push({ kind: "p", text: `Not published yet. Tokens for shape and elevation arrive with the ${info.session} session.` });
+    return page;
+  }
+  const radii = shape.filter((t) => t.path.startsWith("radius."));
+  const widths = shape.filter((t) => t.path.startsWith("border.width."));
+  const byPath = new Map(data.tokens.map((t) => [t.path, t]));
+  const px = (v: unknown) => (v && typeof v === "object" && "value" in (v as object) ? `${(v as { value: number }).value}px` : showValue(v));
+  const colorOf = (path: string, mode: string) => {
+    const t = byPath.get(path);
+    if (!t) return "";
+    const v = mode === "default" ? t.value : (t.modes?.[mode]?.value ?? t.value);
+    return showValue(v);
+  };
+  const colorModes = data.colorModes;
+  const modeName = (m: string) => modeLabel(m, data.modes) || "Default";
+
+  page.blocks.push({ kind: "p", text: "There are no shadow tokens in this version. Elevation is tonal: depth is a surface colour, and whatever overlaps content carries a border. The hard offset shadow of the old sites is retired for now and will be looked at again with components." });
+
+  page.blocks.push({ kind: "h2", text: "Radius" });
+  page.blocks.push({ kind: "p", text: "Four steps, in px so corners do not grow with the reader's text size." });
+  for (const t of radii) {
+    page.blocks.push({ kind: "sample", label: `${t.path} · ${px(t.value)} · ${t.description ?? ""}`, style: { width: "6rem", height: "3rem", borderRadius: `var(${t.css})`, background: "var(--ht-color-surface-raised)", border: "var(--ht-border-width-thin) solid var(--ht-color-border-strong)" } });
+  }
+  page.blocks.push({ kind: "table", columns: ["Token", "CSS variable", "Value", "Use"], rows: radii.map((t) => [{ text: t.path, code: true }, { text: t.css, code: true }, px(t.value), t.description ?? ""]) });
+
+  page.blocks.push({ kind: "h2", text: "Borders" });
+  page.blocks.push({ kind: "p", text: "Two widths, in px. The five recipes below are documented combinations of a width and a border colour, not tokens." });
+  page.blocks.push({ kind: "table", columns: ["Token", "CSS variable", "Value", "Use"], rows: widths.map((t) => [{ text: t.path, code: true }, { text: t.css, code: true }, px(t.value), t.description ?? ""]) });
+  const recipes = [
+    { name: "Hairline", width: "border.width.thin", color: "color.border.subtle", use: "Quiet outlines." },
+    { name: "Divider", width: "border.width.thin", color: "color.border.divider", use: "Rules between rows." },
+    { name: "Overlay border", width: "border.width.thin", color: "color.border.strong", use: "Marks what sits on top." },
+    { name: "Strong outline", width: "border.width.thick", color: "color.border.strong", use: "Outlined buttons, heavy rules." },
+    { name: "Focus ring", width: "border.width.thick", color: "color.border.focus", use: "Keyboard focus." },
+  ];
+  for (const r of recipes) {
+    const w = byPath.get(r.width);
+    const c = byPath.get(r.color);
+    if (!w || !c) continue;
+    page.blocks.push({ kind: "sample", label: `${r.name}: ${r.width} + ${r.color}. ${r.use}`, style: { width: "12rem", height: "3rem", borderRadius: "var(--ht-radius-sm)", background: "var(--ht-color-surface-raised)", border: `var(${w.css}) solid var(${c.css})` } });
+  }
+  page.blocks.push({ kind: "table", columns: ["Recipe", "Width", "Colour", "Use"], rows: recipes.map((r) => [r.name, { text: r.width, code: true }, { text: r.color, code: true }, r.use]) });
+
+  page.blocks.push({ kind: "h2", text: "Elevation" });
+  page.blocks.push({ kind: "p", text: "The surface ladder, darkest to lightest by depth in dark mode: sunken, page, raised, overlay. Each column is drawn with that theme's resolved values, so both are visible whatever the page's own theme." });
+  const ladder = ["color.surface.sunken", "color.surface.page", "color.surface.raised", "color.surface.overlay"];
+  for (const mode of colorModes) {
+    page.blocks.push({
+      kind: "sample",
+      label: `${modeName(mode)}: ${ladder.map((p) => `${p.split(".").pop()} ${colorOf(p, mode)}`).join(" · ")}`,
+      style: { display: "flex", gap: "var(--ht-gap-md)", padding: "var(--ht-inset-lg)", background: colorOf("color.surface.page", mode), border: "var(--ht-border-width-thin) solid " + colorOf("color.border.subtle", mode) },
+      inner: ladder.map((p) => ({ style: { flex: "1", height: "4rem", borderRadius: "var(--ht-radius-sm)", background: colorOf(p, mode), border: p.endsWith("overlay") ? `var(--ht-border-width-thin) solid ${colorOf("color.border.strong", mode)}` : "none", color: colorOf("color.text.primary", mode), padding: "var(--ht-inset-sm)", fontSize: "var(--ht-font-size-100)" }, text: p.split(".").pop() })),
+    });
+  }
+  page.blocks.push({
+    kind: "table",
+    columns: ["Token", "CSS variable", ...colorModes.map((m) => `Value (${modeName(m)})`), "When to use"],
+    rows: ladder.map((p) => {
+      const t = byPath.get(p)!;
+      return [{ text: p, code: true }, { text: t.css, code: true }, ...colorModes.map((m) => ({ text: colorOf(p, m), swatch: colorOf(p, m), code: true }) as Cell), t.description ?? ""];
+    }),
+  });
+  page.blocks.push({ kind: "h3", text: "A menu over a card" });
+  page.blocks.push({
+    kind: "sample",
+    label: "surface/overlay with the overlay border, sitting on a card on the page. Stacking is a surface and a border, not a shadow.",
+    style: { position: "relative", height: "9rem", padding: "var(--ht-inset-lg)", background: "var(--ht-color-surface-page)" },
+    inner: [
+      { style: { position: "absolute", left: "var(--ht-inset-lg)", top: "var(--ht-inset-lg)", width: "16rem", height: "6rem", borderRadius: "var(--ht-radius-sm)", background: "var(--ht-color-surface-raised)", padding: "var(--ht-inset-md)" }, text: "Card: surface/raised" },
+      { style: { position: "absolute", left: "10rem", top: "3rem", width: "12rem", borderRadius: "var(--ht-radius-sm)", background: "var(--ht-color-surface-overlay)", border: "var(--ht-border-width-thin) solid var(--ht-color-border-strong)", padding: "var(--ht-inset-md)" }, text: "Menu: surface/overlay + overlay border" },
+    ],
+  });
+  page.blocks.push({ kind: "h3", text: "A dialog on the scrim" });
+  page.blocks.push({
+    kind: "sample",
+    label: "surface/scrim dims everything behind a dialog; the dialog is surface/overlay with the overlay border and radius/md.",
+    style: { position: "relative", height: "10rem", background: "var(--ht-color-surface-page)", padding: "var(--ht-inset-lg)" },
+    inner: [
+      { style: { position: "absolute", inset: "0", background: "var(--ht-color-surface-scrim)" } },
+      { style: { position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)", width: "16rem", borderRadius: "var(--ht-radius-md)", background: "var(--ht-color-surface-overlay)", border: "var(--ht-border-width-thin) solid var(--ht-color-border-strong)", padding: "var(--ht-inset-lg)" }, text: "Dialog: surface/overlay on surface/scrim" },
+    ],
+  });
+  page.blocks.push({ kind: "h3", text: "The rules" });
+  page.blocks.push({
+    kind: "list",
+    items: [
+      "Stacking: anything that overlaps content (menu, popover, dialog) uses surface/overlay plus a thin border/strong.",
+      "Resting: cards and panels use surface/raised; wells use surface/sunken. Tone only, no border required.",
+      "Attention: dialogs sit on surface/scrim, which dims everything behind them.",
+      "State feedback: hover and pressed use surface/hover and surface/pressed. Elevation is a property; pressed is a state.",
+      "Contrast rule: in dark mode nothing lighter than surface/overlay sits behind text.",
+    ],
+  });
+  return page;
+}
+
 export function foundationPage(kind: Foundation): Page {
   const info = FOUNDATION_INFO[kind];
   const data = tokenData();
   if (kind === "typography") return typographyPage(data, info);
   if (kind === "spacing") return spacingPage(data, info);
+  if (kind === "shape") return shapePage(data, info);
   const tokens = data.tokens.filter(info.match);
   const page: Page = { route: `/foundations/${kind}`, title: info.title, description: info.description, blocks: [] };
 
@@ -362,9 +464,14 @@ export function foundationPage(kind: Foundation): Page {
         p.passes ? "Pass" : "Fail",
       ]),
     });
+    if (data.exempt?.length) {
+      page.blocks.push({ kind: "h3", text: "Exempt from contrast pairs" });
+      page.blocks.push({ kind: "p", text: "Semantic colours that are never a text colour or a text background, with the reason." });
+      page.blocks.push({ kind: "table", columns: ["Token", "Reason"], rows: data.exempt.map((e) => [{ text: e.token, code: true }, e.reason]) });
+    }
     if (data.uncovered.length) {
       page.blocks.push({ kind: "h3", text: "Not covered by a contrast pair" });
-      page.blocks.push({ kind: "p", text: "Semantic colours that no pair mentions. Do not set text on or in these until a pair exists." });
+      page.blocks.push({ kind: "p", text: "Semantic colours that no pair mentions and no exemption explains. Do not set text on or in these until one or the other exists." });
       page.blocks.push({ kind: "list", items: data.uncovered });
     }
   }
