@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-27
+
 ### Added
 - Spacing and layout from the spacing session: an eleven-step space scale on a 4px base
   (`space/0` … `space/900`), the `inset` and `gap` roles that alias it, two content widths, two
