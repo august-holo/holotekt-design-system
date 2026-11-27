@@ -440,7 +440,7 @@ export function foundationsIndexPage(): Page {
 export function homePage(): Page {
   return {
     route: "/",
-    title: "holotekt design system",
+    title: "Holotekt Design System",
     description: "A design system for systemic designers.",
     blocks: [
       { kind: "links", big: true, items: [{ text: "Foundations →", href: "/foundations" }, { text: "Set up from the README →", href: `${REPO_URL}#readme` }] },
