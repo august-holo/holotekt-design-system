@@ -21,7 +21,7 @@ if (!file) {
 }
 
 // Collection name → tokens file (base). Matching is case-insensitive.
-const DEFAULT_MAP = { primitives: "primitives", primitive: "primitives", semantic: "semantic", semantics: "semantic", typography: "typography", type: "typography", breakpoint: "breakpoint", breakpoints: "breakpoint" };
+const DEFAULT_MAP = { primitives: "primitives", primitive: "primitives", semantic: "semantic", semantics: "semantic", typography: "typography", type: "typography", breakpoint: "breakpoint", breakpoints: "breakpoint", spacing: "spacing", space: "spacing" };
 const collectionMap = { ...DEFAULT_MAP };
 if (args.includes("--map") && mapArg) {
   for (const pair of mapArg.split(",")) {

@@ -152,7 +152,7 @@ These will be replaced wholesale after the color session. Do not add more.
 Provide a project-level Claude Code command (a slash command or skill, whichever is the current convention; name it `publish-tokens`) that August runs in this repo after changing variables in Figma. It must:
 
 1. Read all local variables from the Figma file (key `9PGHwdHaI5pEgpmTEnsU3A`) through the Figma MCP connector: collections, modes, names, values, aliases, descriptions. Confirm at build time that the connector can return all of these; if it cannot return aliases or descriptions, stop and tell August rather than flattening them.
-2. Map collections to files (`Primitives` → `primitives.json`, `Semantic` → `semantic.json`, `Typography` → `typography.json`, `Breakpoint` → `breakpoint.json`; a collection's non-default modes become `<file>.<mode>.json`; ask if the collection names differ) and write DTCG JSON per section 5. Figma text styles become composite `typography` tokens in `typography.json`. Aliases stay aliases.
+2. Map collections to files (`Primitives` → `primitives.json`, `Semantic` → `semantic.json`, `Typography` → `typography.json`, `Breakpoint` → `breakpoint.json`, `Spacing` → `spacing.json`; a collection's non-default modes become `<file>.<mode>.json`; ask if the collection names differ) and write DTCG JSON per section 5. Figma text styles become composite `typography` tokens in `typography.json`. Aliases stay aliases.
 3. Run `npm run tokens:diff` and `npm run check`.
 4. If a check fails, stop. Report exactly what failed (for contrast: the pair, the ratio, the minimum) and say that the fix belongs in Figma. Do not edit token values to make a check pass.
 5. If nothing changed, say so and stop.

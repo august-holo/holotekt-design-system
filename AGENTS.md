@@ -5,9 +5,10 @@ https://designsystem.holotekt.com. `SPEC.md` is the full brief; this file is the
 
 ## What is where
 
-- `tokens/primitives.json`, `tokens/semantic.json`, `tokens/typography.json`, `tokens/breakpoint.json`: the
+- `tokens/primitives.json`, `tokens/semantic.json`, `tokens/typography.json`, `tokens/breakpoint.json`, `tokens/spacing.json`: the
   tokens, DTCG format (`$value`, `$type`, `$description`). `<base>.<mode>.json` restates a base file for a
-  mode (`semantic.dark.json`, `breakpoint.mobile.json`); `scripts/lib/modes.mjs` says how a mode reaches CSS.
+  mode (`semantic.dark.json`, `breakpoint.mobile.json`); `scripts/lib/modes.mjs` says how a mode reaches CSS,
+  and the mobile media query takes its width from `layout.breakpoint.md` there.
 - `tokens/contrast-pairs.json` (allowed text-on-background pairs) and `tokens/font-stacks.json` (fallback
   stacks, packages, files and licences per font family) are maintained by hand.
 - `scripts/`: build, check, diff and release. `scripts/lib/tokens.mjs` holds the shared logic.

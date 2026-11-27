@@ -34,7 +34,7 @@ node scripts/figma-to-dtcg.mjs <scratch-file> --dry-run
 ```
 
 Collections map by name: `Primitives` → `tokens/primitives.json`, `Semantic` → `tokens/semantic.json`,
-`Typography` → `tokens/typography.json`, `Breakpoint` → `tokens/breakpoint.json`. A collection's modes
+`Typography` → `tokens/typography.json`, `Breakpoint` → `tokens/breakpoint.json`, `Spacing` → `tokens/spacing.json`. A collection's modes
 after its default become `<file>.<mode>.json` (`semantic.dark.json`, `breakpoint.mobile.json`), and the
 file's text styles become composite `typography` tokens in `typography.json`. If the collections are
 named differently, ask August which is which, then pass `--map "Name=primitives,Other=semantic"`.
