@@ -352,7 +352,8 @@ function shapePage(data: ReturnType<typeof tokenData>, info: (typeof FOUNDATION_
       kind: "sample",
       label: `${modeName(mode)}: ${ladder.map((p) => `${p.split(".").pop()} ${colorOf(p, mode)}`).join(" · ")}`,
       style: { display: "flex", gap: "var(--ht-gap-md)", padding: "var(--ht-inset-lg)", background: colorOf("color.surface.page", mode), border: "var(--ht-border-width-thin) solid " + colorOf("color.border.subtle", mode) },
-      inner: ladder.map((p) => ({ style: { flex: "1", height: "4rem", borderRadius: "var(--ht-radius-sm)", background: colorOf(p, mode), border: p.endsWith("overlay") ? `var(--ht-border-width-thin) solid ${colorOf("color.border.strong", mode)}` : "none", color: colorOf("color.text.primary", mode), padding: "var(--ht-inset-sm)", fontSize: "var(--ht-font-size-100)" }, text: p.split(".").pop() })),
+      inner: ladder.map((p) => ({ style: { flex: "1", height: "4rem", borderRadius: "var(--ht-radius-sm)", background: colorOf(p, mode), // A hairline on every tile so the page tile is visible against the page; the overlay carries its strong border as the rule says.
+          border: `var(--ht-border-width-thin) solid ${colorOf(p.endsWith("overlay") ? "color.border.strong" : "color.border.subtle", mode)}`, color: colorOf("color.text.primary", mode), padding: "var(--ht-inset-sm)", fontSize: "var(--ht-font-size-100)" }, text: p.split(".").pop() })),
     });
   }
   page.blocks.push({
