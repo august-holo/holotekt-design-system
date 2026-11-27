@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-27
+
 ### Changed
 - The docs site is set entirely in its own tokens and restructured to three page types: a short
   home, a Foundations index with facts counted from the token data, and a foundation page template
