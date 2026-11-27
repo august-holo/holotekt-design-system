@@ -32,7 +32,7 @@ page at the page's address plus `.md`, and `/tokens.json`.
 
 | Path | What |
 |---|---|
-| `tokens/` | `primitives.json`, `semantic.json`, `typography.json`, `breakpoint.json`, `spacing.json` and their `<base>.<mode>.json` files (DTCG format); `contrast-pairs.json` and `font-stacks.json` by hand |
+| `tokens/` | `primitives.json`, `semantic.json`, `typography.json`, `breakpoint.json`, `spacing.json`, `shape.json` and their `<base>.<mode>.json` files (DTCG format); `contrast-pairs.json`, `contrast-exempt.json` and `font-stacks.json` by hand |
 | `scripts/` | build, check, diff, release, deploy; `scripts/figma/` holds the read-only Figma script |
 | `dist/` | build output, gitignored: `tokens.css`, `text-styles.css`, `tokens.js`, `tokens.d.ts`, `tokens.json`, plus `tokens.<mode>.js` per mode |
 | `site/` | the docs site, Next.js static export, generated from `dist/tokens.json` |

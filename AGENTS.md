@@ -5,12 +5,13 @@ https://designsystem.holotekt.com. `SPEC.md` is the full brief; this file is the
 
 ## What is where
 
-- `tokens/primitives.json`, `tokens/semantic.json`, `tokens/typography.json`, `tokens/breakpoint.json`, `tokens/spacing.json`: the
+- `tokens/primitives.json`, `tokens/semantic.json`, `tokens/typography.json`, `tokens/breakpoint.json`, `tokens/spacing.json`, `tokens/shape.json`: the
   tokens, DTCG format (`$value`, `$type`, `$description`). `<base>.<mode>.json` restates a base file for a
   mode (`semantic.dark.json`, `breakpoint.mobile.json`); `scripts/lib/modes.mjs` says how a mode reaches CSS,
   and the mobile media query takes its width from `layout.breakpoint.md` there.
-- `tokens/contrast-pairs.json` (allowed text-on-background pairs) and `tokens/font-stacks.json` (fallback
-  stacks, packages, files and licences per font family) are maintained by hand.
+- `tokens/contrast-pairs.json` (allowed text-on-background pairs), `tokens/contrast-exempt.json` (semantic colours
+  that are never behind or in text, with reasons) and `tokens/font-stacks.json` (fallback stacks, packages, files
+  and licences per font family) are maintained by hand.
 - `scripts/`: build, check, diff and release. `scripts/lib/tokens.mjs` holds the shared logic.
 - `dist/`: build output (gitignored). The site and consumers read `dist/tokens.json`.
 - `site/`: the Next.js docs site, a static export. Pages are built from `dist/tokens.json`.
@@ -37,12 +38,14 @@ and is not committed. Read it at the start of a session and follow its instructi
 ## The token contract
 
 - Two tiers. Primitives hold raw values. Semantic tokens alias primitives with `{color.neutral.900}`
-  and never hold a raw value. Every semantic token has a `$description` saying when to use it.
+  and never hold a raw value, except the translucent `color.surface.scrim` (named in `RAW_SEMANTIC_ALLOWED`).
+  Every semantic token has a `$description` saying when to use it.
 - Names are lowercase and dot-separated, general to specific. CSS: `--ht-` plus the path in kebab case.
 - Figma is the source of truth for values. Tokens arrive here as JSON; do not hand-edit a value to make
   a check pass. If a contrast pair fails, the fix is in Figma.
-- Colours are hex strings or DTCG colour objects. Dimensions are `{ "value": 16, "unit": "px" }`; px becomes
-  rem in the CSS. A text style is a composite `typography` token named after the Figma style (`heading.1`,
+- Colours are hex strings or DTCG colour objects; alpha is kept as `rgb(r g b / a)`. Dimensions are
+  `{ "value": 16, "unit": "px" }`; px becomes rem in the CSS, except radii and border widths (`tokens/shape.json`),
+  which stay px. There are no shadow tokens: elevation is tonal. A text style is a composite `typography` token named after the Figma style (`heading.1`,
   `ui.label`): `fontFamily` and `fontSize` are aliases, `fontWeight`, `lineHeight`, `letterSpacing` and
   `textTransform` are plain values. It becomes six variables (`--ht-heading-1-font-size` …) and one class
   (`.ht-heading-1`) in `dist/text-styles.css`.

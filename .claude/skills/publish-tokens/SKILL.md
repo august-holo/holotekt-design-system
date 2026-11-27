@@ -34,7 +34,7 @@ node scripts/figma-to-dtcg.mjs <scratch-file> --dry-run
 ```
 
 Collections map by name: `Primitives` → `tokens/primitives.json`, `Semantic` → `tokens/semantic.json`,
-`Typography` → `tokens/typography.json`, `Breakpoint` → `tokens/breakpoint.json`, `Spacing` → `tokens/spacing.json`. A collection's modes
+`Typography` → `tokens/typography.json`, `Breakpoint` → `tokens/breakpoint.json`, `Spacing` → `tokens/spacing.json`, `Shape` → `tokens/shape.json`. A collection's modes
 after its default become `<file>.<mode>.json` (`semantic.dark.json`, `breakpoint.mobile.json`), and the
 file's text styles become composite `typography` tokens in `typography.json`. If the collections are
 named differently, ask August which is which, then pass `--map "Name=primitives,Other=semantic"`.
@@ -43,7 +43,7 @@ family needs its fallback stack in `tokens/font-stacks.json`. Both are hand-main
 type, an alias to a library variable, a collection with no target), report them exactly and stop.
 The fix is in Figma, not here. When the dry run is clean, run it again without `--dry-run`.
 
-`tokens/contrast-pairs.json` and `tokens/font-stacks.json` are maintained by hand and are not touched.
+`tokens/contrast-pairs.json`, `tokens/contrast-exempt.json` and `tokens/font-stacks.json` are maintained by hand and are not touched.
 
 ## 3. Diff and check
 
