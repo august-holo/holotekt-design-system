@@ -7,6 +7,19 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Added
+- Spacing and layout from the spacing session: an eleven-step space scale on a 4px base
+  (`space/0` … `space/900`), the `inset` and `gap` roles that alias it, two content widths, two
+  breakpoints, the grid gutter and dot pitch, and three values that change on phones
+  (`layout/section/gap`, `layout/page/margin`, `layout/grid/columns`). Spacing and widths are in rem;
+  breakpoints and grid columns are unitless.
+- The spacing and layout page: the scale as bars, the roles, widths, breakpoints, what changes on
+  phones, and the dotted grid at the published pitch.
+
+### Changed
+- The mobile media query takes its width from `layout/breakpoint/md` at build time. The value is
+  still 640px; it is no longer provisional.
+
 ## [0.2.0] - 2026-11-26
 
 ### Added

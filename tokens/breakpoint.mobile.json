@@ -24,5 +24,25 @@
         "$value": "{font.size.400}"
       }
     }
+  },
+  "layout": {
+    "section": {
+      "gap": {
+        "$type": "dimension",
+        "$value": "{space.700}"
+      }
+    },
+    "page": {
+      "margin": {
+        "$type": "dimension",
+        "$value": "{space.400}"
+      }
+    },
+    "grid": {
+      "columns": {
+        "$type": "number",
+        "$value": 4
+      }
+    }
   }
 }

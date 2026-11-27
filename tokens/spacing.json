@@ -1,0 +1,170 @@
+{
+  "space": {
+    "0": {
+      "$type": "dimension",
+      "$value": {
+        "value": 0,
+        "unit": "px"
+      },
+      "$description": "No space."
+    },
+    "50": {
+      "$type": "dimension",
+      "$value": {
+        "value": 2,
+        "unit": "px"
+      },
+      "$description": "Hairline nudge. Icon to text in tight labels."
+    },
+    "100": {
+      "$type": "dimension",
+      "$value": {
+        "value": 4,
+        "unit": "px"
+      },
+      "$description": "Base unit. Tightest gap between related items."
+    },
+    "200": {
+      "$type": "dimension",
+      "$value": {
+        "value": 8,
+        "unit": "px"
+      },
+      "$description": "Small gap and small padding."
+    },
+    "300": {
+      "$type": "dimension",
+      "$value": {
+        "value": 12,
+        "unit": "px"
+      },
+      "$description": "Between small and medium. Use sparingly."
+    },
+    "400": {
+      "$type": "dimension",
+      "$value": {
+        "value": 16,
+        "unit": "px"
+      },
+      "$description": "Default gap and default padding."
+    },
+    "500": {
+      "$type": "dimension",
+      "$value": {
+        "value": 24,
+        "unit": "px"
+      },
+      "$description": "Large gap, large padding, grid gutter."
+    },
+    "600": {
+      "$type": "dimension",
+      "$value": {
+        "value": 32,
+        "unit": "px"
+      },
+      "$description": "Page margin on desktop. Between groups."
+    },
+    "700": {
+      "$type": "dimension",
+      "$value": {
+        "value": 48,
+        "unit": "px"
+      },
+      "$description": "Between sections on phones."
+    },
+    "800": {
+      "$type": "dimension",
+      "$value": {
+        "value": 64,
+        "unit": "px"
+      },
+      "$description": "Between sections on desktop."
+    },
+    "900": {
+      "$type": "dimension",
+      "$value": {
+        "value": 96,
+        "unit": "px"
+      },
+      "$description": "Hero and page-top breathing room."
+    }
+  },
+  "inset": {
+    "sm": {
+      "$type": "dimension",
+      "$value": "{space.200}",
+      "$description": "Padding inside small components: chips, tags, table cells."
+    },
+    "md": {
+      "$type": "dimension",
+      "$value": "{space.400}",
+      "$description": "Default padding inside components: buttons, inputs, alerts."
+    },
+    "lg": {
+      "$type": "dimension",
+      "$value": "{space.500}",
+      "$description": "Padding inside cards and panels."
+    }
+  },
+  "gap": {
+    "sm": {
+      "$type": "dimension",
+      "$value": "{space.200}",
+      "$description": "Between tightly related items: icon and label, title and meta."
+    },
+    "md": {
+      "$type": "dimension",
+      "$value": "{space.400}",
+      "$description": "Default space between items in a group."
+    },
+    "lg": {
+      "$type": "dimension",
+      "$value": "{space.500}",
+      "$description": "Between groups inside one section."
+    }
+  },
+  "layout": {
+    "width": {
+      "reading": {
+        "$type": "dimension",
+        "$value": {
+          "value": 680,
+          "unit": "px"
+        },
+        "$description": "Maximum width of a long-form text column. About 66 characters of reading/body."
+      },
+      "page": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1200,
+          "unit": "px"
+        },
+        "$description": "Maximum width of standard page content."
+      }
+    },
+    "breakpoint": {
+      "md": {
+        "$type": "number",
+        "$value": 640,
+        "$description": "Below this width the Mobile mode applies."
+      },
+      "lg": {
+        "$type": "number",
+        "$value": 1024,
+        "$description": "At and above this width the full desktop layout applies."
+      }
+    },
+    "grid": {
+      "gutter": {
+        "$type": "dimension",
+        "$value": "{space.500}",
+        "$description": "Space between grid columns."
+      },
+      "dot-pitch": {
+        "$type": "dimension",
+        "$value": "{space.500}",
+        "$description": "Distance between dots in the dotted background grid. Matches the gutter so content lines up with the dots."
+      }
+    }
+  }
+}

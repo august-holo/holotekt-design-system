@@ -28,5 +28,28 @@
         "$description": "Size of reading/lede. Steps down on phones."
       }
     }
+  },
+  "layout": {
+    "section": {
+      "gap": {
+        "$type": "dimension",
+        "$value": "{space.800}",
+        "$description": "Vertical space between page sections. Smaller on phones."
+      }
+    },
+    "page": {
+      "margin": {
+        "$type": "dimension",
+        "$value": "{space.600}",
+        "$description": "Space between content and the edge of the screen. Smaller on phones."
+      }
+    },
+    "grid": {
+      "columns": {
+        "$type": "number",
+        "$value": 12,
+        "$description": "Number of grid columns. 12 on desktop, 4 on phones."
+      }
+    }
   }
 }
