@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-27
+
 ### Added
 - Shape from the shape and elevation session: four corner radii (`radius/none|sm|md|full`) and two
   border widths (`border/width/thin|thick`), in px. There are no shadow tokens: elevation is tonal,
