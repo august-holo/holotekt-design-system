@@ -15,7 +15,9 @@ https://designsystem.holotekt.com. `SPEC.md` is the full brief; this file is the
 - `scripts/`: build, check, diff and release. `scripts/lib/tokens.mjs` holds the shared logic.
 - `dist/`: build output (gitignored). The site and consumers read `dist/tokens.json`.
 - `site/`: the Next.js docs site, a static export. Pages are built from `dist/tokens.json`.
-- `content/decisions/`: public "why" notes. `docs/consumer-rules.md`: rules for sites using the system.
+- `content/decisions/`: public "why" notes. `content/scenarios.json`: the "Scenarios and roles" tables on the foundation
+  pages; `scripts/check-scenarios.mjs` fails the build if a named token does not exist. `docs/consumer-rules.md`: rules
+  for sites using the system.
 - `infra/`: Terraform, applied by hand from a laptop. `.github/workflows/`: CI and deploy.
 
 ## The task queue
@@ -59,8 +61,9 @@ and is not committed. Read it at the start of a session and follow its instructi
   in `@layer components { … }`, classes applied via the imported `styles` object.
 - Every colour, space, radius, shadow and type value is a `var(--ht-…)`. No raw values, no theme object, no
   runtime CSS-in-JS. The one exception is a colour or font set inline because it is the data being shown.
-- The site is set in its own colour and type tokens (`site/app/bindings.css`); spacing and shape stay at
-  browser defaults until their sessions. Fonts are self-hosted from `@fontsource` packages, copied into
+- The site is set entirely in its own tokens (`site/app/bindings.css` for element defaults, CSS Modules for the
+  rest): colour, type, spacing, radius and borders. Rows wrap on narrow screens through flex bases taken from the
+  width tokens, not media queries. No shadows. Fonts are self-hosted from `@fontsource` packages, copied into
   `site/public/fonts/` by `scripts/copy-fonts.mjs`; the token package ships names and stacks, not files.
 
 ## Rules

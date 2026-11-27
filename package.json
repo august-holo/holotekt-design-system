@@ -29,11 +29,12 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit -p site",
     "build:site": "node scripts/copy-fonts.mjs && next build site && node scripts/place-twins.mjs && node scripts/check-links.mjs",
-    "check": "npm run tokens:check && npm run tokens:build && npm run lint && npm run typecheck && npm run build:site",
+    "check": "npm run tokens:check && npm run tokens:build && npm run check:scenarios && npm run lint && npm run typecheck && npm run build:site",
     "dev": "node scripts/dev.mjs",
     "release": "node scripts/release.mjs",
     "deploy": "scripts/deploy.sh",
-    "prepare": "node scripts/build-tokens.mjs"
+    "prepare": "node scripts/build-tokens.mjs",
+    "check:scenarios": "node scripts/check-scenarios.mjs"
   },
   "devDependencies": {
     "@fontsource/arvo": "^5.3.0",
