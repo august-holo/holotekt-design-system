@@ -7,6 +7,14 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Changed
+- The docs site is set entirely in its own tokens and restructured to three page types: a short
+  home, a Foundations index with facts counted from the token data, and a foundation page template
+  with a "Scenarios and roles" table, the live samples, and the full reference inside a closed
+  details section. Both themes, phone width, no shadows. Other pages keep their addresses, Markdown
+  twins and `llms.txt` entries.
+- The header is Foundations · Changelog · GitHub · Theme. The site version shows as major.minor.
+
 ## [0.4.0] - 2026-11-27
 
 ### Added
