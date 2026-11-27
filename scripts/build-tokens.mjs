@@ -6,7 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import StyleDictionary from "style-dictionary";
-import { ROOT, PREFIX, BASES, DEFAULT_MODE, loadTokens, checkTokens, resolvedJson, listModeFiles, cssName, cssValue, className, typographyProps, parseJson } from "./lib/tokens.mjs";
+import { ROOT, PREFIX, BASES, DEFAULT_MODE, loadTokens, checkTokens, resolvedJson, listModeFiles, cssName, cssValue, className, typographyProps, parseJson, modeMedia } from "./lib/tokens.mjs";
 import { MODE_CSS } from "./lib/modes.mjs";
 
 const data = loadTokens();
@@ -112,7 +112,9 @@ for (const { mode } of modeFiles.filter((m, i, arr) => arr.findIndex((x) => x.mo
       `\n/* ${mode} mode: the same tokens, re-aliased. Applied when the system prefers it and the page has set\n   no data-theme, or whenever the page sets data-theme="${mode}". */\n` +
       `@media (prefers-color-scheme: ${mode}) {\n  :root:not([data-theme]) {\n${decls.replace(/^/gm, "  ")}\n  }\n}\n\n:root[data-theme="${mode}"] {\n${decls}\n}\n`;
   } else {
-    css += `\n/* ${mode}: the same tokens, re-aliased, inside ${rule.media}. */\n@media ${rule.media} {\n  :root {\n${decls.replace(/^/gm, "  ")}\n  }\n}\n`;
+    const media = modeMedia(mode, data.byPath);
+    const from = rule.mediaFrom ? ` (${rule.mediaFrom.token})` : "";
+    css += `\n/* ${mode}: the same tokens, re-aliased, inside ${media}${from}. */\n@media ${media} {\n  :root {\n${decls.replace(/^/gm, "  ")}\n  }\n}\n`;
   }
   const modeSources = modeFiles.filter((m) => m.mode === mode).map((m) => abs(m.file));
   const sdMode = new StyleDictionary({

@@ -7,7 +7,9 @@
 //   semantic.json     purpose-named aliases of primitives             tier "semantic"
 //   typography.json   font families and sizes (raw) and one composite tier "primitive" / "style"
 //                     "typography" token per text style
-//   breakpoint.json   aliases that change with viewport               tier "semantic"
+//   breakpoint.json   values that change with the viewport            tier "semantic" / "primitive"
+//   spacing.json      the space scale, widths, breakpoints (raw) and  tier "primitive" / "semantic"
+//                     the inset, gap and grid roles that alias them
 //   <base>.<mode>.json restates a base file's tokens for a mode (semantic.dark.json,
 //                     breakpoint.mobile.json). Every token of the base needs a value; none may be added.
 //   contrast-pairs.json and font-stacks.json are maintained by hand.
@@ -18,6 +20,10 @@ import { fileURLToPath } from "node:url";
 import { MODE_CSS } from "./modes.mjs";
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+
+const REF = /^\{([^{}]+)\}$/;
+export const isRef = (v) => typeof v === "string" && REF.test(v);
+export const refTarget = (v) => REF.exec(v)[1].trim();
 export const PREFIX = "ht";
 export const DEFAULT_MODE = "default";
 export const MIN_FONT_PX = 12;
@@ -26,17 +32,21 @@ export const BASES = [
   { base: "primitives", file: "tokens/primitives.json", tier: () => "primitive", required: true },
   { base: "semantic", file: "tokens/semantic.json", tier: () => "semantic", required: true },
   { base: "typography", file: "tokens/typography.json", tier: (t) => (t.type === "typography" ? "style" : "primitive"), required: false },
-  { base: "breakpoint", file: "tokens/breakpoint.json", tier: () => "semantic", required: false },
+  // Breakpoint is mostly aliases that change with the viewport, plus raw counts such as grid columns.
+  { base: "breakpoint", file: "tokens/breakpoint.json", tier: (t) => (isRef(t.value) ? "semantic" : "primitive"), required: false },
+  // Spacing mixes the scale (raw) with roles that alias it (inset, gap, layout/grid); the tier follows the value.
+  { base: "spacing", file: "tokens/spacing.json", tier: (t) => (isRef(t.value) ? "semantic" : "primitive"), required: false },
 ];
 export const FILES = {
   primitives: "tokens/primitives.json",
   semantic: "tokens/semantic.json",
   typography: "tokens/typography.json",
   breakpoint: "tokens/breakpoint.json",
+  spacing: "tokens/spacing.json",
   pairs: "tokens/contrast-pairs.json",
   stacks: "tokens/font-stacks.json",
 };
-export const MODE_FILE = /^(primitives|semantic|typography|breakpoint)\.([a-z0-9-]+)\.json$/;
+export const MODE_FILE = /^(primitives|semantic|typography|breakpoint|spacing)\.([a-z0-9-]+)\.json$/;
 export const modeFile = (base, mode) => `tokens/${base}.${mode}.json`;
 
 export const KNOWN_TYPES = new Set([
@@ -45,10 +55,6 @@ export const KNOWN_TYPES = new Set([
 ]);
 /** The composite typography token's properties. textTransform is ours; DTCG has no case property. */
 export const TYPOGRAPHY_PROPS = ["fontFamily", "fontSize", "fontWeight", "lineHeight", "letterSpacing", "textTransform"];
-
-const REF = /^\{([^{}]+)\}$/;
-export const isRef = (v) => typeof v === "string" && REF.test(v);
-export const refTarget = (v) => REF.exec(v)[1].trim();
 
 export function parseJson(text, label) {
   try {
@@ -195,6 +201,17 @@ export function resolveAll(set) {
 }
 
 export const valueIn = (t, mode) => (mode === DEFAULT_MODE ? t.resolved : t.resolvedIn?.[mode]);
+
+/** The media query of a "media" mode: a literal, or a template filled from a token's px value. Throws if the token is missing. */
+export function modeMedia(mode, byPath) {
+  const rule = MODE_CSS[mode];
+  if (!rule || rule.kind !== "media") return null;
+  if (rule.media) return rule.media;
+  const t = byPath.get(rule.mediaFrom.token);
+  const px = t ? toPx(t.resolved) : null;
+  if (px === null) throw new Error(`mode "${mode}" takes its width from ${rule.mediaFrom.token}, which does not exist or is not a size.`);
+  return rule.mediaFrom.template.replace("{px}", String(px));
+}
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 /** Whether a token has its own value in a mode, or resolves differently there. */
 export const differsIn = (t, mode) => Boolean(t.modes?.[mode]) || !same(valueIn(t, mode), t.resolved);
@@ -366,11 +383,42 @@ export function checkTokens(data) {
     }
   }
 
-  // A viewport mode may only shrink: no dimension grows there.
+  // Spacing roles end at a step of the scale: inset, gap and layout aliases resolve to space.*, in every mode.
+  const endsAtSpace = (start, mode) => {
+    let cur = start;
+    let alias = aliasIn(cur, mode);
+    const seen = new Set();
+    while (alias && !seen.has(alias)) {
+      seen.add(alias);
+      cur = data.byPath.get(alias);
+      if (!cur) return false;
+      alias = aliasIn(cur, mode);
+    }
+    return cur.path.startsWith("space.");
+  };
+  for (const t of data.list) {
+    const isSpacingRole = (t.base === "spacing" && t.alias) || (t.base === "breakpoint" && t.path.startsWith("layout.") && t.alias);
+    if (!isSpacingRole) continue;
+    for (const mode of allModes) {
+      if (mode !== DEFAULT_MODE && !t.modes?.[mode]) continue;
+      if (!endsAtSpace(t, mode)) err(`${at(t, mode)}: must resolve to a step of the space scale (space.*), not to ${aliasIn(t, mode)}.`);
+    }
+  }
+
+  // A mode that takes its media query from a token needs that token.
+  for (const mode of data.modeNames) {
+    try {
+      modeMedia(mode, data.byPath);
+    } catch (e) {
+      err(e.message);
+    }
+  }
+
+  // A viewport mode may only shrink: no dimension or count grows there.
   for (const mode of data.modeNames) {
     if (!MODE_CSS[mode]?.shrinkOnly) continue;
     for (const t of data.list) {
-      if (t.type !== "dimension" || !t.modes?.[mode]) continue;
+      if (!["dimension", "number"].includes(t.type) || !t.modes?.[mode]) continue;
       const a = toPx(valueIn(t, mode));
       const b = toPx(t.resolved);
       if (a !== null && b !== null && a > b) err(`${t.path}: ${mode} size ${a}px is larger than the default ${b}px. A ${mode} value may step down, never up.`);
@@ -433,12 +481,15 @@ export function resolvedJson(data, checked, { version }) {
     prefix: PREFIX,
     modes: checked.modes,
     colorModes: checked.colorModes,
-    modeCss: Object.fromEntries(Object.entries(MODE_CSS).filter(([m]) => data.modeNames.includes(m))),
+    modeCss: Object.fromEntries(
+      data.modeNames.map((m) => [m, MODE_CSS[m].kind === "media" ? { ...MODE_CSS[m], media: modeMedia(m, data.byPath), mediaFrom: MODE_CSS[m].mediaFrom } : MODE_CSS[m]]),
+    ),
     tokens: data.list.map((t) => {
       const modes = Object.fromEntries(data.modeNames.filter((m) => differsIn(t, m)).map((m) => [m, { value: valueIn(t, m), alias: aliasIn(t, m) }]));
       return {
         path: t.path,
         css: t.css,
+        base: t.base,
         tier: t.tier,
         type: t.type,
         value: t.resolved,
