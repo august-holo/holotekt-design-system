@@ -1,0 +1,6 @@
+[
+  {
+    "token": "color.surface.scrim",
+    "reason": "A dimming backdrop behind dialogs. Text is never set on it."
+  }
+]

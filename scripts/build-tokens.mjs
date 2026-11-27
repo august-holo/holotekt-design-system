@@ -6,7 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import StyleDictionary from "style-dictionary";
-import { ROOT, PREFIX, BASES, DEFAULT_MODE, loadTokens, checkTokens, resolvedJson, listModeFiles, cssName, cssValue, className, typographyProps, parseJson, modeMedia } from "./lib/tokens.mjs";
+import { ROOT, PREFIX, BASES, DEFAULT_MODE, loadTokens, checkTokens, resolvedJson, listModeFiles, cssName, cssValue, className, typographyProps, parseJson, modeMedia, alphaOf } from "./lib/tokens.mjs";
 import { MODE_CSS } from "./lib/modes.mjs";
 
 const data = loadTokens();
@@ -27,7 +27,11 @@ const baseFiles = BASES.filter((b) => fs.existsSync(abs(b.file))).map((b) => abs
 StyleDictionary.registerTransform({
   name: "ht/px-to-rem",
   type: "value",
-  filter: (token, options) => (options.usesDtcg ? token.$type : token.type) === "dimension" && typeof (options.usesDtcg ? token.$value : token.value)?.value === "number" && (options.usesDtcg ? token.$value : token.value).unit === "px",
+  filter: (token, options) =>
+    (options.usesDtcg ? token.$type : token.type) === "dimension" &&
+    typeof (options.usesDtcg ? token.$value : token.value)?.value === "number" &&
+    (options.usesDtcg ? token.$value : token.value).unit === "px" &&
+    !token.$extensions?.["com.holotekt.keepPx"],
   transform: (token, _platform, options) => `${Number(((options.usesDtcg ? token.$value : token.value).value / 16).toFixed(4))}rem`,
 });
 // Ahead of Style Dictionary's own size/rem, which would otherwise stringify the px value first.
@@ -48,14 +52,17 @@ const deepMerge = (into, from) => {
   }
 };
 for (const f of baseFiles) deepMerge(merged, parseJson(fs.readFileSync(f, "utf8"), f));
+const nodeAt = (p) => p.split(".").reduce((n, seg) => n[seg], merged);
 for (const t of data.list) {
-  if (t.type !== "fontFamily" || !data.stacks[t.path]) continue;
-  let node = merged;
-  for (const seg of t.path.split(".")) node = node[seg];
-  node.$value = data.stacks[t.path].stack;
+  if (t.type === "fontFamily" && data.stacks[t.path]) nodeAt(t.path).$value = data.stacks[t.path].stack;
+  if (t.keepPx) nodeAt(t.path).$extensions = { ...(nodeAt(t.path).$extensions ?? {}), "com.holotekt.keepPx": true };
 }
 
-const notComposite = (token, options) => (options.usesDtcg ? token.$type : token.type) !== "typography";
+// Composite text styles and translucent colours are written by this script, not by Style Dictionary:
+// the styles as six properties each, the colours as rgb(r g b / a) in both the default and mode blocks.
+const isAlphaColor = (t) => t.type === "color" && alphaOf(t.resolved) < 1;
+const ownDeclarations = new Set(data.list.filter(isAlphaColor).map((t) => t.path));
+const notComposite = (token, options) => (options.usesDtcg ? token.$type : token.type) !== "typography" && !ownDeclarations.has(token.path.join("."));
 const sd = new StyleDictionary({
   tokens: merged,
   log: quiet,
@@ -83,6 +90,13 @@ await sd.buildAllPlatforms();
 
 let css = fs.readFileSync(path.join(dist, "tokens.css"), "utf8");
 
+// Translucent colours, in the default block.
+const alphaColors = data.list.filter(isAlphaColor);
+if (alphaColors.length) {
+  const decls = alphaColors.map((t) => `  ${t.css}: ${cssValue("color", t.resolved)};${t.description ? ` /** ${t.description} */` : ""}`).join("\n");
+  css += `\n/* Colours with alpha. */\n:root {\n${decls}\n}\n`;
+}
+
 // Text styles: six variables per style, in the default block.
 const styles = data.list.filter((t) => t.tier === "style");
 if (styles.length) {
@@ -103,7 +117,7 @@ for (const { mode } of modeFiles.filter((m, i, arr) => arr.findIndex((x) => x.mo
     .filter((t) => t.modes?.[mode])
     .map((t) => {
       const mv = t.modes[mode];
-      const value = mv.alias ? `var(${cssName(mv.alias)})` : cssValue(t.type, t.resolvedIn[mode], data.stacks, t.path);
+      const value = mv.alias ? `var(${cssName(mv.alias)})` : cssValue(t.type, t.resolvedIn[mode], data.stacks, t.path, { keepPx: t.keepPx });
       return `  ${t.css}: ${value};${t.description ? ` /** ${t.description} */` : ""}`;
     })
     .join("\n");

@@ -41,7 +41,7 @@ resolveAll(after);
 const show = (v) => (typeof v === "string" ? v : JSON.stringify(v));
 const key = (t) => `${t.type}:${show(t.resolved)}`;
 // A token's modes as one comparable string: "dark=#F7F7F1→color.neutral.50".
-const modesKey = (t) => Object.entries(t.modes ?? {}).map(([m, v]) => `${m}=${show(v.resolved)}→${v.alias}`).sort().join("|");
+const modesKey = (t) => Object.entries(t.modes ?? {}).map(([m, v]) => `${m}=${show(t.resolvedIn?.[m])}→${v.alias}`).sort().join("|");
 
 const added = [];
 const removed = [];
@@ -79,8 +79,10 @@ const describeChange = ({ old, t }) => {
   else if (show(old.resolved) !== show(t.resolved)) parts.push(`${show(old.resolved)} → ${show(t.resolved)}`);
   for (const [m, v] of Object.entries(t.modes ?? {})) {
     const o = old.modes?.[m];
-    if (!o) parts.push(`${m} mode added (${show(v.resolved)}${v.alias ? `, aliases ${v.alias}` : ""})`);
-    else if (show(o.resolved) !== show(v.resolved) || o.alias !== v.alias) parts.push(`${m}: ${show(o.resolved)} → ${show(v.resolved)}${v.alias ? ` (aliases ${v.alias})` : ""}`);
+    const was = show(old.resolvedIn?.[m]);
+    const now = show(t.resolvedIn?.[m]);
+    if (!o) parts.push(`${m} mode added (${now}${v.alias ? `, aliases ${v.alias}` : ""})`);
+    else if (was !== now || o.alias !== v.alias) parts.push(`${m}: ${was} → ${now}${v.alias ? ` (aliases ${v.alias}${o.alias && o.alias !== v.alias ? `, was ${o.alias}` : ""})` : ""}`);
   }
   for (const m of Object.keys(old.modes ?? {})) if (!t.modes?.[m]) parts.push(`${m} mode removed`);
   return parts.join("; ");

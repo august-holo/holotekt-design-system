@@ -10,6 +10,7 @@
 //   breakpoint.json   values that change with the viewport            tier "semantic" / "primitive"
 //   spacing.json      the space scale, widths, breakpoints (raw) and  tier "primitive" / "semantic"
 //                     the inset, gap and grid roles that alias them
+//   shape.json        radii and border widths, kept in px               tier "primitive"
 //   <base>.<mode>.json restates a base file's tokens for a mode (semantic.dark.json,
 //                     breakpoint.mobile.json). Every token of the base needs a value; none may be added.
 //   contrast-pairs.json and font-stacks.json are maintained by hand.
@@ -36,17 +37,26 @@ export const BASES = [
   { base: "breakpoint", file: "tokens/breakpoint.json", tier: (t) => (isRef(t.value) ? "semantic" : "primitive"), required: false },
   // Spacing mixes the scale (raw) with roles that alias it (inset, gap, layout/grid); the tier follows the value.
   { base: "spacing", file: "tokens/spacing.json", tier: (t) => (isRef(t.value) ? "semantic" : "primitive"), required: false },
+  // Radii and border widths stay in px: they should not grow with the reader's text size.
+  { base: "shape", file: "tokens/shape.json", tier: () => "primitive", required: false, keepPx: true },
 ];
+/** Semantic tokens allowed to hold a raw value, by name, with the reason. */
+export const RAW_SEMANTIC_ALLOWED = new Map([
+  // A translucent colour cannot alias an opaque primitive; Figma holds the scrim as a raw colour with alpha.
+  ["color.surface.scrim", "translucent; no primitive to alias"],
+]);
 export const FILES = {
   primitives: "tokens/primitives.json",
   semantic: "tokens/semantic.json",
   typography: "tokens/typography.json",
   breakpoint: "tokens/breakpoint.json",
   spacing: "tokens/spacing.json",
+  shape: "tokens/shape.json",
   pairs: "tokens/contrast-pairs.json",
+  exempt: "tokens/contrast-exempt.json",
   stacks: "tokens/font-stacks.json",
 };
-export const MODE_FILE = /^(primitives|semantic|typography|breakpoint|spacing)\.([a-z0-9-]+)\.json$/;
+export const MODE_FILE = /^(primitives|semantic|typography|breakpoint|spacing|shape)\.([a-z0-9-]+)\.json$/;
 export const modeFile = (base, mode) => `tokens/${base}.${mode}.json`;
 
 export const KNOWN_TYPES = new Set([
@@ -123,6 +133,7 @@ export function parseTokenSet({ files, modes = [] }) {
     for (const t of flatten(parse(files[b.base], b.file) ?? {}, b.file)) {
       t.base = b.base;
       t.tier = b.tier(t);
+      if (b.keepPx) t.keepPx = true;
       list.push(t);
     }
   }
@@ -250,13 +261,13 @@ export function toPx(value) {
 
 const trim = (n) => String(Number(n.toFixed(4)));
 /** A resolved value as CSS text. Font sizes and other px dimensions become rem. */
-export function cssValue(type, value, stacks = {}, tokenPath) {
+export function cssValue(type, value, stacks = {}, tokenPath, { keepPx = false } = {}) {
   if (value === null || value === undefined) return "";
   switch (type) {
     case "color":
-      return (toHex(value) ?? String(value)).toLowerCase();
+      return toCssColor(value);
     case "dimension":
-      if (value && typeof value === "object") return value.unit === "px" ? `${trim(value.value / 16)}rem` : `${trim(value.value)}${value.unit}`;
+      if (value && typeof value === "object") return value.unit === "px" && !keepPx ? `${trim(value.value / 16)}rem` : `${trim(value.value)}${value.unit}`;
       return String(value);
     case "fontFamily": {
       const names = stacks[tokenPath]?.stack ?? (Array.isArray(value) ? value : [value]);
@@ -278,7 +289,7 @@ export function typographyProps(t, stacks, mode = DEFAULT_MODE) {
     const v = raw?.[key];
     if (v === undefined) return undefined;
     if (isRef(v)) return `var(${cssName(refTarget(v))})`;
-    return cssValue(type, resolved[key], stacks);
+    return cssValue(type, resolved[key], stacks, undefined, { keepPx: t.keepPx });
   };
   return {
     "font-family": prop("fontFamily", "fontFamily"),
@@ -288,6 +299,28 @@ export function typographyProps(t, stacks, mode = DEFAULT_MODE) {
     "letter-spacing": prop("letterSpacing", "dimension"),
     "text-transform": prop("textTransform", "string") ?? "none",
   };
+}
+
+/** Alpha of a hex string or DTCG colour object, 0..1 (1 when opaque). */
+export function alphaOf(value) {
+  if (typeof value === "string") {
+    const m = /^#([0-9a-f]{4}|[0-9a-f]{8})$/i.exec(value.trim());
+    if (!m) return 1;
+    const h = m[1].length === 4 ? m[1][3] + m[1][3] : m[1].slice(6, 8);
+    return parseInt(h, 16) / 255;
+  }
+  if (value && typeof value === "object" && typeof value.alpha === "number") return value.alpha;
+  return 1;
+}
+
+/** A colour as CSS: lowercase hex, or rgb(r g b / a) when it has alpha. */
+export function toCssColor(value) {
+  const hex = toHex(value);
+  if (!hex) return String(value);
+  const a = alphaOf(value);
+  if (a >= 1) return hex.toLowerCase();
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  return `rgb(${r} ${g} ${b} / ${Number(a.toFixed(2))})`;
 }
 
 export function relativeLuminance(hex) {
@@ -314,7 +347,8 @@ export function loadTokens(root = ROOT) {
   const set = parseTokenSet({ files, modes });
   const pairs = parseJson(read(FILES.pairs), FILES.pairs);
   const stacks = has(FILES.stacks) ? parseJson(read(FILES.stacks), FILES.stacks) : {};
-  return { ...set, pairs, stacks };
+  const exempt = has(FILES.exempt) ? parseJson(read(FILES.exempt), FILES.exempt) : [];
+  return { ...set, pairs, stacks, exempt };
 }
 
 /**
@@ -337,8 +371,10 @@ export function checkTokens(data) {
     cssSeen.set(t.css, t.path);
 
     if (t.tier === "semantic") {
-      if (!isRef(t.value)) err(`${t.path}: a token in ${t.source} must alias another token, like "{color.neutral.900}", not hold a raw value (${JSON.stringify(t.value)}).`);
-      for (const [mode, mv] of Object.entries(t.modes ?? {})) if (!isRef(mv.value)) err(`${at(t, mode)}: must alias another token, not hold a raw value (${JSON.stringify(mv.value)}).`);
+      if (!RAW_SEMANTIC_ALLOWED.has(t.path)) {
+        if (!isRef(t.value)) err(`${t.path}: a token in ${t.source} must alias another token, like "{color.neutral.900}", not hold a raw value (${JSON.stringify(t.value)}).`);
+        for (const [mode, mv] of Object.entries(t.modes ?? {})) if (!isRef(mv.value)) err(`${at(t, mode)}: must alias another token, not hold a raw value (${JSON.stringify(mv.value)}).`);
+      }
       if (!t.description) err(`${t.path}: needs a $description that says when to use it, in one plain sentence.`);
     }
 
@@ -456,10 +492,20 @@ export function checkTokens(data) {
     pairs.push({ text: p.text, background: p.background, min, ...perMode[DEFAULT_MODE], passes: allPass, modes: perMode });
     covered.add(p.text).add(p.background);
   }
-  const uncovered = data.list.filter((t) => t.tier === "semantic" && t.type === "color" && !covered.has(t.path)).map((t) => t.path);
-  if (uncovered.length) warnings.push(`not covered by a contrast pair: ${uncovered.join(", ")}. Add pairs to ${FILES.pairs} if text is ever set on or in these colours.`);
+  // Exemptions: semantic colours that are never a text colour or a text background, each with a reason.
+  const exempt = [];
+  for (const e of Array.isArray(data.exempt) ? data.exempt : []) {
+    const t = data.byPath.get(e?.token);
+    if (!t || t.tier !== "semantic" || t.type !== "color") err(`${FILES.exempt}: "${e?.token}" is not a semantic colour token.`);
+    else if (!e.reason || typeof e.reason !== "string") err(`${FILES.exempt}: ${e.token} needs a one-line reason.`);
+    else if (covered.has(t.path)) err(`${FILES.exempt}: ${e.token} is in a contrast pair; it cannot also be exempt.`);
+    else exempt.push({ token: t.path, reason: e.reason.trim() });
+  }
+  const exemptPaths = new Set(exempt.map((e) => e.token));
+  const uncovered = data.list.filter((t) => t.tier === "semantic" && t.type === "color" && !covered.has(t.path) && !exemptPaths.has(t.path)).map((t) => t.path);
+  if (uncovered.length) warnings.push(`not covered by a contrast pair: ${uncovered.join(", ")}. Add pairs to ${FILES.pairs} if text is ever set on or in these colours, or exempt them in ${FILES.exempt} with a reason.`);
 
-  return { errors, warnings, pairs, uncovered, modes: allModes, colorModes };
+  return { errors, warnings, pairs, uncovered, exempt, modes: allModes, colorModes };
 }
 
 export function formatPairsTable(pairs, modes = [DEFAULT_MODE]) {
@@ -502,5 +548,6 @@ export function resolvedJson(data, checked, { version }) {
     fonts: data.stacks ?? {},
     contrastPairs: checked.pairs,
     uncovered: checked.uncovered,
+    exempt: checked.exempt,
   };
 }
