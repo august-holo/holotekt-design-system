@@ -1,9 +1,13 @@
-/* The site set in its own system: colours and type come from the published tokens, nothing else is
-   decided here. Spacing, shape and the rest stay at browser defaults until their sessions (B-050). */
+/* Element defaults bound to the published tokens: colour, type, spacing and shape. Nothing here is
+   decided by this site; it only says which token each element uses. */
 :root {
   color-scheme: light dark;
 }
+html {
+  background: var(--ht-color-surface-page, Canvas);
+}
 body {
+  margin: 0;
   background: var(--ht-color-surface-page, Canvas);
   color: var(--ht-color-text-primary, CanvasText);
   font-family: var(--ht-ui-body-font-family, system-ui, sans-serif);
@@ -18,11 +22,21 @@ a:hover {
   color: var(--ht-color-text-link-hover, var(--ht-color-text-link, LinkText));
 }
 :focus-visible {
-  outline: 2px solid var(--ht-color-border-focus, Highlight);
-  outline-offset: 2px;
+  outline: var(--ht-border-width-thick) solid var(--ht-color-border-focus, Highlight);
+  outline-offset: var(--ht-space-50);
 }
 
-/* Headings: the page title is heading/display, then heading/1 to heading/3 for the levels below. */
+/* Headings: the page title is heading/display, then heading/2 to heading/4 for the levels below. */
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+figure {
+  margin: 0;
+}
 h1 {
   font-family: var(--ht-heading-display-font-family);
   font-size: var(--ht-heading-display-font-size);
@@ -31,29 +45,27 @@ h1 {
   letter-spacing: var(--ht-heading-display-letter-spacing);
 }
 h2 {
-  font-family: var(--ht-heading-1-font-family);
-  font-size: var(--ht-heading-1-font-size);
-  font-weight: var(--ht-heading-1-font-weight);
-  line-height: var(--ht-heading-1-line-height);
-  letter-spacing: var(--ht-heading-1-letter-spacing);
-}
-h3 {
   font-family: var(--ht-heading-2-font-family);
   font-size: var(--ht-heading-2-font-size);
   font-weight: var(--ht-heading-2-font-weight);
   line-height: var(--ht-heading-2-line-height);
   letter-spacing: var(--ht-heading-2-letter-spacing);
 }
-h4 {
+h3 {
   font-family: var(--ht-heading-3-font-family);
   font-size: var(--ht-heading-3-font-size);
   font-weight: var(--ht-heading-3-font-weight);
   line-height: var(--ht-heading-3-line-height);
 }
+h4 {
+  font-family: var(--ht-heading-4-font-family);
+  font-size: var(--ht-heading-4-font-size);
+  font-weight: var(--ht-heading-4-font-weight);
+  line-height: var(--ht-heading-4-line-height);
+}
 
-/* Interface text: tables and navigation are ui/small, column headers are ui/label, quiet details are ui/meta. */
-table,
-nav {
+/* Interface text: tables are ui/small, column headers are ui/label, quiet details are ui/meta. */
+table {
   font-size: var(--ht-ui-small-font-size);
   line-height: var(--ht-ui-small-line-height);
 }
@@ -66,24 +78,26 @@ th {
   text-transform: var(--ht-ui-label-text-transform);
   text-align: left;
 }
-footer,
 figcaption,
-small,
-legend {
+small {
   font-size: var(--ht-ui-meta-font-size);
   line-height: var(--ht-ui-meta-line-height);
-  color: var(--ht-color-text-muted, inherit);
 }
 code {
   font-family: var(--ht-font-family-machine, ui-monospace, monospace);
-}
-
-/* Wide tables scroll within themselves rather than widening the page on a phone. Structure, not design. */
-table {
-  display: block;
-  max-width: 100%;
-  overflow-x: auto;
-}
-code {
   overflow-wrap: anywhere;
+}
+/* Prose lists only: lists with a class lay themselves out. */
+ul:not([class]),
+ol:not([class]) {
+  padding-left: var(--ht-space-500);
+}
+ul:not([class]) li + li,
+ol:not([class]) li + li {
+  margin-top: var(--ht-space-100);
+}
+hr {
+  border: 0;
+  border-top: var(--ht-border-width-thin) solid var(--ht-color-border-divider);
+  margin: 0;
 }

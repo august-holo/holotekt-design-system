@@ -1,10 +1,12 @@
 "use client";
 // B-007: light / dark / system, stored per visitor, applied as data-theme on <html>. The inline
 // script in layout.tsx applies the stored choice before first paint so there is no flash.
+// Shown as the "Theme" item in the header (B-050): one click cycles system → light → dark.
 import { useSyncExternalStore } from "react";
 import { THEME_KEY } from "@/lib/theme";
 
 export type Theme = "system" | "light" | "dark";
+const ORDER: Theme[] = ["system", "light", "dark"];
 const CHANGE_EVENT = "ht-theme-change";
 
 function read(): Theme {
@@ -38,17 +40,12 @@ function choose(next: Theme) {
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
-export function ThemeToggle() {
-  // The server renders "system"; the client reads the stored choice after hydration.
+export function ThemeToggle({ className }: { className?: string }) {
   const theme = useSyncExternalStore(subscribe, read, () => "system" as Theme);
+  const next = ORDER[(ORDER.indexOf(theme) + 1) % ORDER.length];
   return (
-    <fieldset>
-      <legend>Theme</legend>
-      {(["system", "light", "dark"] as Theme[]).map((t) => (
-        <label key={t}>
-          <input type="radio" name="theme" value={t} checked={theme === t} onChange={() => choose(t)} /> {t}
-        </label>
-      ))}
-    </fieldset>
+    <button type="button" className={className} onClick={() => choose(next)} aria-label={`Theme: ${theme}. Switch to ${next}.`} title={`Theme: ${theme}`}>
+      Theme
+    </button>
   );
 }
