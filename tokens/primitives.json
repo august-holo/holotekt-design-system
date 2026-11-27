@@ -271,13 +271,33 @@
         "$type": "color",
         "$value": "#41403B"
       },
+      "825": {
+        "$type": "color",
+        "$value": "#3A3935",
+        "$description": "In-between step. Dark-mode overlay surface. Provisional value."
+      },
+      "875": {
+        "$type": "color",
+        "$value": "#2F2E2B",
+        "$description": "In-between step. Dark-mode raised surface. Provisional value."
+      },
       "900": {
         "$type": "color",
         "$value": "#2A2926"
       },
+      "925": {
+        "$type": "color",
+        "$value": "#1E1D1A",
+        "$description": "In-between step. Dark-mode page surface. Provisional value."
+      },
       "950": {
         "$type": "color",
         "$value": "#191815"
+      },
+      "1000": {
+        "$type": "color",
+        "$value": "#0E0D0C",
+        "$description": "Near-black, below 950. Dark-mode sunken surface. Provisional value."
       }
     }
   }

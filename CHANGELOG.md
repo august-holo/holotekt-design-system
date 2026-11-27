@@ -7,6 +7,23 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Added
+- Shape from the shape and elevation session: four corner radii (`radius/none|sm|md|full`) and two
+  border widths (`border/width/thin|thick`), in px. There are no shadow tokens: elevation is tonal,
+  with a border on what overlaps.
+- Four neutral primitives for the dark surfaces (`neutral/825`, `875`, `925`, `1000`, provisional) and
+  two surface roles: `surface/overlay` for menus, popovers and dialogs, and `surface/scrim`, a
+  translucent backdrop and the one semantic token that holds a raw value.
+- 11 contrast pairs on `surface/overlay`, 54 in all; `tokens/contrast-exempt.json` for colours that are
+  never behind or in text, starting with the scrim.
+- The shape and elevation page: radii, border widths and the five border recipes on samples, the
+  surface ladder in both themes, a menu over a card, a dialog on the scrim, and the elevation rules.
+
+### Changed
+- Dark-mode surfaces, so the ladder runs darkest to lightest by depth: `surface/sunken` now aliases
+  `neutral/1000` (was `neutral/800`), `surface/page` aliases `neutral/925` (was `neutral/950`), and
+  `surface/raised` aliases `neutral/875` (was `neutral/900`). Light mode is unchanged.
+
 ## [0.3.0] - 2026-11-27
 
 ### Added

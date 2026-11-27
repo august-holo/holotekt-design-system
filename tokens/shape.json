@@ -1,0 +1,56 @@
+{
+  "radius": {
+    "none": {
+      "$type": "dimension",
+      "$value": {
+        "value": 0,
+        "unit": "px"
+      },
+      "$description": "Square corners: full-bleed bands, dividers, table cells."
+    },
+    "sm": {
+      "$type": "dimension",
+      "$value": {
+        "value": 2,
+        "unit": "px"
+      },
+      "$description": "Default corner for cards, buttons, inputs and menus."
+    },
+    "md": {
+      "$type": "dimension",
+      "$value": {
+        "value": 4,
+        "unit": "px"
+      },
+      "$description": "Larger containers such as dialogs."
+    },
+    "full": {
+      "$type": "dimension",
+      "$value": {
+        "value": 9999,
+        "unit": "px"
+      },
+      "$description": "Pills and circles: tags, avatars, status dots."
+    }
+  },
+  "border": {
+    "width": {
+      "thin": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1,
+          "unit": "px"
+        },
+        "$description": "Hairlines, dividers and the border on overlay surfaces."
+      },
+      "thick": {
+        "$type": "dimension",
+        "$value": {
+          "value": 2,
+          "unit": "px"
+        },
+        "$description": "Strong outlines and the focus ring."
+      }
+    }
+  }
+}

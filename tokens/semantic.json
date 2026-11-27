@@ -77,6 +77,16 @@
         "$type": "color",
         "$value": "{color.neutral.950}",
         "$description": "Tooltips and inverted buttons: the opposite of the page."
+      },
+      "overlay": {
+        "$type": "color",
+        "$value": "{color.neutral.0}",
+        "$description": "Menus, popovers and dialogs that overlap content. Always paired with a border."
+      },
+      "scrim": {
+        "$type": "color",
+        "$value": "#19181580",
+        "$description": "Dimmed backdrop behind dialogs. Neutral 950 at 50% in light, 70% in dark."
       }
     },
     "border": {

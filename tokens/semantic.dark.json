@@ -37,15 +37,15 @@
     "surface": {
       "page": {
         "$type": "color",
-        "$value": "{color.neutral.950}"
+        "$value": "{color.neutral.925}"
       },
       "raised": {
         "$type": "color",
-        "$value": "{color.neutral.900}"
+        "$value": "{color.neutral.875}"
       },
       "sunken": {
         "$type": "color",
-        "$value": "{color.neutral.800}"
+        "$value": "{color.neutral.1000}"
       },
       "hover": {
         "$type": "color",
@@ -62,6 +62,14 @@
       "inverse": {
         "$type": "color",
         "$value": "{color.neutral.50}"
+      },
+      "overlay": {
+        "$type": "color",
+        "$value": "{color.neutral.825}"
+      },
+      "scrim": {
+        "$type": "color",
+        "$value": "#191815B2"
       }
     },
     "border": {
