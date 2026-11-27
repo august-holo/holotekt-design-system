@@ -100,6 +100,21 @@ function BlockView({ block }: { block: Block }) {
           {block.text}
         </p>
       );
+    case "sample":
+      // A drawn sample whose sizes and colours are token variables. The style is the data.
+      return (
+        <figure>
+          <div style={block.style} className={styles.sample}>
+            {block.text}
+            {block.inner?.map((inner, i) => (
+              <div key={i} style={inner.style} className={inner.className}>
+                {inner.text}
+              </div>
+            ))}
+          </div>
+          <figcaption>{block.label}</figcaption>
+        </figure>
+      );
     case "md":
       return <ReactMarkdown remarkPlugins={[remarkGfm]}>{block.markdown}</ReactMarkdown>;
   }

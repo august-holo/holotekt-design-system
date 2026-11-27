@@ -20,6 +20,8 @@ export const FIGMA_URL = "https://www.figma.com/design/9PGHwdHaI5pEgpmTEnsU3A";
 export interface Token {
   path: string;
   css: string;
+  /** Which tokens/ file the token comes from: primitives, semantic, typography, breakpoint, spacing … */
+  base: string;
   tier: "primitive" | "semantic" | "style";
   type: string;
   value: unknown;

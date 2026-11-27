@@ -22,6 +22,11 @@
     min-width: 0;
   }
 
+  .sample {
+    box-sizing: border-box;
+    min-height: 0.25rem;
+  }
+
   .rampSwatch {
     display: block;
     height: 2.5em;

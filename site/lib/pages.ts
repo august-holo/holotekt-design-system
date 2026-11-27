@@ -28,6 +28,7 @@ export type Block =
   | { kind: "table"; columns: string[]; rows: Cell[][] }
   | { kind: "ramp"; name: string; steps: { step: string; path: string; css: string; value: string }[] }
   | { kind: "specimen"; text: string; className?: string; style?: Record<string, string>; label?: string }
+  | { kind: "sample"; label: string; style: Record<string, string>; text?: string; inner?: { style: Record<string, string>; text?: string; className?: string }[] }
   | { kind: "md"; markdown: string };
 
 export interface Page {
@@ -60,7 +61,7 @@ const FOUNDATION_INFO: Record<Foundation, { title: string; description: string; 
   },
   spacing: {
     title: "Spacing and layout",
-    description: "Spacing steps, sizes, breakpoints and layout measures.",
+    description: "An eleven-step space scale, the inset and gap roles that alias it, two content widths, two breakpoints, the values that change on phones, and the dotted grid.",
     session: "spacing and layout",
     match: rootIn(["space", "spacing", "size", "sizing", "layout", "grid", "breakpoint", "container"]),
   },
@@ -224,10 +225,82 @@ function typographyPage(data: ReturnType<typeof tokenData>, info: (typeof FOUNDA
   return page;
 }
 
+/** The spacing and layout page: the scale as bars, the roles, widths, breakpoints, what steps down on phones, and the dotted grid. */
+function spacingPage(data: ReturnType<typeof tokenData>, info: (typeof FOUNDATION_INFO)[Foundation]): Page {
+  const page: Page = { route: "/foundations/spacing", title: info.title, description: info.description, blocks: [] };
+  const spacing = data.tokens.filter((t) => t.base === "spacing");
+  if (!spacing.length) {
+    page.blocks.push({ kind: "p", text: `Not published yet. Tokens for spacing and layout arrive with the ${info.session} session.` });
+    return page;
+  }
+  const scale = spacing.filter((t) => t.path.startsWith("space."));
+  const roles = spacing.filter((t) => t.path.startsWith("inset.") || t.path.startsWith("gap."));
+  const widths = spacing.filter((t) => t.path.startsWith("layout.width."));
+  const breakpoints = spacing.filter((t) => t.path.startsWith("layout.breakpoint."));
+  const grid = spacing.filter((t) => t.path.startsWith("layout.grid."));
+  const stepping = data.tokens.filter((t) => t.base === "breakpoint" && t.path.startsWith("layout."));
+  const mediaModes = data.modes.filter((m) => data.modeCss[m]?.kind === "media");
+  const sizeLabel = (m: string) => (m === "default" ? "Desktop" : m[0].toUpperCase() + m.slice(1));
+  const roleRows = (list: Token[]): Cell[][] => list.map((t) => [{ text: t.path, code: true }, { text: t.css, code: true }, { text: t.alias ?? "", code: true }, showSize(t.value), t.description ?? ""]);
+
+  page.blocks.push({ kind: "h2", text: "The scale" });
+  page.blocks.push({ kind: "p", text: "Eleven steps on a 4px base. Figma holds pixels; the CSS is in rem so space grows with the reader's text size." });
+  for (const t of scale) page.blocks.push({ kind: "sample", label: `${t.path} · ${showSize(t.value)}`, style: { width: `var(${t.css})`, height: "0.75rem", background: "var(--ht-color-accent-default)" } });
+  page.blocks.push({ kind: "table", columns: ["Token", "CSS variable", "Size", "Description"], rows: scale.map((t) => [{ text: t.path, code: true }, { text: t.css, code: true }, showSize(t.value), t.description ?? ""]) });
+
+  page.blocks.push({ kind: "h2", text: "Inset and gap" });
+  page.blocks.push({ kind: "p", text: "Inset is padding inside a thing; gap is space between things. Each role aliases a step of the scale, so a change to the scale moves every role with it." });
+  page.blocks.push({ kind: "table", columns: ["Token", "CSS variable", "Aliases", "Size", "When to use"], rows: roleRows(roles) });
+
+  page.blocks.push({ kind: "h2", text: "Widths" });
+  page.blocks.push({ kind: "p", text: "The two content widths, drawn at quarter scale." });
+  for (const t of widths) page.blocks.push({ kind: "sample", label: `${t.path} · ${showSize(t.value)}`, style: { width: `calc(var(${t.css}) / 4)`, maxWidth: "100%", height: "0.75rem", background: "var(--ht-color-accent-default)" } });
+  page.blocks.push({ kind: "table", columns: ["Token", "CSS variable", "Width", "Description"], rows: widths.map((t) => [{ text: t.path, code: true }, { text: t.css, code: true }, showSize(t.value), t.description ?? ""]) });
+
+  page.blocks.push({ kind: "h2", text: "Breakpoints" });
+  page.blocks.push({ kind: "p", text: `Viewport widths in px, unitless in the token. The mobile mode of every breakpoint token applies inside ${mediaModes.map((m) => (data.modeCss[m] as { media: string }).media).join(", ")}, taken from the md token at build time.` });
+  page.blocks.push({ kind: "table", columns: ["Token", "CSS variable", "Value", "Description"], rows: breakpoints.map((t) => [{ text: t.path, code: true }, { text: t.css, code: true }, `${showValue(t.value)}px`, t.description ?? ""]) });
+
+  if (stepping.length) {
+    page.blocks.push({ kind: "h2", text: "What changes on phones" });
+    page.blocks.push({
+      kind: "table",
+      columns: ["Token", "CSS variable", ...["default", ...mediaModes].flatMap((m) => [`Aliases (${sizeLabel(m)})`, `Value (${sizeLabel(m)})`]), "Description"],
+      rows: stepping.map((t) => [
+        { text: t.path, code: true },
+        { text: t.css, code: true },
+        ...["default", ...mediaModes].flatMap((m) => {
+          const v = m === "default" ? { value: t.value, alias: t.alias } : (t.modes?.[m] ?? { value: t.value, alias: t.alias });
+          return [{ text: v.alias ?? "", code: true } as Cell, t.type === "number" ? showValue(v.value) : showSize(v.value)];
+        }),
+        t.description ?? "",
+      ]),
+    });
+  }
+
+  page.blocks.push({ kind: "h2", text: "The grid" });
+  page.blocks.push({ kind: "p", text: "The gutter and the dotted background share one pitch, so content lines up with the dots." });
+  page.blocks.push({ kind: "table", columns: ["Token", "CSS variable", "Aliases", "Size", "Description"], rows: roleRows(grid) });
+  page.blocks.push({
+    kind: "sample",
+    label: "layout.grid.dot-pitch: the dotted grid at the published pitch",
+    style: {
+      height: "8rem",
+      backgroundImage: "radial-gradient(circle, var(--ht-color-border-subtle) 1px, transparent 1.5px)",
+      backgroundSize: "var(--ht-layout-grid-dot-pitch) var(--ht-layout-grid-dot-pitch)",
+      backgroundPosition: "calc(var(--ht-layout-grid-dot-pitch) / 2) calc(var(--ht-layout-grid-dot-pitch) / 2)",
+      border: "1px solid var(--ht-color-border-subtle)",
+    },
+  });
+  page.blocks.push({ kind: "p", text: "There are no layout templates here. Column spans and reflow rules are decided per product and arrive with the wireframes." });
+  return page;
+}
+
 export function foundationPage(kind: Foundation): Page {
   const info = FOUNDATION_INFO[kind];
   const data = tokenData();
   if (kind === "typography") return typographyPage(data, info);
+  if (kind === "spacing") return spacingPage(data, info);
   const tokens = data.tokens.filter(info.match);
   const page: Page = { route: `/foundations/${kind}`, title: info.title, description: info.description, blocks: [] };
 
@@ -472,6 +545,9 @@ export function toMarkdown(page: Page): string {
         break;
       case "specimen":
         if (b.label) out.push(`*Specimen (${b.label}):* ${b.text}`, "");
+        break;
+      case "sample":
+        out.push(`*Sample:* ${b.label}`, "");
         break;
       case "md":
         out.push(b.markdown, "");
