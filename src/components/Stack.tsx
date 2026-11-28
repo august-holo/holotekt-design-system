@@ -11,7 +11,7 @@ export type StackProps = {
   children?: ReactNode;
 };
 
-/** Things in a column with one gap between them. The parent sets the space; children carry no margins. No look of its own. */
+/** Things in a column with one gap between them. The parent sets the space; children carry no margins. There is no zero step on purpose: things with no space between them do not need a Stack. No look of its own. */
 export function Stack({ gap = "md", as: Tag = "div", className, children }: StackProps) {
   return (
     <Tag className={["ht-stack", className ?? ""].filter(Boolean).join(" ")} data-gap={gap}>

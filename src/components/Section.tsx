@@ -20,8 +20,9 @@ export type SectionProps = {
 };
 
 /**
- * A major part of a page: the accent bar, a heading, then the content, with fixed spacing (gap/md) and the
- * section gap above. Made of AccentBar and Stack. No look of its own beyond the bar and the heading style.
+ * A major part of a page: the accent bar, a heading, then the content, with fixed spacing (gap/md) between
+ * them and nothing outside. A page places its sections with a Stack at the section gap; the Section carries
+ * no margin of its own. Made of AccentBar and Stack. No look of its own beyond the bar and the heading style.
  */
 export function Section({ heading, level = 2, bar = true, as: Tag = "section", id, className, children }: SectionProps) {
   const Heading = `h${level}` as "h1" | "h2" | "h3" | "h4";

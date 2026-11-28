@@ -33,9 +33,25 @@ export default function Page() {
             <div>Four columns</div>
           </Grid.Item>
         </Grid>
-        <Section heading="A section" level={3} id="fixture-section">
-          <p>Content in the section.</p>
-        </Section>
+        <Grid collapse="lg" className="fixture-grid-lg">
+          <Grid.Item span={9}>
+            <div>Nine, collapsing at lg</div>
+          </Grid.Item>
+          <Grid.Item span={3}>
+            <div>Three, collapsing at lg</div>
+          </Grid.Item>
+        </Grid>
+        <Container width="reading" className="fixture-reading">
+          <p>A reading Container nested in the page Container.</p>
+        </Container>
+        <Stack gap="section" className="fixture-sections">
+          <Section heading="A section" level={3} id="fixture-section">
+            <p>Content in the section.</p>
+          </Section>
+          <Section heading="Another section" level={3}>
+            <p>Content in the next section.</p>
+          </Section>
+        </Stack>
       </Stack>
     </Container>
   );

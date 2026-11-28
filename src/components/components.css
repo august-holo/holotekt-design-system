@@ -234,15 +234,19 @@
   /* --- Layout helpers -------------------------------------------------------------------------- */
   /* No look of their own: no colour, border, radius or shadow. Space comes from the parent's gap;
      the options are the named steps, as data attributes. Logical properties throughout. */
+  /* Only the page width carries the page margin; a reading Container is width and centring alone, so one
+     nested in a page Container does not double the margin. */
   .ht-container {
     box-sizing: border-box;
     inline-size: 100%;
-    max-inline-size: calc(var(--ht-layout-width-page) + 2 * var(--ht-layout-page-margin));
     margin-inline: auto;
+  }
+  .ht-container[data-width="page"] {
+    max-inline-size: calc(var(--ht-layout-width-page) + 2 * var(--ht-layout-page-margin));
     padding-inline: var(--ht-layout-page-margin);
   }
   .ht-container[data-width="reading"] {
-    max-inline-size: calc(var(--ht-layout-width-reading) + 2 * var(--ht-layout-page-margin));
+    max-inline-size: var(--ht-layout-width-reading);
   }
   .ht-stack {
     display: flex;
@@ -309,20 +313,27 @@
   .ht-grid__item[data-span="10"] { grid-column: span 10; }
   .ht-grid__item[data-span="11"] { grid-column: span 11; }
   .ht-grid__item[data-span="12"] { grid-column: span 12; }
-  /* On phones every item takes the full width. 640 is layout/breakpoint/md; custom properties cannot be
-     used in a media query, so the literal is written here and the component build checks it against the token. */
+  /* Below the collapse point every item takes the full width. The literals are layout/breakpoint/md (640)
+     and layout/breakpoint/lg (1024); custom properties cannot be used in a media query, so they are written
+     here and the component build checks them against the tokens. */
   @media (max-width: 640px) {
-    .ht-grid__item,
-    .ht-grid__item[data-span] {
+    .ht-grid .ht-grid__item,
+    .ht-grid .ht-grid__item[data-span] {
       grid-column: 1 / -1;
     }
   }
+  @media (max-width: 1024px) {
+    .ht-grid[data-collapse="lg"] .ht-grid__item,
+    .ht-grid[data-collapse="lg"] .ht-grid__item[data-span] {
+      grid-column: 1 / -1;
+    }
+  }
+  /* No space outside the section: the parent's gap places it (Stack gap="section"). */
   .ht-section {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: var(--ht-gap-md);
-    padding-block-start: var(--ht-layout-section-gap);
   }
   .ht-section > .ht-accent-bar {
     align-self: flex-start;

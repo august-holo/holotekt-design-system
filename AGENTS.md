@@ -96,10 +96,12 @@ and is not committed. Read it at the start of a session and follow its instructi
 - Props are typed with a one-line doc comment each; the docs site and Storybook read them from the types.
   New components need stories for every state and a page under `/components`.
 - **Layout helpers** (`Container`, `Stack`, `Cluster`, `Grid`, `Section`) are a group beside the levels, not a
-  level: any level may use them; they may use only atoms and other helpers (`Section` uses `AccentBar` and
-  `Stack`). No look of their own, space from the parent's gap, only the named steps as data attributes, `as`
-  for the element. The grid's phone breakpoint is a literal in `components.css` that the build checks against
-  `layout.breakpoint.md`. The docs site's own pages are built from them.
+  level (`group: "layout"` in `levels.json`, which lists `groups` beside `levels`): any level may use them; they
+  may use only atoms and other helpers (`Section` uses `AccentBar` and `Stack`). No look of their own, no
+  margins of their own (a Section is placed by `Stack gap="section"`), space from the parent's gap, only the
+  named steps as data attributes, `as` for the element. The grid's collapse points are literals in
+  `components.css` that the build checks against the breakpoint tokens. The docs site's own pages are built
+  from them.
 - **Atomic levels.** Every component has a level in `src/components/levels.json`, the one place the build, the
   stories (`Atoms/Card`) and the site read it from. Atom: uses no other component, built from tokens only.
   Molecule: a few atoms working as one unit. Organism: a self-contained section of a page, built from molecules

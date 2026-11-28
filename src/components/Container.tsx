@@ -1,7 +1,7 @@
 import type { ElementType, ReactNode } from "react";
 
 export type ContainerProps = {
-  /** "page" (default): the page width (layout/width/page) with the page margin at the sides, which steps down on phones. "reading": the reading width. */
+  /** "page" (default): the page width (layout/width/page) with the page margin at the sides, which steps down on phones. "reading": the reading width, centred, with no margin of its own, so it nests inside a page Container without doubling the margin. */
   width?: "page" | "reading";
   /** The element to render. Default "div". */
   as?: ElementType;

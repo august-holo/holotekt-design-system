@@ -51,6 +51,9 @@ const literalMembers = (type, sf) => {
 const isLocalAlias = (type, sf) => ts.isTypeReferenceNode(type) && !type.typeArguments && sf.statements.some((st) => ts.isTypeAliasDeclaration(st) && st.name.text === type.typeName.getText(sf));
 const registry = JSON.parse(fs.readFileSync(path.join(SRC, "levels.json"), "utf8"));
 const rank = Object.fromEntries(registry.levels.map((l, i) => [l.id, i]));
+const groups = registry.groups ?? [];
+/** The level or group record of a registry entry. */
+const tierOf = (reg) => (reg.group ? groups.find((g) => g.id === reg.group) : registry.levels.find((l) => l.id === reg.level));
 const levelProblems = [];
 for (const name of Object.keys(registry.components)) {
   if (!files.includes(`${name}.tsx`)) levelProblems.push(`levels.json lists ${name}, but src/components/${name}.tsx does not exist`);
@@ -97,39 +100,40 @@ for (const file of files) {
   const imports = [...sf.text.matchAll(/from\s+["']\.\/([A-Z]\w*)["']/g)].map((m) => m[1]);
   if (!reg) levelProblems.push(`${name} is not in src/components/levels.json`);
   else {
-    if (rank[reg.level] === undefined) levelProblems.push(`${name}: unknown level "${reg.level}"`);
-    // Layout helpers are not a level: any level may use them, and they may use only atoms and other helpers.
-    const allowed = (user, used) => (used.level === "layout" ? true : user.level === "layout" ? used.level === "atom" : rank[used.level] < rank[user.level]);
-    const why = (user) => (user.level === "layout" ? "a layout helper may use only atoms and other helpers" : "a component may only use levels below its own, or a layout helper");
+    if (!tierOf(reg)) levelProblems.push(`${name}: unknown level or group (${reg.level ?? reg.group})`);
+    // Layout helpers are a group, not a level: any level may use them, and they may use only atoms and other helpers.
+    const isLayout = (r) => r.group === "layout";
+    const allowed = (user, used) => (isLayout(used) ? true : isLayout(user) ? used.level === "atom" : rank[used.level] < rank[user.level]);
+    const why = (user) => (isLayout(user) ? "a layout helper may use only atoms and other helpers" : "a component may only use levels below its own, or a layout helper");
     for (const imp of imports) {
       const other = registry.components[imp];
       if (!other) { levelProblems.push(`${name} imports ${imp}, which is not in levels.json`); continue; }
-      if (!allowed(reg, other)) levelProblems.push(`${name} (${reg.level}) imports ${imp} (${other.level}); ${why(reg)}`);
+      if (!allowed(reg, other)) levelProblems.push(`${name} (${reg.level ?? reg.group}) imports ${imp} (${other.level ?? other.group}); ${why(reg)}`);
       if (!reg.madeOf.includes(imp)) levelProblems.push(`${name} imports ${imp}, but levels.json does not list it under madeOf`);
     }
     for (const part of reg.madeOf) {
       const other = registry.components[part];
       if (!other) levelProblems.push(`${name}: madeOf names ${part}, which is not in levels.json`);
-      else if (!allowed(reg, other)) levelProblems.push(`${name} (${reg.level}) is made of ${part} (${other.level}); ${why(reg)}`);
+      else if (!allowed(reg, other)) levelProblems.push(`${name} (${reg.level ?? reg.group}) is made of ${part} (${other.level ?? other.group}); ${why(reg)}`);
     }
   }
-  components.push({ name, file: `src/components/${file}`, description, props, extra, level: reg?.level, title: reg?.title, slug: reg?.slug, summary: reg?.summary, madeOf: reg?.madeOf ?? [], imports });
+  components.push({ name, file: `src/components/${file}`, description, props, extra, ...(reg?.group ? { group: reg.group } : { level: reg?.level }), title: reg?.title, slug: reg?.slug, summary: reg?.summary, madeOf: reg?.madeOf ?? [], imports });
 }
 // Story titles must be literal for Storybook's indexer, so each stories file states its own
 // "Level/Title" and this check keeps it equal to levels.json.
 for (const c of components) {
   const storiesFile = path.join(SRC, `${c.name}.stories.tsx`);
   if (!fs.existsSync(storiesFile)) { levelProblems.push(`${c.name} has no stories file (${c.name}.stories.tsx)`); continue; }
-  const level = registry.levels.find((l) => l.id === c.level);
-  const expected = level ? `${level.plural}/${c.title}` : "";
+  const tier = tierOf(c);
+  const expected = tier ? `${tier.plural}/${c.title}` : "";
   const m = fs.readFileSync(storiesFile, "utf8").match(/\btitle:\s*["'`]([^"'`]+)["'`]/);
   if (!m) levelProblems.push(`${c.name}.stories.tsx has no literal title; expected "${expected}"`);
   else if (m[1] !== expected) levelProblems.push(`${c.name}.stories.tsx title is "${m[1]}"; levels.json says "${expected}"`);
 }
-// A media query literal in the stylesheet must equal the breakpoint token it stands for.
-const md = tokenData.tokens.find((t) => t.path === "layout.breakpoint.md");
+// Every media query literal in the stylesheet must equal one of the breakpoint tokens.
+const breakpoints = tokenData.tokens.filter((t) => t.path.startsWith("layout.breakpoint.")).map((t) => ({ path: t.path, px: Number(t.value) }));
 for (const m of css.matchAll(/@media \(max-width: (\d+)px\)/g)) {
-  if (!md || Number(m[1]) !== Number(md.value)) levelProblems.push(`components.css uses @media (max-width: ${m[1]}px) but layout.breakpoint.md is ${md?.value}`);
+  if (!breakpoints.some((b) => b.px === Number(m[1]))) levelProblems.push(`components.css uses @media (max-width: ${m[1]}px), which is none of ${breakpoints.map((b) => `${b.path} (${b.px})`).join(", ")}`);
 }
 if (levelProblems.length) {
   console.error(`✗ component levels:\n  ${levelProblems.join("\n  ")}`);
@@ -208,8 +212,9 @@ for (const c of components) {
   c.classes = [...classes.get(c.name)].sort();
   c.composes = c.madeOf; // kept for readers of the v0.6.0 shape
 }
-// Atoms first, then molecules, then organisms; alphabetical within a level.
-components.sort((a, b) => rank[a.level] - rank[b.level] || a.name.localeCompare(b.name));
-fs.writeFileSync(path.join(DIST, "components.json"), JSON.stringify({ name: pkg.name, version: pkg.version, generatedAt: localIso(), entry: "holotekt-design-system/components", stylesheet: "holotekt-design-system/components.css", levels: registry.levels, above: registry.above, components }, null, 2) + "\n");
+// Atoms first, then molecules, then organisms, then the groups; alphabetical within each.
+const order = (c) => (c.group ? registry.levels.length + groups.findIndex((g) => g.id === c.group) : rank[c.level]);
+components.sort((a, b) => order(a) - order(b) || a.name.localeCompare(b.name));
+fs.writeFileSync(path.join(DIST, "components.json"), JSON.stringify({ name: pkg.name, version: pkg.version, generatedAt: localIso(), entry: "holotekt-design-system/components", stylesheet: "holotekt-design-system/components.css", levels: registry.levels, groups, above: registry.above, components }, null, 2) + "\n");
 const tokenCount = new Set(components.flatMap((c) => c.tokens)).size;
-console.log(`✓ built dist/components/ (${components.length} components: ${registry.levels.map((l) => `${components.filter((c) => c.level === l.id).length} ${l.plural.toLowerCase()}`).join(", ")}; imports only go downwards), components.css, components.json (${components.reduce((n, c) => n + c.props.length, 0)} props, ${tokenCount} tokens used, all published)`);
+console.log(`✓ built dist/components/ (${components.length} components: ${[...registry.levels.map((l) => `${components.filter((c) => c.level === l.id).length} ${l.plural.toLowerCase()}`), ...groups.map((g) => `${components.filter((c) => c.group === g.id).length} ${g.plural.toLowerCase()}`)].join(", ")}; imports only go downwards), components.css, components.json (${components.reduce((n, c) => n + c.props.length, 0)} props, ${tokenCount} tokens used, all published)`);

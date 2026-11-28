@@ -1,5 +1,5 @@
 {
-  "$comment": "The one place that says which atomic level each component is and what it is made of. Read by the component build (which checks that imports only go downwards), the stories (titles) and the docs site (index, pages, llms.txt). Wording follows the Figma Components index.",
+  "$comment": "The one place that says which atomic level each component is and what it is made of. Read by the component build (which checks that imports only go downwards), the stories (titles) and the docs site (index, pages, llms.txt). Wording follows the Figma Components index. Levels are the atomic levels; groups sit beside them (layout helpers are a group, not a level).",
   "levels": [
     {
       "id": "atom",
@@ -18,12 +18,6 @@
       "name": "Organism",
       "plural": "Organisms",
       "rule": "A self-contained section of a page, built from molecules and atoms."
-    },
-    {
-      "id": "layout",
-      "name": "Layout helper",
-      "plural": "Layout",
-      "rule": "Helpers that place things. No look of their own; space comes from the parent's gap; only the named steps. Not a level: they hold components of any level, and may themselves use only atoms and other helpers."
     }
   ],
   "above": "Templates (a page layout with no real content) and pages (a template with real content) are the two levels above. They belong to each product, not to this system.",
@@ -83,35 +77,35 @@
       "summary": "A short list of pieces of work to open."
     },
     "Container": {
-      "level": "layout",
+      "group": "layout",
       "title": "Container",
       "slug": "container",
       "madeOf": [],
       "summary": "Holds a page's content at the system's width and keeps it off the screen edge."
     },
     "Stack": {
-      "level": "layout",
+      "group": "layout",
       "title": "Stack",
       "slug": "stack",
       "madeOf": [],
       "summary": "Things in a column with one gap between them."
     },
     "Cluster": {
-      "level": "layout",
+      "group": "layout",
       "title": "Cluster",
       "slug": "cluster",
       "madeOf": [],
       "summary": "Things in a row that wrap when they run out of room."
     },
     "Grid": {
-      "level": "layout",
+      "group": "layout",
       "title": "Grid",
       "slug": "grid",
       "madeOf": [],
       "summary": "The system's columns; children say how many they span."
     },
     "Section": {
-      "level": "layout",
+      "group": "layout",
       "title": "Section",
       "slug": "section",
       "madeOf": [
@@ -120,5 +114,13 @@
       ],
       "summary": "The accent bar, a heading, then content, with fixed spacing and the section gap above."
     }
-  }
+  },
+  "groups": [
+    {
+      "id": "layout",
+      "name": "Layout helper",
+      "plural": "Layout",
+      "rule": "Helpers that place things. No look of their own; space comes from the parent's gap; only the named steps. Not a level: they hold components of any level, and may themselves use only atoms and other helpers."
+    }
+  ]
 }

@@ -13,5 +13,13 @@ type Story = StoryObj<typeof meta>;
 
 /** The page width (1200) with the page margin at the sides. */
 export const Page: Story = {};
-/** The reading width (680). */
+/** The reading width (680), centred, with no margin of its own. */
 export const Reading: Story = { args: { width: "reading" } };
+/** A reading Container nested in a page Container: one margin, from the page Container. */
+export const Nested: Story = {
+  render: () => (
+    <Container>
+      <Container width="reading"><Box tall>The measure, inside the page margin</Box></Container>
+    </Container>
+  ),
+};

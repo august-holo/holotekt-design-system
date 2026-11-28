@@ -30,5 +30,14 @@ export const Thirds: Story = {
     </Grid>
   ),
 };
+/** Collapsing at lg (1024) instead of md: every item is full width through the tablet range too. */
+export const CollapseLg: Story = {
+  render: () => (
+    <Grid collapse="lg">
+      <Grid.Item span={9}><Box tall>span 9, collapse lg</Box></Grid.Item>
+      <Grid.Item span={3}><Box tall>span 3, collapse lg</Box></Grid.Item>
+    </Grid>
+  ),
+};
 /** At phone width every item takes the full width. */
 export const Phone: Story = { ...Thirds, globals: { viewport: { value: "phone", isRotated: false } } };

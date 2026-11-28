@@ -279,8 +279,8 @@ function BlockView({ block }: { block: Block }) {
 export function Render({ page }: { page: Page }) {
   const foundation = page.template === "foundation";
   const component = page.template === "component";
-  // Blocks are grouped into sections at each h2: a Section carries the section gap above it and the
-  // heading, so no block needs a margin of its own.
+  // Blocks are grouped into sections at each h2; the article is a Stack at the section gap, so no block
+  // and no section needs a margin of its own.
   const lead: Block[] = [];
   const sections: { heading: Extract<Block, { kind: "h2" }>; blocks: Block[] }[] = [];
   for (const b of page.blocks) {
@@ -289,7 +289,7 @@ export function Render({ page }: { page: Page }) {
     else lead.push(b);
   }
   return (
-    <article>
+    <Stack as="article" gap="section">
       <Stack gap="lg">
         <Stack as="header" gap="md">
           {foundation && <p className={`ht-ui-label ${styles.muted}`}>Foundations / {page.title}</p>}
@@ -310,6 +310,6 @@ export function Render({ page }: { page: Page }) {
           </Stack>
         </Section>
       ))}
-    </article>
+    </Stack>
   );
 }

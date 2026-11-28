@@ -90,7 +90,11 @@ const helpers = await page.evaluate(() => {
     containerPadding: cs(main).paddingLeft,
     stackGap: r(kids[1]).top - r(kids[0]).bottom,
     gridItemsFullWidth: items.every((i) => Math.abs(r(i).width - r(grid).width) < 0.5),
-    sectionPaddingTop: cs(document.querySelector("#fixture-section")).paddingTop,
+    sectionMargin: cs(document.querySelector("#fixture-section")).marginTop + " " + cs(document.querySelector("#fixture-section")).paddingTop,
+    sectionsGap: (() => { const [a, b] = document.querySelector(".fixture-sections").children; return r(b).top - r(a).bottom; })(),
+    readingPadding: cs(document.querySelector(".fixture-reading")).paddingLeft,
+    readingEdge: r(document.querySelector(".fixture-reading")).left - r(main).left,
+    gridLgFullWidth: [...document.querySelector(".fixture-grid-lg").children].every((i) => Math.abs(r(i).width - r(document.querySelector(".fixture-grid-lg")).width) < 0.5),
     headingTag: heading.tagName,
     headingSize: cs(heading).fontSize,
   };
@@ -98,8 +102,22 @@ const helpers = await page.evaluate(() => {
 if (helpers.containerPadding !== "16px") problems.push(`Container side padding is ${helpers.containerPadding} at phone width, expected 16px (layout/page/margin on phones)`);
 if (Math.abs(helpers.stackGap - 24) > 0.5) problems.push(`Stack gap="lg" measures ${helpers.stackGap}px, expected 24px`);
 if (!helpers.gridItemsFullWidth) problems.push("Grid items do not take the full width at phone width");
-if (helpers.sectionPaddingTop !== "48px") problems.push(`Section padding-top is ${helpers.sectionPaddingTop} at phone width, expected 48px (layout/section/gap on phones)`);
+if (helpers.sectionMargin !== "0px 0px") problems.push(`Section carries its own space (margin-top padding-top: ${helpers.sectionMargin}); expected none`);
+if (Math.abs(helpers.sectionsGap - 48) > 0.5) problems.push(`two Sections in a section-gap Stack are ${helpers.sectionsGap}px apart at phone width; expected 48px, a single section gap`);
+if (helpers.readingPadding !== "0px" || Math.abs(helpers.readingEdge - 16) > 0.5) problems.push(`a reading Container nested in the page Container has padding ${helpers.readingPadding} and sits ${helpers.readingEdge}px from the page edge; expected 0px and 16px (one margin)`);
+if (!helpers.gridLgFullWidth) problems.push("Grid collapse=\"lg\" items do not take the full width at phone width");
 if (helpers.headingTag !== "H3" || helpers.headingSize !== helpers.heading2Size) problems.push(`Section heading is ${helpers.headingTag} at ${helpers.headingSize}; expected H3 at ${helpers.heading2Size} (heading/2 at this width)`);
+await page.setViewportSize({ width: 800, height: 900 });
+const tablet = await page.evaluate(() => {
+  const r = (el) => el.getBoundingClientRect();
+  const full = (sel) => [...document.querySelector(sel).children].every((i) => Math.abs(r(i).width - r(document.querySelector(sel)).width) < 0.5);
+  const md = document.querySelector(".fixture-grid");
+  const [eight] = md.children;
+  return { mdHolds: !full(".fixture-grid") && r(eight).width < r(md).width, lgCollapsed: full(".fixture-grid-lg") };
+});
+if (!tablet.mdHolds) problems.push("at 800px the default grid should keep its spans (collapse md), but its items are full width");
+if (!tablet.lgCollapsed) problems.push("at 800px a Grid with collapse=\"lg\" should be full width, but its items keep their spans");
+await page.setViewportSize({ width: 390, height: 844 });
 if (Math.abs(layout.leftSpace - layout.rightSpace) > 0.5) problems.push(`card: space on the left is ${layout.leftSpace}px and on the right ${layout.rightSpace}px at phone width; expected equal`);
 if (!layout.visualInsideBox) problems.push("card: the offset is drawn outside the card's layout box");
 if (Math.abs(layout.gapOn - layout.gapOff) > 0.5) problems.push(`card: the gap under a card is ${layout.gapOn}px with the offset on and ${layout.gapOff}px with it off; expected equal`);
@@ -115,4 +133,4 @@ if (problems.length) {
   console.error(`✗ consumer fixture in the browser:\n  ${problems.join("\n  ")}`);
   process.exit(1);
 }
-console.log(`✓ consumer fixture in the browser: the reset layer comes first ("@layer ${firstLayer[1]};"), the system's padding survives it, the card reserves its offset (gap ${layout.gapOn}px on and off), the first thumbnail lines up with the heading, no sideways scroll at phone width; Container, Stack, Grid and Section measure as their tokens say`);
+console.log(`✓ consumer fixture in the browser: the reset layer comes first ("@layer ${firstLayer[1]};"), the system's padding survives it, the card reserves its offset (gap ${layout.gapOn}px on and off), the first thumbnail lines up with the heading, no sideways scroll at phone width; Container, Stack, Grid and Section measure as their tokens say; two Sections in a section-gap Stack are one gap apart; a nested reading Container adds no margin; the grid collapses at md by default and at lg on request`);

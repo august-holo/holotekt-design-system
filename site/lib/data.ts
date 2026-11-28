@@ -178,8 +178,9 @@ export interface ComponentInfo {
   /** Token paths the component's CSS uses. */
   tokens: string[];
   classes: string[];
-  /** Atomic level and parts, from src/components/levels.json. */
-  level: LevelId;
+  /** Atomic level, or group for the layout helpers (one of the two is set), and parts, from src/components/levels.json. */
+  level?: LevelId;
+  group?: GroupId;
   title: string;
   slug: string;
   summary: string;
@@ -187,10 +188,11 @@ export interface ComponentInfo {
   imports: string[];
   composes: string[];
 }
-/** The atomic levels, plus "layout" for the helpers, which are a group beside the levels rather than one of them. */
-export type LevelId = "atom" | "molecule" | "organism" | "layout";
+export type LevelId = "atom" | "molecule" | "organism";
+/** Groups sit beside the levels: the layout helpers are a group, not a level. */
+export type GroupId = "layout";
 export interface Level {
-  id: LevelId;
+  id: LevelId | GroupId;
   name: string;
   plural: string;
   rule: string;
@@ -202,6 +204,7 @@ export interface ComponentData {
   entry: string;
   stylesheet: string;
   levels: Level[];
+  groups: Level[];
   above: string;
   components: ComponentInfo[];
 }

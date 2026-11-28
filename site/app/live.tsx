@@ -34,10 +34,12 @@ const buttonRow = (kind: "primary" | "secondary") => (
 
 export const LIVE: Record<LiveId, () => ReactNode> = {
   "layout-container": () => (
-    <Stack gap="md">
-      <Container><Box>Page width</Box></Container>
-      <Container width="reading"><Box>Reading width</Box></Container>
-    </Stack>
+    <Container>
+      <Stack gap="md">
+        <Box>Page width, with the page margin at the sides</Box>
+        <Container width="reading"><Box>A reading Container nested inside: the measure, no margin of its own</Box></Container>
+      </Stack>
+    </Container>
   ),
   "layout-stack": () => (
     <Grid>
@@ -57,13 +59,18 @@ export const LIVE: Record<LiveId, () => ReactNode> = {
   "layout-grid": () => (
     <Stack gap="lg">
       <Grid><Grid.Item span={9}><Box>span 9</Box></Grid.Item><Grid.Item span={3}><Box>span 3</Box></Grid.Item></Grid>
-      <Grid><Grid.Item span={4}><Box>span 4</Box></Grid.Item><Grid.Item span={4}><Box>span 4</Box></Grid.Item><Grid.Item span={4}><Box>span 4</Box></Grid.Item></Grid>
+      <Grid collapse="lg"><Grid.Item span={4}><Box>span 4, collapse lg</Box></Grid.Item><Grid.Item span={4}><Box>span 4, collapse lg</Box></Grid.Item><Grid.Item span={4}><Box>span 4, collapse lg</Box></Grid.Item></Grid>
     </Stack>
   ),
   "layout-section": () => (
-    <Section heading="See my work" as="div" level={3}>
-      <ThumbnailList aria-label="Selected work, in a section">{rows()}</ThumbnailList>
-    </Section>
+    <Stack gap="section">
+      <Section heading="See my work" as="div" level={3}>
+        <ThumbnailList aria-label="Selected work, in a section">{rows().slice(0, 2)}</ThumbnailList>
+      </Section>
+      <Section heading="Read the notes" as="div" level={3}>
+        <Box>Content</Box>
+      </Section>
+    </Stack>
   ),
   "accent-bar": () => <AccentBar />,
   "accent-bar-heading": () => (

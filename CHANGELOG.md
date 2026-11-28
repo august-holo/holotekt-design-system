@@ -7,6 +7,24 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Changed
+- **`Section` no longer carries the section gap above it.** It keeps only its internal spacing (bar,
+  heading, content at `gap/md`); a page places its sections with `Stack gap="section"`, as the helpers'
+  first rule says. A page that relied on the built-in gap now wraps its sections in that Stack. The docs
+  site's own pages do.
+- `Container width="reading"` carries no page margin: it is the measure, centred, so one nested inside a
+  page Container has a single margin, from the page Container. Only the `page` width pads.
+- `components.json` and `levels.json` mark the layout helpers with `group: "layout"` instead of a level,
+  and list `groups` beside `levels`.
+
+### Added
+- `Grid` takes `collapse`: `md` (640, the default) or `lg` (1024), the two breakpoint tokens, saying where
+  every item goes full width. The page says what the tablet range does with each, and that reordering
+  items when collapsed is a product decision made through `className` on `Grid.Item`, with the caution
+  about reading order.
+- The layout page says a Stack has no zero step on purpose, and the nesting rule for Containers. Import
+  blocks name the text-style classes an example actually uses.
+
 ## [0.11.0] - 2026-11-28
 
 ### Added

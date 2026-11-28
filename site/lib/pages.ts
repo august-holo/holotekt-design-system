@@ -643,16 +643,18 @@ const componentByName = (name: string): ComponentInfo => {
   if (!c) throw new Error(`dist/components.json has no component ${name}; run npm run components:build`);
   return c;
 };
+/** The level record of a component, or its group record for a layout helper. */
 const levelOf = (c: ComponentInfo): Level => {
-  const l = componentData().levels.find((x) => x.id === c.level);
-  if (!l) throw new Error(`levels.json has no level ${c.level}`);
+  const d = componentData();
+  const l = c.group ? d.groups.find((x) => x.id === c.group) : d.levels.find((x) => x.id === c.level);
+  if (!l) throw new Error(`levels.json has no level or group for ${c.name}`);
   return l;
 };
 export const componentTitle = (slug: ComponentSlug) => componentBySlug(slug).title;
 const usedBy = (name: string) => componentData().components.filter((c) => c.madeOf.includes(name));
 const storyDocsId = (c: ComponentInfo) => `${levelOf(c).plural.toLowerCase()}-${c.title.toLowerCase().replace(/\s+/g, "-")}--docs`;
 /** A link to a component's page; the layout helpers share one page, with an anchor each. */
-const partLink = (c: ComponentInfo): Part => ({ text: c.title, href: c.level === "layout" ? `/components/layout#${c.slug}` : `/components/${c.slug}` });
+const partLink = (c: ComponentInfo): Part => ({ text: c.title, href: c.group === "layout" ? `/components/layout#${c.slug}` : `/components/${c.slug}` });
 const joinParts = (items: Part[], last = " and "): Part[] => items.flatMap((p, i) => (i === 0 ? [p] : [{ text: i === items.length - 1 ? last : ", " }, p]));
 
 function propsTable(c: ComponentInfo): Block[] {
@@ -685,9 +687,9 @@ function tokensUsed(data: TokenData, c: ComponentInfo): Block[] {
 
 /** The full import block for an example: the components, the CSS they need, and text-styles.css when the example uses a text-style class. */
 const importBlock = (names: string[], example: string): Block[] => {
-  const usesTextStyles = /className="ht-(heading|reading|ui|voice)-/.test(example);
+  const classesUsed = [...new Set([...example.matchAll(/className="(ht-(?:heading|reading|ui|voice)-[a-z0-9-]+)/g)].map((m) => `.${m[1]}`))];
   const lines = [`import { ${names.join(", ")} } from "holotekt-design-system/components";`, `import "holotekt-design-system/tokens.css";      // the variables`, `import "holotekt-design-system/components.css";  // the component classes`];
-  if (usesTextStyles) lines.push(`import "holotekt-design-system/text-styles.css"; // the .ht-ui-label and other text-style classes used below`);
+  if (classesUsed.length) lines.push(`import "holotekt-design-system/text-styles.css"; // ${classesUsed.join(", ")} used below`);
   return [
     { kind: "md", markdown: ["```tsx", ...lines, "", example, "```"].join("\n") },
     { kind: "links", items: [{ text: "Every entry point in one table →", href: "/getting-started#what-the-package-ships", note: "which file holds what, themes, fonts and breakpoints" }] },
@@ -727,12 +729,13 @@ export function componentsIndexPage(): Page {
   const data = componentData();
   const line = (c: ComponentInfo) => `${c.summary} ${c.madeOf.length ? `Made of ${c.madeOf.map((n) => componentByName(n).title).join(" and ")}. ` : ""}${c.props.length} props.`;
   const blocks: Block[] = [{ kind: "p", text: "Atomic design: small parts combine into larger ones, and each level only uses the levels below it. Build from below: if the part you need does not exist, add the atom first." }];
-  for (const level of data.levels) {
-    const list = data.components.filter((c) => c.level === level.id);
+  for (const tier of [...data.levels, ...data.groups]) {
+    const isGroup = data.groups.includes(tier);
+    const list = data.components.filter((c) => (isGroup ? c.group === tier.id : c.level === tier.id));
     if (!list.length) continue;
-    blocks.push({ kind: "h2", text: level.plural, id: level.plural.toLowerCase() }, { kind: "p", text: level.rule, muted: true });
-    if (level.id === "layout") blocks.push({ kind: "p", text: "Five helpers on one page: building blocks that place things, not page layouts.", muted: true });
-    blocks.push({ kind: "index", rows: list.map((c) => ({ title: c.title, line: line(c), href: level.id === "layout" ? `/components/layout#${c.slug}` : `/components/${c.slug}` })) });
+    blocks.push({ kind: "h2", text: tier.plural, id: tier.plural.toLowerCase() }, { kind: "p", text: tier.rule, muted: true });
+    if (tier.id === "layout") blocks.push({ kind: "p", text: "Five helpers on one page: building blocks that place things, not page layouts. A group beside the levels, not a level.", muted: true });
+    blocks.push({ kind: "index", rows: list.map((c) => ({ title: c.title, line: line(c), href: isGroup ? `/components/layout#${c.slug}` : `/components/${c.slug}` })) });
   }
   blocks.push({ kind: "p", text: data.above, muted: true });
   return {
@@ -748,11 +751,11 @@ export function componentsIndexPage(): Page {
 
 const LAYOUT_HELPERS = ["Container", "Stack", "Cluster", "Grid", "Section"] as const;
 const LAYOUT_EXAMPLES: Record<(typeof LAYOUT_HELPERS)[number], Extract<Block, { kind: "live" }>> = {
-  Container: { kind: "live", example: "layout-container", label: "Page width (the default) and reading width; the tinted band is the content, the space either side is the page margin, which steps down on phones", code: `<Container>…</Container>\n<Container width="reading">…</Container>` },
+  Container: { kind: "live", example: "layout-container", label: "Page width (the default) with the page margin at the sides, and a reading Container nested inside it with no margin of its own", code: `<Container>\n  …\n  <Container width="reading">…</Container>\n</Container>` },
   Stack: { kind: "live", example: "layout-stack", label: "sm, md (default), lg and section gaps", code: `<Stack gap="lg">\n  <Card>…</Card>\n  <Card>…</Card>\n</Stack>` },
   Cluster: { kind: "live", example: "layout-cluster", label: "A row of buttons from the start, and a brand with links set between", code: `<Cluster gap="lg" align="between">\n  <a href="/">holotekt</a>\n  <Cluster as="ul">…</Cluster>\n</Cluster>` },
-  Grid: { kind: "live", example: "layout-grid", label: "Nine and three, then three fours; narrow the window and every item takes the full width", code: `<Grid>\n  <Grid.Item span={9}>…</Grid.Item>\n  <Grid.Item span={3}>…</Grid.Item>\n</Grid>` },
-  Section: { kind: "live", example: "layout-section", label: "The accent bar, the heading, then the content; the section gap sits above it", code: `<Section heading="See my work">\n  <ThumbnailList>…</ThumbnailList>\n</Section>` },
+  Grid: { kind: "live", example: "layout-grid", label: "Nine and three collapsing at md (640, the default), then three fours collapsing at lg (1024); narrow the window to see each go full width", code: `<Grid>\n  <Grid.Item span={9}>…</Grid.Item>\n  <Grid.Item span={3}>…</Grid.Item>\n</Grid>\n<Grid collapse="lg">…</Grid>` },
+  Section: { kind: "live", example: "layout-section", label: "Two sections in a Stack at the section gap: the bar, the heading, then the content, and the space between them from the Stack", code: `<Stack gap="section">\n  <Section heading="See my work">…</Section>\n  <Section heading="Read the notes">…</Section>\n</Stack>` },
 };
 
 export function layoutPage(): Page {
@@ -768,7 +771,7 @@ export function layoutPage(): Page {
     blocks: [],
   };
   page.blocks.push({ kind: "rows", headless: true, columns: ["What", "Value"], cells: [{ basis: LABEL, grow: 0 }, { basis: READING, grow: 1 }], rows: [
-    [{ text: "Group" }, { parts: [{ text: "Layout", href: "/components#layout" }, { text: `. ${level.rule}` }] }],
+    [{ text: "Group" }, { parts: [{ text: "Layout", href: "/components#layout" }, { text: `, beside the levels, not a level. ${level.rule}` }] }],
     [{ text: "Made of" }, { parts: [{ text: "Nothing else, except " }, { text: "Section", href: "#section" }, { text: ", which is made of " }, { text: "Accent bar", href: "/components/accent-bar" }, { text: " and " }, { text: "Stack", href: "#stack" }] }],
   ] });
   page.blocks.push({ kind: "h2", text: "When to use it" });
@@ -793,7 +796,16 @@ export function layoutPage(): Page {
     page.blocks.push({ kind: "h2", text: c.title, id: c.slug });
     page.blocks.push({ kind: "p", text: c.description });
     page.blocks.push(LAYOUT_EXAMPLES[c.name as (typeof LAYOUT_HELPERS)[number]]);
-    if (c.name === "Section") page.blocks.push({ kind: "p", text: "The level prop is for document structure and does not change the size: the heading is always heading/2. A smaller subsection heading is a heading inside a Stack, not a Section.", muted: true });
+    if (c.name === "Container") page.blocks.push({ kind: "p", text: "Only the page width carries the page margin. A reading Container is width and centring alone, so nesting one inside a page Container does not double the margin: the page Container keeps the content off the screen edge, the reading Container sets the measure.", muted: true });
+    if (c.name === "Stack") page.blocks.push({ kind: "p", text: "There is no zero step, on purpose: things with no space between them do not need a Stack.", muted: true });
+    if (c.name === "Grid") page.blocks.push({ kind: "list", items: [
+      "collapse says where every item goes full width: at and below md (layout/breakpoint/md, 640, the default) or lg (layout/breakpoint/lg, 1024). With md, spans hold in the tablet range from 641 to 1023, where a 3 of 12 is about 150 wide; choose lg when a span would be too narrow there.",
+      "Order when collapsed: there is no option. className on Grid.Item is the hook for placement; changing an item's visual order when the grid collapses (a note beside its figure on desktop, above it on a phone) is a product decision made there, in the product's own stylesheet. Visual order should not contradict reading order where it matters.",
+    ] });
+    if (c.name === "Section") page.blocks.push({ kind: "list", items: [
+      "A Section carries no margin of its own. A page places its sections with Stack gap=\"section\"; the Section keeps only its internal spacing (bar, heading, content at gap/md).",
+      "The level prop is for document structure and does not change the size: the heading is always heading/2. A smaller subsection heading is a heading inside a Stack, not a Section.",
+    ] });
     page.blocks.push({ kind: "h3", text: `${c.title} props` }, ...propsTable(c));
     if (c.name === "Grid") { const item = componentData().components.find((x) => x.name === "Grid"); void item; page.blocks.push({ kind: "p", text: "Grid.Item takes span (1 to 12, default 12), as and className.", muted: true }); }
     page.blocks.push({ kind: "h3", text: "Tokens it uses" }, ...tokensUsed(data, c));
