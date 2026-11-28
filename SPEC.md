@@ -291,6 +291,11 @@ use them.
   live examples on the dotted grid, props, tokens it uses, link to its stories), each with a Markdown
   twin and an `llms.txt` entry.
 - **Consumers:** check `/components` before writing a new component (`docs/consumer-rules.md`).
+- **Atomic levels (v0.6.1):** every component is an atom, molecule or organism, recorded once in
+  `src/components/levels.json` and read by the build (which fails if a component imports a sibling at
+  its own level or above), the stories (`Atoms/Card`) and the site (index grouped by level, a level and
+  "made of" line on each page, the level in each `llms.txt` entry). Templates and pages belong to each
+  product. Build from below: add the missing atom first.
 
 ### Phase 3 — integration (Thursday and Friday)
 

@@ -3,13 +3,13 @@ import { ThumbnailRow } from "./ThumbnailRow";
 import { SAMPLE_ROWS } from "./stories/samples";
 
 const meta = {
-  title: "ThumbnailRow",
+  title: "Molecules/Thumbnail row", // level/title from levels.json; the component build checks it,
   component: ThumbnailRow,
   parameters: {
     docs: {
       description: {
         component:
-          "One item in a list of work: thumbnail, title (heading/3) and summary (ui/body, text/secondary), all one link. No border or fill at rest. Usage guidance: https://designsystem.holotekt.com/components/thumbnail-list",
+          "One item in a list of work: thumbnail, title (heading/3) and summary (ui/body, text/secondary), all one link. No border or fill at rest. Usage guidance: https://designsystem.holotekt.com/components/thumbnail-row",
       },
     },
   },

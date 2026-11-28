@@ -7,6 +7,17 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Changed
+- Components are organised by atomic level everywhere, matching Figma: atoms (`Card`, `Divider`, `Thumbnail`),
+  molecules (`ThumbnailRow`), organisms (`ThumbnailList`). The level and parts of each component live once in
+  `src/components/levels.json`; `components.json` carries `level`, `madeOf` and the level definitions; the
+  component build fails if a component imports a sibling at its own level or above. Story titles are
+  `Atoms/Card`, `Molecules/Thumbnail row`, `Organisms/Thumbnail list`. The site's `/components` index is
+  grouped by level with each level's rule, every component now has its own page (`/components/thumbnail` and
+  `/components/thumbnail-row` are new; `/components/thumbnail-list` stays), each page opens with its level,
+  what it is made of and what is built from it, and `llms.txt` names the level in each entry. No component
+  behaviour changed; import paths are unchanged.
+
 ## [0.6.0] - 2026-11-28
 
 ### Added

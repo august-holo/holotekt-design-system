@@ -85,6 +85,12 @@ and is not committed. Read it at the start of a session and follow its instructi
   The hover duration (150ms) is written once, in `components.css`, until there is a motion foundation.
 - Props are typed with a one-line doc comment each; the docs site and Storybook read them from the types.
   New components need stories for every state and a page under `/components`.
+- **Atomic levels.** Every component has a level in `src/components/levels.json`, the one place the build, the
+  stories (`Atoms/Card`) and the site read it from. Atom: uses no other component, built from tokens only.
+  Molecule: a few atoms working as one unit. Organism: a self-contained section of a page, built from molecules
+  and atoms. Templates and pages belong to each product, not here. A component may import only siblings from a
+  lower level, and only the ones `levels.json` lists under `madeOf`; the component build fails otherwise. Build
+  from below: if the part you need does not exist, add the atom first.
 - The site is set entirely in its own tokens (`site/app/bindings.css` for element defaults, CSS Modules for the
   rest): colour, type, spacing, radius and borders. Rows wrap on narrow screens through flex bases taken from the
   width tokens, not media queries. No shadows. Fonts are self-hosted from `@fontsource` packages, copied into

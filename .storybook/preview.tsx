@@ -33,7 +33,7 @@ const preview: Preview = {
       },
     },
     docs: { codePanel: true },
-    options: { storySort: { order: ["Card", "Thumbnail", "ThumbnailRow", "ThumbnailList", "Divider"] } },
+    options: { storySort: { order: ["Atoms", "Molecules", "Organisms"] } },
   },
   tags: ["autodocs"],
 };

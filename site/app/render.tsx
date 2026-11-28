@@ -28,6 +28,10 @@ function Parts({ parts }: { parts: Part[] }) {
           <span key={i} className={styles.role}>
             {p.label ?? p.token}
           </span>
+        ) : p.href ? (
+          <A key={i} href={p.href}>
+            {p.text}
+          </A>
         ) : (
           <span key={i}>{p.text}</span>
         ),
@@ -123,7 +127,7 @@ function BlockView({ block }: { block: Block }) {
     case "eyebrow":
       return <p className={`ht-ui-label ${styles.muted}`}>{block.text}</p>;
     case "h2":
-      return <h2>{block.text}</h2>;
+      return <h2 id={block.id}>{block.text}</h2>;
     case "h3":
       return <h3>{block.text}</h3>;
     case "list":
@@ -273,7 +277,7 @@ export function Render({ page }: { page: Page }) {
     <article className={styles.article}>
       <header className={styles.titleBlock}>
         {foundation && <p className={`ht-ui-label ${styles.muted}`}>Foundations / {page.title}</p>}
-        {component && <p className={`ht-ui-label ${styles.muted}`}>Components / {page.title}</p>}
+        {component && <p className={`ht-ui-label ${styles.muted}`}>Components / {page.level?.name ?? page.title}</p>}
         <h1>{page.title}</h1>
         {!foundation && page.template !== "bare" && <p className={`ht-reading-lede ${styles.secondary} ${styles.lede}`}>{page.description}</p>}
       </header>

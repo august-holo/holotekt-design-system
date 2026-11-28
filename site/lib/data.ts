@@ -178,7 +178,21 @@ export interface ComponentInfo {
   /** Token paths the component's CSS uses. */
   tokens: string[];
   classes: string[];
+  /** Atomic level and parts, from src/components/levels.json. */
+  level: LevelId;
+  title: string;
+  slug: string;
+  summary: string;
+  madeOf: string[];
+  imports: string[];
   composes: string[];
+}
+export type LevelId = "atom" | "molecule" | "organism";
+export interface Level {
+  id: LevelId;
+  name: string;
+  plural: string;
+  rule: string;
 }
 export interface ComponentData {
   name: string;
@@ -186,6 +200,8 @@ export interface ComponentData {
   generatedAt: string;
   entry: string;
   stylesheet: string;
+  levels: Level[];
+  above: string;
   components: ComponentInfo[];
 }
 

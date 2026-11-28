@@ -1,0 +1,16 @@
+{
+  "$comment": "The one place that says which atomic level each component is and what it is made of. Read by the component build (which checks that imports only go downwards), the stories (titles) and the docs site (index, pages, llms.txt). Wording follows the Figma Components index.",
+  "levels": [
+    { "id": "atom", "name": "Atom", "plural": "Atoms", "rule": "Uses no other component. Built from tokens only." },
+    { "id": "molecule", "name": "Molecule", "plural": "Molecules", "rule": "A few atoms working as one unit." },
+    { "id": "organism", "name": "Organism", "plural": "Organisms", "rule": "A self-contained section of a page, built from molecules and atoms." }
+  ],
+  "above": "Templates (a page layout with no real content) and pages (a template with real content) are the two levels above. They belong to each product, not to this system.",
+  "components": {
+    "Card": { "level": "atom", "title": "Card", "slug": "card", "madeOf": [], "summary": "A raised surface for a note, aside or summary." },
+    "Divider": { "level": "atom", "title": "Divider", "slug": "divider", "madeOf": [], "summary": "A rule that separates content." },
+    "Thumbnail": { "level": "atom", "title": "Thumbnail", "slug": "thumbnail", "madeOf": [], "summary": "An image that links to a piece of work." },
+    "ThumbnailRow": { "level": "molecule", "title": "Thumbnail row", "slug": "thumbnail-row", "madeOf": ["Thumbnail"], "summary": "One item in a list of work: thumbnail, title, summary." },
+    "ThumbnailList": { "level": "organism", "title": "Thumbnail list", "slug": "thumbnail-list", "madeOf": ["ThumbnailRow", "Divider"], "summary": "A short list of pieces of work to open." }
+  }
+}

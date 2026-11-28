@@ -21,5 +21,9 @@ imported from `holotekt-design-system/tokens.css`.
   If one fits, import it from `holotekt-design-system/components` and its styles from
   `holotekt-design-system/components.css`. Do not restyle a system component from outside; if it does
   not fit, say so instead of forking it.
+- The system's components are organised by **atomic level**. Atom: uses no other component, tokens only.
+  Molecule: a few atoms working as one unit. Organism: a self-contained section, built from molecules
+  and atoms. Templates and pages are this site's own. **Build from below:** if the part you need does not
+  exist, add the atom first (in the system, not here).
 - To **check your work**, search the diff for hex colours and for `--ht-color-` names that are not
   semantic (`text`, `surface`, `accent`, ...); each one is a mistake or a question for the maintainer.

@@ -30,7 +30,9 @@ export const LIVE: Record<LiveId, () => ReactNode> = {
   ),
   "thumbnail-list": () => <ThumbnailList aria-label="Selected work">{rows()}</ThumbnailList>,
   "thumbnail-list-hover": () => <ThumbnailList aria-label="Selected work, one row hovered">{rows("hover")}</ThumbnailList>,
-  "thumbnail-list-focus": () => <ThumbnailList aria-label="Selected work, one row focused">{rows("focus")}</ThumbnailList>,
+  "thumbnail-row": () => <ThumbnailRow {...SAMPLE_ROWS[0]} />,
+  "thumbnail-row-hover": () => <ThumbnailRow {...SAMPLE_ROWS[0]} state="hover" />,
+  "thumbnail-row-focus": () => <ThumbnailRow {...SAMPLE_ROWS[0]} state="focus" />,
   "thumbnail-states": () => (
     <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--ht-gap-lg)" }}>
       <Thumbnail src={SAMPLE_IMAGES[0]} alt="At rest" />

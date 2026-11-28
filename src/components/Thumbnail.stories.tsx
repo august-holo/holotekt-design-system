@@ -3,13 +3,13 @@ import { Thumbnail } from "./Thumbnail";
 import { SAMPLE_IMAGES } from "./stories/samples";
 
 const meta = {
-  title: "Thumbnail",
+  title: "Atoms/Thumbnail", // level/title from levels.json; the component build checks it,
   component: Thumbnail,
   parameters: {
     docs: {
       description: {
         component:
-          "The image itself. At rest it has no border; on hover the ink border and the orange offset arrive together over 150ms (without animating under prefers-reduced-motion). The offset is decoration and motion, not elevation. Usage guidance: https://designsystem.holotekt.com/components/thumbnail-list",
+          "The image itself. At rest it has no border; on hover the ink border and the orange offset arrive together over 150ms (without animating under prefers-reduced-motion). The offset is decoration and motion, not elevation. Usage guidance: https://designsystem.holotekt.com/components/thumbnail",
       },
     },
   },

@@ -4,7 +4,7 @@ import { ThumbnailRow } from "./ThumbnailRow";
 import { SAMPLE_ROWS } from "./stories/samples";
 
 const meta = {
-  title: "ThumbnailList",
+  title: "Organisms/Thumbnail list", // level/title from levels.json; the component build checks it,
   component: ThumbnailList,
   subcomponents: { ThumbnailRow },
   parameters: {

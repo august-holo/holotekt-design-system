@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Divider } from "./Divider";
 
 const meta = {
-  title: "Divider",
+  title: "Atoms/Divider", // level/title from levels.json; the component build checks it,
   component: Divider,
   parameters: {
     docs: {

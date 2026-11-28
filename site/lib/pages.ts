@@ -18,11 +18,12 @@ import {
   tokenData,
   version,
   type ComponentInfo,
+  type Level,
   type Token,
   type TokenData,
 } from "./data";
 
-export type Part = { text: string } | { token: string; label?: string };
+export type Part = { text: string; href?: string } | { token: string; label?: string };
 export type Cell =
   | string
   | { text: string; swatch?: string; code?: boolean; className?: string; style?: Record<string, string>; muted?: boolean }
@@ -32,7 +33,7 @@ export type Cell =
 export type Block =
   | { kind: "p"; text: string; muted?: boolean }
   | { kind: "eyebrow"; text: string }
-  | { kind: "h2"; text: string }
+  | { kind: "h2"; text: string; id?: string }
   | { kind: "h3"; text: string }
   | { kind: "list"; items: string[] }
   | { kind: "links"; items: { text: string; href: string; note?: string }[]; big?: boolean }
@@ -51,7 +52,7 @@ export type Block =
   | { kind: "live"; example: LiveId; label: string; code: string }
   | { kind: "md"; markdown: string };
 
-export const LIVE_IDS = ["card-offset-on", "card-offset-off", "thumbnail-list", "thumbnail-list-hover", "thumbnail-list-focus", "thumbnail-states", "divider-hairline", "divider-strong"] as const;
+export const LIVE_IDS = ["card-offset-on", "card-offset-off", "thumbnail-list", "thumbnail-list-hover", "thumbnail-states", "thumbnail-row", "thumbnail-row-hover", "thumbnail-row-focus", "divider-hairline", "divider-strong"] as const;
 export type LiveId = (typeof LIVE_IDS)[number];
 
 export interface Page {
@@ -61,6 +62,8 @@ export interface Page {
   blocks: Block[];
   /** "foundation": eyebrow above the title, no lede. "component": eyebrow and lede. "bare": title only. Default: title and lede. */
   template?: "foundation" | "component" | "bare" | "plain";
+  /** For component pages: the atomic level, shown in the eyebrow and in llms.txt. */
+  level?: Level;
 }
 
 // --- foundations --------------------------------------------------------------------------------
@@ -492,20 +495,20 @@ export function homePage(): Page {
 }
 
 // --- components -----------------------------------------------------------------------------------
+// Levels, parts and summaries come from src/components/levels.json through dist/components.json;
+// the when-to-use rows, rules and examples mirror each component's Figma sheet.
 
-export const COMPONENT_PAGES = ["card", "thumbnail-list", "divider"] as const;
+export const COMPONENT_PAGES = ["card", "divider", "thumbnail", "thumbnail-row", "thumbnail-list"] as const;
 export type ComponentSlug = (typeof COMPONENT_PAGES)[number];
 
 type WhenRow = { when: string; use: Part[] };
-const COMPONENT_INFO: Record<ComponentSlug, { title: string; description: string; components: string[]; story: string; when: WhenRow[]; rules: string[]; examples: Extract<Block, { kind: "live" }>[] }> = {
+type ComponentDoc = { when: WhenRow[]; rules: string[]; examples: Extract<Block, { kind: "live" }>[] };
+const ref = (name: string): Part => ({ token: name });
+const COMPONENT_DOCS: Record<ComponentSlug, ComponentDoc> = {
   card: {
-    title: "Card",
-    description: "A static raised surface for a note, aside or summary.",
-    components: ["Card"],
-    story: "card",
     when: [
-      { when: "Setting a note, aside or summary apart from the page", use: [{ token: "Card" }, { text: ", offset on" }] },
-      { when: "Grouping content on a plain raised surface", use: [{ token: "Card" }, { text: ", offset off" }] },
+      { when: "Setting a note, aside or summary apart from the page", use: [ref("Card"), { text: ", offset on" }] },
+      { when: "Grouping content on a plain raised surface", use: [ref("Card"), { text: ", offset off" }] },
     ],
     rules: [
       "The orange offset is decoration, not elevation. It does not mean the card is on top.",
@@ -519,39 +522,10 @@ const COMPONENT_INFO: Record<ComponentSlug, { title: string; description: string
       { kind: "live", example: "card-offset-off", label: "Offset off: a plain raised surface with border/subtle", code: `<Card offset={false}>…</Card>` },
     ],
   },
-  "thumbnail-list": {
-    title: "Thumbnail list",
-    description: "An image that links to a piece of work, the row it sits in, and the list of rows.",
-    components: ["ThumbnailList", "ThumbnailRow", "Thumbnail"],
-    story: "thumbnaillist",
-    when: [
-      { when: "Listing a few pieces of work to open", use: [{ token: "ThumbnailList" }, { text: " of " }, { token: "ThumbnailRow" }, { text: "s" }] },
-      { when: "Showing one image that links somewhere", use: [{ token: "Thumbnail" }, { text: " with an href" }] },
-    ],
-    rules: [
-      "The thumbnail is the image itself. The list is plain rows on the page with hairline dividers, not cards.",
-      "At rest: no border. The image sits on surface/sunken.",
-      "On hover: the ink border (border/strong, thick) and the orange offset arrive together, as a short animation of about 150ms. The row takes surface/hover.",
-      "The offset is decoration and motion. The tones are the elevation system. Neither replaces the other.",
-      "Keyboard focus: a thick border/focus ring around the row. The offset is not a focus indicator.",
-      "Reduced motion: the hover state appears without animating.",
-      "No tags or pills. No index numbers.",
-    ],
-    examples: [
-      { kind: "live", example: "thumbnail-list", label: "Three rows at rest, with hairline dividers; hover a row to see it react", code: `<ThumbnailList aria-label="Selected work">\n  <ThumbnailRow href="/work/evidence" title="Building an evidence-based design foundation" summary="Define the personas, map the journey…" image="/images/evidence.png" />\n  <ThumbnailRow href="/work/tactical" title="Solving tactical UI/UX problems" summary="…" image="/images/tactical.png" />\n</ThumbnailList>` },
-      { kind: "live", example: "thumbnail-list-hover", label: "The middle row hovered: surface/hover on the row, border and offset on its thumbnail", code: `<ThumbnailRow … state="hover" />  // docs only; the real state comes from :hover` },
-      { kind: "live", example: "thumbnail-list-focus", label: "The middle row with keyboard focus: border/focus, thick, around the row", code: `<ThumbnailRow … state="focus" />  // docs only; the real state comes from :focus-visible` },
-      { kind: "live", example: "thumbnail-states", label: "A thumbnail on its own: at rest, hovered, focused as a link, and empty", code: `<Thumbnail src="/images/evidence.png" alt="…" href="/work/evidence" />` },
-    ],
-  },
   divider: {
-    title: "Divider",
-    description: "A rule that separates content.",
-    components: ["Divider"],
-    story: "divider",
     when: [
-      { when: "Separating rows inside a surface or list", use: [{ token: "Divider" }, { text: ", hairline" }] },
-      { when: "Closing a header or opening a footer", use: [{ token: "Divider" }, { text: ", strong" }] },
+      { when: "Separating rows inside a surface or list", use: [ref("Divider"), { text: ", hairline" }] },
+      { when: "Closing a header or opening a footer", use: [ref("Divider"), { text: ", strong" }] },
     ],
     rules: ["A divider separates; it does not decorate. If spacing alone does the job, use spacing.", "Hairline between rows. Strong only at the edges of a page region."],
     examples: [
@@ -559,13 +533,69 @@ const COMPONENT_INFO: Record<ComponentSlug, { title: string; description: string
       { kind: "live", example: "divider-strong", label: "Strong: border/strong at border/width/thick", code: `<Divider weight="strong" />` },
     ],
   },
+  thumbnail: {
+    when: [
+      { when: "Showing one image that links somewhere", use: [ref("Thumbnail"), { text: " with an href" }] },
+      { when: "Listing several pieces of work", use: [{ text: "Thumbnail list", href: "/components/thumbnail-list" }, { text: ", which is built from this" }] },
+    ],
+    rules: [
+      "The thumbnail is the image itself.",
+      "At rest: no border. The image sits on surface/sunken.",
+      "On hover: the ink border (border/strong, thick) and the orange offset arrive together, as a short animation of about 150ms.",
+      "The offset is decoration and motion. The tones are the elevation system. Neither replaces the other.",
+      "Reduced motion: the hover state appears without animating.",
+    ],
+    examples: [{ kind: "live", example: "thumbnail-states", label: "At rest, hovered, focused as a link, and empty before the image loads", code: `<Thumbnail src="/images/evidence.png" alt="An orange disc" href="/work/evidence" />` }],
+  },
+  "thumbnail-row": {
+    when: [
+      { when: "Linking to one piece of work with a picture and a line of text", use: [ref("ThumbnailRow")] },
+      { when: "Listing several", use: [{ text: "Thumbnail list", href: "/components/thumbnail-list" }, { text: ", which is built from this" }] },
+    ],
+    rules: [
+      "Sits directly on the page. Not a card.",
+      "The whole row is the link. Hovering anywhere on it animates its thumbnail.",
+      "On hover the row takes surface/hover. That tone is the elevation system; the thumbnail’s offset is decoration.",
+      "Keyboard focus: a thick border/focus ring around the row. The offset is not a focus indicator.",
+      "On narrow screens the text drops below the image.",
+      "No tags, pills or index numbers.",
+    ],
+    examples: [
+      { kind: "live", example: "thumbnail-row", label: "At rest, directly on the page", code: `<ThumbnailRow href="/work/evidence" title="Building an evidence-based design foundation" summary="Define the personas, map the journey…" image="/images/evidence.png" />` },
+      { kind: "live", example: "thumbnail-row-hover", label: "Hovered: surface/hover on the row, border and offset on its thumbnail", code: `<ThumbnailRow … state="hover" />  // docs only; the real state comes from :hover` },
+      { kind: "live", example: "thumbnail-row-focus", label: "Keyboard focus: border/focus, thick, around the row", code: `<ThumbnailRow … state="focus" />  // docs only; the real state comes from :focus-visible` },
+    ],
+  },
+  "thumbnail-list": {
+    when: [{ when: "Listing a few pieces of work to open", use: [ref("ThumbnailList"), { text: " of " }, { text: "Thumbnail rows", href: "/components/thumbnail-row" }] }],
+    rules: ["Rows separated by hairline dividers.", "Sits directly on the page. Not a set of cards.", "For a short list, not a feed."],
+    examples: [
+      { kind: "live", example: "thumbnail-list", label: "Three rows with hairline dividers; hover a row to see it react", code: `<ThumbnailList aria-label="Selected work">\n  <ThumbnailRow href="/work/evidence" title="Building an evidence-based design foundation" summary="…" image="/images/evidence.png" />\n  <ThumbnailRow href="/work/tactical" title="Solving tactical UI/UX problems" summary="…" image="/images/tactical.png" />\n</ThumbnailList>` },
+      { kind: "live", example: "thumbnail-list-hover", label: "The middle row hovered", code: `<ThumbnailRow … state="hover" />  // docs only` },
+    ],
+  },
 };
-export const componentTitle = (slug: ComponentSlug) => COMPONENT_INFO[slug].title;
-const componentInfo = (name: string): ComponentInfo => {
+
+const componentBySlug = (slug: ComponentSlug): ComponentInfo => {
+  const c = componentData().components.find((x) => x.slug === slug);
+  if (!c) throw new Error(`dist/components.json has no component with slug ${slug}; run npm run components:build`);
+  return c;
+};
+const componentByName = (name: string): ComponentInfo => {
   const c = componentData().components.find((x) => x.name === name);
   if (!c) throw new Error(`dist/components.json has no component ${name}; run npm run components:build`);
   return c;
 };
+const levelOf = (c: ComponentInfo): Level => {
+  const l = componentData().levels.find((x) => x.id === c.level);
+  if (!l) throw new Error(`levels.json has no level ${c.level}`);
+  return l;
+};
+export const componentTitle = (slug: ComponentSlug) => componentBySlug(slug).title;
+const usedBy = (name: string) => componentData().components.filter((c) => c.madeOf.includes(name));
+const storyDocsId = (c: ComponentInfo) => `${levelOf(c).plural.toLowerCase()}-${c.title.toLowerCase().replace(/\s+/g, "-")}--docs`;
+const partLink = (c: ComponentInfo): Part => ({ text: c.title, href: `/components/${c.slug}` });
+const joinParts = (items: Part[], last = " and "): Part[] => items.flatMap((p, i) => (i === 0 ? [p] : [{ text: i === items.length - 1 ? last : ", " }, p]));
 
 function propsTable(c: ComponentInfo): Block[] {
   const blocks: Block[] = [
@@ -580,16 +610,19 @@ function propsTable(c: ComponentInfo): Block[] {
   return blocks;
 }
 
-/** The tokens a page's components use, each checked against the token set like the scenario tables. */
-function tokensUsed(data: TokenData, names: string[]): Block {
-  const paths = [...new Set(names.flatMap((n) => componentInfo(n).tokens))].sort();
-  const rows: Cell[][] = paths.map((p) => {
+/** The tokens a component's own CSS uses, each checked against the token set like the scenario tables. */
+function tokensUsed(data: TokenData, c: ComponentInfo): Block[] {
+  if (!c.tokens.length && c.madeOf.length) {
+    return [{ kind: "p", text: `Everything comes from ${c.madeOf.map((n) => componentByName(n).title).join(" and ")}; see their pages above.` }];
+  }
+  const rows: Cell[][] = c.tokens.map((p) => {
     const t = data.tokens.find((x) => x.path === p);
     if (!t) throw new Error(`component token ${p} is not in dist/tokens.json`);
-    const useds = names.filter((n) => componentInfo(n).tokens.includes(p));
-    return [code(t.path), { text: t.description ?? (t.type === "typography" ? "Text style" : ""), muted: true }, { text: names.length > 1 ? useds.join(", ") : "", muted: true }];
+    return [code(t.path), { text: t.description ?? (t.type === "typography" ? "Text style" : ""), muted: true }];
   });
-  return { kind: "rows", headless: true, columns: ["Token", "Description", "Used by"], cells: [{ basis: `calc(${READING} * 0.35)`, grow: 0 }, { basis: READING, grow: 1 }, { basis: LABEL, grow: 0 }], rows };
+  const blocks: Block[] = [{ kind: "rows", headless: true, columns: ["Token", "Description"], cells: [{ basis: `calc(${READING} * 0.35)`, grow: 0 }, { basis: READING, grow: 1 }], rows }];
+  if (c.madeOf.length) blocks.push({ kind: "p", text: `Plus everything ${c.madeOf.map((n) => componentByName(n).title).join(" and ")} uses.`, muted: true });
+  return blocks;
 }
 
 const importBlock = (names: string[], example: string): Block => ({
@@ -598,43 +631,51 @@ const importBlock = (names: string[], example: string): Block => ({
 });
 
 export function componentPage(slug: ComponentSlug): Page {
-  const info = COMPONENT_INFO[slug];
+  const c = componentBySlug(slug);
+  const level = levelOf(c);
+  const doc = COMPONENT_DOCS[slug];
   const data = tokenData();
-  const page: Page = { route: `/components/${slug}`, title: info.title, description: info.description, template: "component", blocks: [] };
+  const page: Page = { route: `/components/${slug}`, title: c.title, description: c.summary, template: "component", level, blocks: [] };
   const i = COMPONENT_PAGES.indexOf(slug);
   const prev = i > 0 ? COMPONENT_PAGES[i - 1] : undefined;
   const next = i < COMPONENT_PAGES.length - 1 ? COMPONENT_PAGES[i + 1] : undefined;
+  const parts = c.madeOf.map((n) => componentByName(n));
+  const users = usedBy(c.name);
+  const facts: Cell[][] = [
+    [{ text: "Level" }, { parts: [{ text: level.name, href: `/components#${level.plural.toLowerCase()}` }, { text: `. ${level.rule}` }] }],
+    [{ text: "Made of" }, { parts: parts.length ? joinParts(parts.map(partLink)) : [{ text: "Nothing else. Tokens only." }] }],
+  ];
+  if (users.length) facts.push([{ text: "Used by" }, { parts: joinParts(users.map(partLink)) }]);
+  page.blocks.push({ kind: "rows", headless: true, columns: ["What", "Value"], cells: [{ basis: LABEL, grow: 0 }, { basis: READING, grow: 1 }], rows: facts });
   page.blocks.push({ kind: "h2", text: "When to use it" });
-  page.blocks.push({ kind: "rows", columns: ["When you are…", "Use"], strongRule: true, cells: [{ basis: `calc(${READING} * 0.4)`, grow: 28 }, { basis: READING, grow: 72 }], rows: info.when.map((r) => [{ text: r.when }, { parts: r.use }]) });
-  page.blocks.push({ kind: "h2", text: "Live examples" }, { kind: "p", text: "The real components, on the default page background, in the site's current theme.", muted: true }, ...info.examples);
-  page.blocks.push({ kind: "h2", text: "Rules" }, { kind: "list", items: info.rules });
-  page.blocks.push({ kind: "h2", text: "Props" });
-  for (const name of info.components) {
-    const c = componentInfo(name);
-    if (info.components.length > 1) page.blocks.push({ kind: "h3", text: name });
-    page.blocks.push({ kind: "p", text: c.description }, ...propsTable(c));
-  }
-  page.blocks.push({ kind: "h2", text: "Tokens it uses" }, { kind: "p", text: "Only existing tokens. If a component needs a value that is not a token, the token comes first. The build fails on a variable that is not a published token.", muted: true }, tokensUsed(data, info.components));
-  page.blocks.push({ kind: "h2", text: "Import" }, importBlock(info.components, info.examples[0].code));
-  page.blocks.push({ kind: "links", items: [{ text: `${info.title} stories in Storybook →`, href: `/storybook/?path=/docs/${info.story}--docs`, note: "every state, both themes, accessibility checks" }] });
+  page.blocks.push({ kind: "rows", columns: ["When you are…", "Use"], strongRule: true, cells: [{ basis: `calc(${READING} * 0.4)`, grow: 28 }, { basis: READING, grow: 72 }], rows: doc.when.map((r) => [{ text: r.when }, { parts: r.use }]) });
+  page.blocks.push({ kind: "h2", text: "Live examples" }, { kind: "p", text: "The real component, on the default page background, in the site's current theme.", muted: true }, ...doc.examples);
+  page.blocks.push({ kind: "h2", text: "Rules" }, { kind: "list", items: doc.rules });
+  page.blocks.push({ kind: "h2", text: "Props" }, { kind: "p", text: c.description }, ...propsTable(c));
+  page.blocks.push({ kind: "h2", text: "Tokens it uses" }, { kind: "p", text: "Only existing tokens. If a component needs a value that is not a token, the token comes first. The build fails on a variable that is not a published token.", muted: true }, ...tokensUsed(data, c));
+  page.blocks.push({ kind: "h2", text: "Import" }, importBlock([c.name, ...c.madeOf.filter((n) => doc.examples[0].code.includes(`<${n}`))], doc.examples[0].code));
+  page.blocks.push({ kind: "links", items: [{ text: `${c.title} stories in Storybook →`, href: `/storybook/?path=/docs/${storyDocsId(c)}`, note: "every state, both themes, accessibility checks" }] });
   page.blocks.push({ kind: "pager", prev: prev && { text: `← ${componentTitle(prev)}`, href: `/components/${prev}` }, next: next && { text: `${componentTitle(next)} →`, href: `/components/${next}` } });
   return page;
 }
 
 export function componentsIndexPage(): Page {
-  const line = (slug: ComponentSlug) => {
-    const info = COMPONENT_INFO[slug];
-    const cs = info.components.map(componentInfo);
-    const props = cs.reduce((n, c) => n + c.props.length, 0);
-    const tokens = new Set(cs.flatMap((c) => c.tokens)).size;
-    return `${info.description} ${cs.map((c) => c.name).join(", ")}: ${props} props, ${tokens} tokens.`;
-  };
+  const data = componentData();
+  const line = (c: ComponentInfo) => `${c.summary} ${c.madeOf.length ? `Made of ${c.madeOf.map((n) => componentByName(n).title).join(" and ")}. ` : ""}${c.props.length} props.`;
+  const blocks: Block[] = [{ kind: "p", text: "Atomic design: small parts combine into larger ones, and each level only uses the levels below it. Build from below: if the part you need does not exist, add the atom first." }];
+  for (const level of data.levels) {
+    const list = data.components.filter((c) => c.level === level.id);
+    if (!list.length) continue;
+    blocks.push({ kind: "h2", text: level.plural, id: level.plural.toLowerCase() }, { kind: "p", text: level.rule, muted: true });
+    blocks.push({ kind: "index", rows: list.map((c) => ({ title: c.title, line: line(c), href: `/components/${c.slug}` })) });
+  }
+  blocks.push({ kind: "p", text: data.above, muted: true });
   return {
     route: "/components",
     title: "Components",
-    description: "React components built on the tokens: a card, a thumbnail with its row and list, and a divider. Import them from holotekt-design-system/components.",
+    description: "React components built on the tokens, organised by atomic level: atoms, molecules and organisms. Import them from holotekt-design-system/components.",
     template: "bare",
-    blocks: [{ kind: "index", rows: COMPONENT_PAGES.map((slug) => ({ title: componentTitle(slug), line: line(slug), href: `/components/${slug}` })) }],
+    blocks,
   };
 }
 
@@ -698,7 +739,7 @@ export function pageForMarkdownSegments(segs: string[]): Page | undefined {
 
 // --- Markdown twin --------------------------------------------------------------------------------
 
-const partsText = (parts: Part[]) => parts.map((p) => ("token" in p ? `\`${p.label ?? p.token}\`` : p.text)).join("");
+const partsText = (parts: Part[]) => parts.map((p) => ("token" in p ? `\`${p.label ?? p.token}\`` : p.href ? `[${p.text}](${abs(p.href)})` : p.text)).join("");
 const cellText = (c: Cell): string => {
   if (typeof c === "string") return c.replace(/\|/g, "\\|");
   if ("parts" in c) return partsText(c.parts).replace(/\|/g, "\\|");
@@ -790,7 +831,7 @@ export function llmsTxt(): string {
     ...pages.filter((p) => p.route.startsWith("/foundations")).map(line),
     "",
     "## Components",
-    ...pages.filter((p) => p.route.startsWith("/components")).map(line),
+    ...pages.filter((p) => p.route.startsWith("/components")).map((p) => (p.level ? `- [${p.title}](${SITE_URL}${markdownPath(p.route)}): ${p.level.name}. ${p.description}` : line(p))),
     `- [Storybook](${SITE_URL}/storybook/): every component state in both themes, with accessibility checks. Its component manifest is at ${SITE_URL}/storybook/manifests/components.json.`,
     "",
     "## Docs",

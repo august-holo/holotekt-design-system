@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Card } from "./Card";
 
 const meta = {
-  title: "Card",
+  title: "Atoms/Card", // level/title from levels.json; the component build checks it,
   component: Card,
   parameters: {
     docs: {
