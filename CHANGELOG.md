@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-11-28
+
 ### Fixed
 - Getting started now says where a consumer's reset goes: in the consumer's own layer, declared ahead of
   the system's (a stylesheet holding only `@layer reset, tokens, base, components;`, imported in the root layout before
