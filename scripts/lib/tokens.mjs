@@ -519,11 +519,19 @@ export function formatPairsTable(pairs, modes = [DEFAULT_MODE]) {
 }
 
 /** The resolved data the site and consumers read: dist/tokens.json. */
+/** Now, as ISO 8601 in the machine's local time with its UTC offset (the maintainer's clock, not UTC). */
+export function localIso(d = new Date()) {
+  const pad = (n) => String(n).padStart(2, "0");
+  const off = -d.getTimezoneOffset();
+  const sign = off >= 0 ? "+" : "-";
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}${sign}${pad(Math.floor(Math.abs(off) / 60))}:${pad(Math.abs(off) % 60)}`;
+}
+
 export function resolvedJson(data, checked, { version }) {
   return {
     name: "holotekt-design-system",
     version,
-    generatedAt: new Date().toISOString(),
+    generatedAt: localIso(),
     prefix: PREFIX,
     modes: checked.modes,
     colorModes: checked.colorModes,

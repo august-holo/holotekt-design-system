@@ -115,6 +115,9 @@ function Rows({ block }: { block: Extract<Block, { kind: "rows" }> }) {
   );
 }
 
+/** Headings in Markdown blocks get an id from their text, so sections can be linked: "What the package ships" → what-the-package-ships. */
+const slug = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const textOf = (node: React.ReactNode): string => (Array.isArray(node) ? node.map(textOf).join("") : node && typeof node === "object" && "props" in node ? textOf((node as { props: { children?: React.ReactNode } }).props.children) : node == null || typeof node === "boolean" ? "" : String(node));
 /** "Raised card|Sits on the page…" → lines; the first line of a menu or card is its heading. */
 const lines = (text?: string) => (text ? text.split("|") : []);
 /** "ht-ui-label chip" → the global class as is, the module class hashed. */
@@ -264,7 +267,9 @@ function BlockView({ block }: { block: Block }) {
     case "md":
       return (
         <div className={styles.prose}>
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{block.markdown}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ h2: ({ children }) => <h2 id={slug(textOf(children))}>{children}</h2>, h3: ({ children }) => <h3 id={slug(textOf(children))}>{children}</h3> }}>
+            {block.markdown}
+          </ReactMarkdown>
         </div>
       );
   }

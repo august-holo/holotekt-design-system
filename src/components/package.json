@@ -1,0 +1,6 @@
+{
+  "$comment": "Not a package. Storybook's components manifest names the import path after the nearest package.json, so this one gives the components their real entry point, holotekt-design-system/components, instead of the package root. Nothing resolves modules through it.",
+  "name": "holotekt-design-system/components",
+  "private": true,
+  "type": "module"
+}

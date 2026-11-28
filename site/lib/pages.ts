@@ -333,7 +333,7 @@ function pageBackgroundSection(data: TokenData): Block[] {
   const label = (m: string) => (modeLabel(m, data.modes) || "default").toLowerCase();
   const perMode = (t: Token) => modes.map((m) => `${short(aliasIn(t, m))} in ${label(m)}`).join(", ");
   return [
-    { kind: "h2", text: "Default page background" },
+    { kind: "h2", text: "Default page background", id: "default-page-background" },
     { kind: "p", text: "Every page in the system sits on the dotted grid by default. It is surface/page with dots in surface/dot, spaced at layout/grid/dot-pitch. It is part of the look, not a layer of depth. The package ships it as the .ht-page-grid class." },
     { kind: "sample", label: ".ht-page-grid: surface/page with dots in surface/dot at the dot pitch, with a raised surface and text on it", className: "ht-page-grid pageGridSample", style: { padding: "var(--ht-inset-lg)", display: "flex", gap: "var(--ht-gap-lg)", alignItems: "flex-start", border: "var(--ht-border-width-thin) solid var(--ht-color-border-divider)" }, inner: [
       { className: "ht-ui-body", style: { flex: "1 1 0" }, text: "Text may sit directly on the grid; contrast is measured against surface/page." },
@@ -374,6 +374,11 @@ function typographySamples(data: TokenData): Block[] {
     { kind: "rows", headless: true, columns: ["Family", "Specimen"], cells: [{ basis: LABEL, grow: 0 }, { basis: READING, grow: 1 }], rows: families.map((t) => { const role = t.path.split(".").pop()!; return [{ text: role, className: "ht-ui-label", muted: true }, { text: `${showValue(t.value)} — ${SPECIMEN}`, className: familyStyle[role] ?? "ht-ui-body" }]; }) },
     { kind: "h2", text: "Text styles" },
     { kind: "rows", headless: true, columns: ["Style", "Specimen"], cells: [{ basis: LABEL, grow: 0 }, { basis: READING, grow: 1 }], rows: styles.map((t) => [{ text: t.path.replace(".", "/"), className: "ht-ui-meta", muted: true }, { text: styleText[t.path] ?? (t.description ?? t.path), className: t.className }]) },
+    { kind: "h3", text: "Links" },
+    { kind: "list", items: [
+      "Navigation links use ui/small.",
+      "A link inside text keeps its surrounding style, takes text/link (text/link-hover while hovered), and is underlined.",
+    ] },
   ];
 }
 
@@ -392,7 +397,7 @@ function spacingSamples(data: TokenData): Block[] {
       rows: [
         [{ text: "Reading width" }, { text: String(num("layout.width.reading")), muted: true }, { text: "About 66 characters a line", muted: true }],
         [{ text: "Page width" }, { text: String(num("layout.width.page")), muted: true }, { text: "Content stops growing here", muted: true }],
-        [{ text: "Breakpoints" }, { text: `${num("layout.breakpoint.md")} · ${num("layout.breakpoint.lg")}`, muted: true }, { text: `Below ${num("layout.breakpoint.md")}, page margin, section gap and large type step down`, muted: true }],
+        [{ text: "Breakpoints" }, { text: `${num("layout.breakpoint.md")} · ${num("layout.breakpoint.lg")}`, muted: true }, { text: `At ${num("layout.breakpoint.md")} and below (the query is max-width: ${num("layout.breakpoint.md")}px), page margin, section gap and large type step down`, muted: true }],
         [{ text: "Grid" }, { text: `${num("layout.grid.columns")} · ${mobile("layout.grid.columns")}`, muted: true }, { text: `Columns on desktop and on phones, ${num("layout.grid.gutter")} gutter`, muted: true }],
         [{ text: "Dot pitch" }, { text: String(num("layout.grid.dot-pitch")), muted: true }, { text: "The dotted background, aligned to the gutter", muted: true }],
       ],
@@ -487,7 +492,7 @@ export function homePage(): Page {
     title: "Holotekt Design System",
     description: "A design system for systemic designers.",
     blocks: [
-      { kind: "links", big: true, items: [{ text: "Foundations →", href: "/foundations" }, { text: "Components →", href: "/components" }, { text: "Set up from the README →", href: `${REPO_URL}#readme` }] },
+      { kind: "links", big: true, items: [{ text: "Foundations →", href: "/foundations" }, { text: "Components →", href: "/components" }, { text: "Getting started →", href: "/getting-started" }] },
       { kind: "h3", text: "See it in the wild" },
       { kind: "tiles", items: ["Coming soon", "Coming soon"] },
     ],
@@ -646,10 +651,16 @@ function tokensUsed(data: TokenData, c: ComponentInfo): Block[] {
   return blocks;
 }
 
-const importBlock = (names: string[], example: string): Block => ({
-  kind: "md",
-  markdown: ["```tsx", `import { ${names.join(", ")} } from "holotekt-design-system/components";`, `import "holotekt-design-system/tokens.css";`, `import "holotekt-design-system/components.css";`, "", example, "```"].join("\n"),
-});
+/** The full import block for an example: the components, the CSS they need, and text-styles.css when the example uses a text-style class. */
+const importBlock = (names: string[], example: string): Block[] => {
+  const usesTextStyles = /className="ht-(heading|reading|ui|voice)-/.test(example);
+  const lines = [`import { ${names.join(", ")} } from "holotekt-design-system/components";`, `import "holotekt-design-system/tokens.css";      // the variables`, `import "holotekt-design-system/components.css";  // the component classes`];
+  if (usesTextStyles) lines.push(`import "holotekt-design-system/text-styles.css"; // the .ht-ui-label and other text-style classes used below`);
+  return [
+    { kind: "md", markdown: ["```tsx", ...lines, "", example, "```"].join("\n") },
+    { kind: "links", items: [{ text: "Every entry point in one table →", href: "/getting-started#what-the-package-ships", note: "which file holds what, themes, fonts and breakpoints" }] },
+  ];
+};
 
 export function componentPage(slug: ComponentSlug): Page {
   const c = componentBySlug(slug);
@@ -674,7 +685,7 @@ export function componentPage(slug: ComponentSlug): Page {
   page.blocks.push({ kind: "h2", text: "Rules" }, { kind: "list", items: doc.rules });
   page.blocks.push({ kind: "h2", text: "Props" }, { kind: "p", text: c.description }, ...propsTable(c));
   page.blocks.push({ kind: "h2", text: "Tokens it uses" }, { kind: "p", text: "Only existing tokens. If a component needs a value that is not a token, the token comes first. The build fails on a variable that is not a published token.", muted: true }, ...tokensUsed(data, c));
-  page.blocks.push({ kind: "h2", text: "Import" }, importBlock([c.name, ...c.madeOf.filter((n) => doc.examples[0].code.includes(`<${n}`))], doc.examples[0].code));
+  page.blocks.push({ kind: "h2", text: "Import" }, ...importBlock([c.name, ...c.madeOf.filter((n) => doc.examples[0].code.includes(`<${n}`))], doc.examples[0].code));
   page.blocks.push({ kind: "links", items: [{ text: `${c.title} stories in Storybook →`, href: `/storybook/?path=/docs/${storyDocsId(c)}`, note: "every state, both themes, accessibility checks" }] });
   page.blocks.push({ kind: "pager", prev: prev && { text: `← ${componentTitle(prev)}`, href: `/components/${prev}` }, next: next && { text: `${componentTitle(next)} →`, href: `/components/${next}` } });
   return page;
@@ -697,6 +708,118 @@ export function componentsIndexPage(): Page {
     description: "React components built on the tokens, organised by atomic level: atoms, molecules and organisms. Import them from holotekt-design-system/components.",
     template: "bare",
     blocks,
+  };
+}
+
+// --- getting started ------------------------------------------------------------------------------
+
+/** Everything a consumer needs before the first import, generated from the package and token data. */
+export function gettingStartedPage(): Page {
+  const data = tokenData();
+  const v = version();
+  const num = (p: string) => { const t = data.tokens.find((x) => x.path === p); const val = t?.value as { value?: number } | number | undefined; return typeof val === "number" ? val : (val?.value ?? ""); };
+  const mobile = data.modeCss.mobile as { media?: string } | undefined;
+  const fonts = data.tokens.filter((t) => t.type === "fontFamily").map((t) => ({ token: t.path, family: showValue(t.value), ...data.fonts[t.path] }));
+  const fontImports = fonts.flatMap((f) => (f.files ?? []).map((spec) => { const [w, style] = spec.split(/\s+/); return `import "${f.package}/${w}${style ? `-${style}` : ""}.css"; // ${f.family} ${spec}`; }));
+  const md = `
+## Install
+
+\`\`\`sh
+npm i github:august-holo/holotekt-design-system#v${v}
+\`\`\`
+
+Install by **release tag** (\`#v${v}\` is the current one; the [changelog](/changelog) lists them all). The package builds itself on install, so a clean clone needs nothing else. Peer dependencies: \`react\` and \`react-dom\` 18 or 19, optional, needed only for the components. Tested with Node 24 (CI) and Node 23 (locally), Next.js 16.4 (this site and the consumer fixture) and React 19.
+
+## What the package ships
+
+| Entry point | What it contains | When you need it |
+| --- | --- | --- |
+| \`holotekt-design-system/tokens.css\` | Every token as a CSS custom property (\`--ht-…\`), light and dark, desktop and mobile. **Variables only:** it sets nothing on \`html\` or \`body\`, so set your page background, text colour and default font yourself (see 5). | Always |
+| \`holotekt-design-system/text-styles.css\` | One class per text style: \`.ht-heading-1\`, \`.ht-ui-label\`, \`.ht-voice-human\` and the rest. The six variables per style are in \`tokens.css\`; only the classes live here. | When you use the classes rather than the variables |
+| \`holotekt-design-system/utilities.css\` | \`.ht-page-grid\`, the dotted grid that is the default page background. | When a page sits on the grid (the default) |
+| \`holotekt-design-system/components.css\` | The styles of every component (\`.ht-button\`, \`.ht-card\` …), all values tokens. | With any component |
+| \`holotekt-design-system/components\` | The React components, typed. | With any component |
+| \`holotekt-design-system\` | The tokens as a JavaScript object, typed. | Rarely: when a value is needed in code |
+| \`holotekt-design-system/tokens.json\`, \`/components.json\` | The resolved token data and the component manifest, also served at [/tokens.json](/tokens.json) and [/components.json](/components.json). | For tooling and agents |
+
+Each stylesheet is in the \`tokens\` or \`components\` cascade layer, so your own unlayered styles win when they need to.
+
+## Import a component
+
+\`\`\`tsx
+import { Button, Card } from "holotekt-design-system/components";
+import "holotekt-design-system/tokens.css";
+import "holotekt-design-system/components.css";
+import "holotekt-design-system/text-styles.css"; // only if you use the text-style classes
+
+<Card>
+  <span className="ht-ui-label">Label</span>
+  A note in a person’s own words.
+</Card>
+<Button href="/map">Open the map →</Button>
+\`\`\`
+
+In a Next.js app, import the CSS once in the root layout. No build configuration is needed; the components are plain compiled modules. Every component is listed on [Components](/components) with its props and the tokens it uses.
+
+## Themes
+
+Light and dark are chosen by the \`data-theme\` attribute on the root element (\`<html>\`), which takes exactly these values:
+
+| \`data-theme\` | Result |
+| --- | --- |
+| absent | Follows the reader's OS setting (\`prefers-color-scheme\`). |
+| \`"dark"\` | Dark values, whatever the OS says. |
+| \`"light"\` | Light values, whatever the OS says. Setting it to light **overrides** a reader's dark OS setting. |
+
+This is how the built CSS is written: the dark values apply under \`:root[data-theme="dark"]\`, and under the OS preference only for \`:root:not([data-theme])\`. Any other value behaves like \`"light"\`. This site remembers the reader's choice in \`localStorage\` and applies it in an inline script before first paint; copy that pattern to avoid a flash.
+
+## The page background
+
+\`utilities.css\` ships \`.ht-page-grid\`: \`surface/page\` with dots in \`surface/dot\` at the dot pitch. Put it on \`<html>\`, then set the text defaults on \`body\` yourself, because \`tokens.css\` does not:
+
+\`\`\`css
+/* html carries class="ht-page-grid" */
+body {
+  margin: 0;
+  color: var(--ht-color-text-primary);
+  font-family: var(--ht-ui-body-font-family);
+}
+\`\`\`
+
+Surfaces (\`surface/raised\`, \`surface/sunken\`, \`surface/overlay\`) are plain fills and cover the dots. The grid is decoration, not elevation; the [Color page](/foundations/color#default-page-background) has the rules.
+
+## Fonts
+
+The package ships font **names and fallback stacks**, not files. Install the five @fontsource packages and import exactly these weights (the ones the text styles use); the family names in the @fontsource CSS match the first name in each token stack, which the build checks:
+
+\`\`\`tsx
+${fontImports.join("\n")}
+\`\`\`
+
+Preloading: the @fontsource imports are enough for most pages. To preload, self-host the files as this site does (copy the woff2 files from the packages into \`public/fonts/\`, with their licences) and preload only the heading and interface faces at weight 400: ${fonts.filter((f) => ["font.family.heading", "font.family.sans"].includes(f.token)).map((f) => `\`${f.package?.split("/").pop()}-latin-400-normal.woff2\``).join(" and ")}. Licences: all five are OFL-1.1; the [Typography page](/foundations/typography) links each one.
+
+## Breakpoints in CSS
+
+The breakpoints are tokens (\`--ht-layout-breakpoint-md\` = ${num("layout.breakpoint.md")}, \`--ht-layout-breakpoint-lg\` = ${num("layout.breakpoint.lg")}), but **custom properties do not work inside \`@media\`**. Write the literal, name the token in a comment, and use the same query the system uses so your layout and the tokens change together:
+
+\`\`\`css
+/* layout.breakpoint.md = ${num("layout.breakpoint.md")}: the mobile tokens apply at this width and below */
+@media ${mobile?.media ?? `(max-width: ${num("layout.breakpoint.md")}px)`} {
+  .hero { padding-inline: var(--ht-layout-page-margin); }
+}
+\`\`\`
+
+The mobile values of the tokens that step down (page margin, section gap, grid columns, the large heading sizes) apply at **${num("layout.breakpoint.md")} and below**; the exact query is in [tokens.json](/tokens.json) under \`modeCss.mobile.media\`. Where a media query is not needed, prefer a flex basis from the width tokens, which is how this site wraps its tables.
+
+## Rules for your agents
+
+Paste the block from [Rules for consuming sites](/consumer-rules) into your \`AGENTS.md\`. Agents can read every page of this site as Markdown from [llms.txt](/llms.txt).
+`;
+  return {
+    route: "/getting-started",
+    title: "Getting started",
+    description: "Install the package, import the right stylesheets and a component, choose a theme, set the page background, load the fonts and write breakpoints. Everything before the first import.",
+    blocks: [{ kind: "md", markdown: md.trim() }],
   };
 }
 
@@ -742,7 +865,7 @@ export const accessibilityPage = (): Page => ({
 });
 
 export function allPages(): Page[] {
-  return [homePage(), foundationsIndexPage(), ...FOUNDATIONS.map(foundationPage), componentsIndexPage(), ...COMPONENT_PAGES.map(componentPage), decisionsPage(), ...decisions().map((d) => decisionPage(d.slug)!), changelogPage(), consumerRulesPage(), accessibilityPage()];
+  return [homePage(), gettingStartedPage(), foundationsIndexPage(), ...FOUNDATIONS.map(foundationPage), componentsIndexPage(), ...COMPONENT_PAGES.map(componentPage), decisionsPage(), ...decisions().map((d) => decisionPage(d.slug)!), changelogPage(), consumerRulesPage(), accessibilityPage()];
 }
 
 export function markdownSegments(route: string): string[] {
@@ -825,7 +948,8 @@ function blockMarkdown(b: Block, out: string[]) {
       out.push(`*Example: ${b.label}.*`, "", "```tsx", b.code, "```", "");
       break;
     case "md":
-      out.push(b.markdown, "");
+      // Site links in Markdown blocks become absolute, like every other link in a twin.
+      out.push(b.markdown.replace(/\]\((\/[^)\s]*)\)/g, (_, href) => `](${abs(href)})`), "");
       break;
   }
 }

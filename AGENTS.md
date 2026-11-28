@@ -17,7 +17,11 @@ https://designsystem.holotekt.com. `SPEC.md` is the full brief; this file is the
   (`.storybook/`, stories beside the components) shows and tests their states; the docs site explains when to
   use them. `scripts/build-components.mjs` also writes `dist/components.json` (descriptions, props from the types
   and JSDoc, tokens each component's CSS uses) and fails if a `var(--ht-…)` is not a published token.
-- `scripts/`: build, check, diff and release. `scripts/lib/tokens.mjs` holds the shared logic.
+- `src/components/package.json` is not a package: Storybook's components manifest names each component's import
+  after the nearest `package.json`, so this marker gives `holotekt-design-system/components` instead of the
+  root. Nothing resolves modules through it; leave it alone.
+- `scripts/`: build, check, diff and release. `scripts/lib/tokens.mjs` holds the shared logic. Timestamps and
+  changelog dates use the machine's local time with its UTC offset, not UTC.
 - `dist/`: build output (gitignored). The site and consumers read `dist/tokens.json` and `dist/components.json`.
 - `site/`: the Next.js docs site, a static export. Pages are built from `dist/tokens.json` and
   `dist/components.json`. Storybook is built into `site/public/storybook/` and served at `/storybook/`.

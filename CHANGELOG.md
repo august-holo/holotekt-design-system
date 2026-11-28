@@ -7,7 +7,26 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
-## [0.7.0] - 2026-11-28
+### Added
+- A [Getting started](https://designsystem.holotekt.com/getting-started) page: install by tag, every entry point
+  in one table (`tokens.css` is variables only; the text-style classes are in `text-styles.css`), importing a
+  component, how `data-theme` on `html` chooses the theme (absent, `dark`, `light`; light overrides the OS),
+  which file ships `.ht-page-grid`, the @fontsource import lines and what to preload, and how to write
+  breakpoints when custom properties cannot be used in `@media`. Linked from the home page and `llms.txt`.
+- On the Typography page: navigation links use `ui/small`; a link inside text keeps its style, takes
+  `text/link` and is underlined.
+
+### Fixed
+- Component import blocks include `text-styles.css` when the example uses a text-style class, and link to
+  the entry-point table.
+- The Storybook manifest's import path is `holotekt-design-system/components`, as the docs say.
+- `components.json` no longer lists `ht-thumbnail-row` under `Thumbnail`.
+- The mobile mode is described as applying at 640 and below, matching its query `(max-width: 640px)`;
+  `tokens.json` now also describes the values `data-theme` takes.
+- Dates: the release script and `generatedAt` use the maintainer's local date and time with its UTC offset.
+  The 0.5.0, 0.6.0, 0.6.1 and 0.7.0 entries were cut on 27 November local time and are dated so.
+
+## [0.7.0] - 2026-11-27
 
 ### Added
 - `Button`, an atom: primary (`accent/default` fill, `text/on-accent` label) and secondary (`border/strong`
@@ -18,7 +37,7 @@ and edited by hand; everything else is written by hand.
   fixture renders it as a button and as a Next.js Link. Every label-on-fill pair was already in the
   contrast list; `text/disabled` on `surface/disabled` is exempt by the role's description.
 
-## [0.6.1] - 2026-11-28
+## [0.6.1] - 2026-11-27
 
 ### Changed
 - Components are organised by atomic level everywhere, matching Figma: atoms (`Card`, `Divider`, `Thumbnail`),
@@ -31,7 +50,7 @@ and edited by hand; everything else is written by hand.
   what it is made of and what is built from it, and `llms.txt` names the level in each entry. No component
   behaviour changed; import paths are unchanged.
 
-## [0.6.0] - 2026-11-28
+## [0.6.0] - 2026-11-27
 
 ### Added
 - The first components, starting Phase 2: `Card` (offset on or off), `Thumbnail`, `ThumbnailRow`,
@@ -54,7 +73,7 @@ and edited by hand; everything else is written by hand.
 - `fixtures/consumer` and `scripts/check-consumer.sh`: a Next.js 16 app that installs the package by git
   ref and builds with the components, with no consumer build configuration.
 
-## [0.5.0] - 2026-11-28
+## [0.5.0] - 2026-11-27
 
 ### Added
 - `color/surface/dot`, the dots of the dotted grid (`orange/200` in light, `orange/800` in dark, provisional),

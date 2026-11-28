@@ -16,6 +16,16 @@ for (const [token, font] of Object.entries(stacks)) {
     console.error(`✗ ${token}: package ${font.package} is not installed. Run npm install.`);
     process.exit(1);
   }
+  // The family name a consumer gets from the @fontsource CSS must be the first name in the token stack,
+  // or the token's font-family would fall through to the fallbacks.
+  const metaFile = path.join(pkgDir, "metadata.json");
+  if (fs.existsSync(metaFile)) {
+    const family = JSON.parse(fs.readFileSync(metaFile, "utf8")).family;
+    if (family !== font.stack[0]) {
+      console.error(`✗ ${token}: ${font.package} declares the family "${family}" but the token stack starts with "${font.stack[0]}".`);
+      process.exit(1);
+    }
+  }
   const short = font.package.split("/").pop();
   const out = path.join(dest, short);
   fs.mkdirSync(out, { recursive: true });

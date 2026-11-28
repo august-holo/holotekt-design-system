@@ -7,7 +7,9 @@
 //   `mediaFrom` (a token whose px value fills `{px}` in the template). `shrinkOnly` adds the check
 //   that no dimension or count grows in that mode.
 export const MODE_CSS = {
-  dark: { kind: "scheme" },
+  // On :root, data-theme="dark" applies the dark values; with no data-theme the OS preference decides;
+  // data-theme="light" opts out of the OS preference. Those are the only values the attribute takes.
+  dark: { kind: "scheme", attribute: "data-theme", on: ":root", values: ["light", "dark"], note: "Absent: follows prefers-color-scheme. \"dark\": dark values. \"light\": light values even when the OS prefers dark." },
   // The width comes from the layout/breakpoint/md token at build time (B-030); this is the only place that says so.
   mobile: { kind: "media", mediaFrom: { token: "layout.breakpoint.md", template: "(max-width: {px}px)" }, shrinkOnly: true },
 };

@@ -9,7 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import ts from "typescript";
-import { ROOT } from "./lib/tokens.mjs";
+import { ROOT, localIso } from "./lib/tokens.mjs";
 
 const SRC = path.join(ROOT, "src", "components");
 const DIST = path.join(ROOT, "dist");
@@ -169,7 +169,9 @@ const walk = (text) => {
       const comp = componentFor(selector);
       if (!comp) problems.push(`no component owns the selector "${selector}"`);
       else {
-        for (const m of selector.matchAll(/\.(ht-[a-z0-9_-]+)/g)) classes.get(comp).add(m[1]);
+        // Only the classes that belong to this component: a selector like ".ht-thumbnail-row:hover .ht-thumbnail"
+        // credits ht-thumbnail to Thumbnail and nothing to ThumbnailRow.
+        for (const m of selector.matchAll(/\.(ht-[a-z0-9_-]+)/g)) if (componentFor(`.${m[1]}`) === comp) classes.get(comp).add(m[1]);
         for (const m of body.matchAll(/var\(\s*(--[\w-]+)/g)) {
           const v = m[1];
           if (internal.has(v)) continue;
@@ -194,6 +196,6 @@ for (const c of components) {
 }
 // Atoms first, then molecules, then organisms; alphabetical within a level.
 components.sort((a, b) => rank[a.level] - rank[b.level] || a.name.localeCompare(b.name));
-fs.writeFileSync(path.join(DIST, "components.json"), JSON.stringify({ name: pkg.name, version: pkg.version, generatedAt: new Date().toISOString(), entry: "holotekt-design-system/components", stylesheet: "holotekt-design-system/components.css", levels: registry.levels, above: registry.above, components }, null, 2) + "\n");
+fs.writeFileSync(path.join(DIST, "components.json"), JSON.stringify({ name: pkg.name, version: pkg.version, generatedAt: localIso(), entry: "holotekt-design-system/components", stylesheet: "holotekt-design-system/components.css", levels: registry.levels, above: registry.above, components }, null, 2) + "\n");
 const tokenCount = new Set(components.flatMap((c) => c.tokens)).size;
 console.log(`✓ built dist/components/ (${components.length} components: ${registry.levels.map((l) => `${components.filter((c) => c.level === l.id).length} ${l.plural.toLowerCase()}`).join(", ")}; imports only go downwards), components.css, components.json (${components.reduce((n, c) => n + c.props.length, 0)} props, ${tokenCount} tokens used, all published)`);
