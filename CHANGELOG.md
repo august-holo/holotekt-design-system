@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-28
+
 ### Changed
 - **`Section` no longer carries the section gap above it.** It keeps only its internal spacing (bar,
   heading, content at `gap/md`); a page places its sections with `Stack gap="section"`, as the helpers'
