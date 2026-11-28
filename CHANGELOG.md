@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-28
+
 ### Added
 - Five layout helpers, a group called Layout beside the atomic levels: `Container` (page or reading width,
   the page margin at the sides), `Stack` (a column with one gap: sm, md, lg or section), `Cluster` (a row
