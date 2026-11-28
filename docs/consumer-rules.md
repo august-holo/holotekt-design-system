@@ -17,5 +17,9 @@ imported from `holotekt-design-system/tokens.css`.
 - If **no token fits**, stop and ask. Do not invent a value and do not reach for a primitive.
 - Docs for agents: https://designsystem.holotekt.com/llms.txt lists every page with a Markdown
   version. Resolved token data: https://designsystem.holotekt.com/tokens.json.
+- Before writing a **new component**, check https://designsystem.holotekt.com/components (or `llms.txt`).
+  If one fits, import it from `holotekt-design-system/components` and its styles from
+  `holotekt-design-system/components.css`. Do not restyle a system component from outside; if it does
+  not fit, say so instead of forking it.
 - To **check your work**, search the diff for hex colours and for `--ht-color-` names that are not
   semantic (`text`, `surface`, `accent`, ...); each one is a mistake or a question for the maintainer.

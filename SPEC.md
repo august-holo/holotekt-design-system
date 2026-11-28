@@ -264,9 +264,33 @@ Differences from the portfolio:
 10. Build the `publish-tokens` command (section 6a). Test it against the real Figma file. The file may hold no variables yet; if so, test the read path on whatever exists, confirm the "nothing to publish" and failure paths, and tell August what could not be tested.
 11. Write `README.md` with a "Releasing" section that matches what actually worked, covering both the one-command path and the by-hand path.
 
-### Phase 2 — components (Wednesday)
+### Phase 2 — components
 
-Storybook for React components, built with the same tokens, deployed under `/storybook` on the same site. Components exported from the package. Details will be added to this spec before then.
+Started with v0.6.0. One source, three views: the component files live once in `src/components/`; the
+package hands them to the sites, Storybook shows and tests their states, the docs site explains when to
+use them.
+
+- **Components:** `Card` (offset on or off), `Thumbnail`, `ThumbnailRow`, `ThumbnailList`, `Divider`
+  (hairline or strong). Styled in `src/components/components.css` with `ht-` prefixed classes in the
+  `components` layer, every value a token. The orange offset is a decoration, not elevation: a hard
+  `box-shadow` sized by `decoration/card-offset` in `accent/default`, the one named exception to "no
+  shadows". Depth is still shown by surface tone only.
+- **Package:** `holotekt-design-system/components` (compiled JS and types) and
+  `holotekt-design-system/components.css`. React is an optional peer dependency. Works in a Next.js 16
+  app installing by git tag with no consumer build configuration.
+- **Agent-readable:** `dist/components.json` (served as `/components.json`) lists each component's
+  description, props from the types and JSDoc, and the tokens its CSS uses; the build fails on a
+  `var(--ht-…)` that is not a published token. Storybook's static build carries
+  `manifests/components.json` (the `componentsManifest` feature), and `@storybook/addon-mcp` serves the
+  MCP endpoint from the dev server.
+- **Storybook:** `@storybook/react-vite`, stories beside the components for every state, both themes
+  from a toolbar, accessibility checks on every story, and `npm run storybook:test` running every story
+  as a Vitest browser test in both themes at desktop and phone width. Built into
+  `site/public/storybook/` and served at `/storybook/` by the same deploy.
+- **Docs site:** Components in the header, `/components` index, one page per component (when to use it,
+  live examples on the dotted grid, props, tokens it uses, link to its stories), each with a Markdown
+  twin and an `llms.txt` entry.
+- **Consumers:** check `/components` before writing a new component (`docs/consumer-rules.md`).
 
 ### Phase 3 — integration (Thursday and Friday)
 

@@ -7,6 +7,27 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Added
+- The first components, starting Phase 2: `Card` (offset on or off), `Thumbnail`, `ThumbnailRow`,
+  `ThumbnailList` and `Divider` (hairline or strong), exported from `holotekt-design-system/components`
+  with their styles in `holotekt-design-system/components.css`. Every value is a token; the build fails
+  on a variable that is not. React is an optional peer dependency.
+- The orange offset as a decoration, not elevation: on a card a flourish, on a thumbnail a hover
+  animation of 150ms (none under reduced motion). A hard `box-shadow` sized by `decoration/card-offset`
+  in `accent/default`, the one named exception to "no shadows". Depth is still shown by surface tone.
+- `components.json` (also at `/components.json`): each component's description, props from the types
+  and doc comments, and the tokens its CSS uses.
+- Storybook under `/storybook/`: stories for every state, both themes from the toolbar, accessibility
+  checks on every story, the components manifest at `/storybook/manifests/components.json`, and
+  `npm run storybook:test`, which runs every story as a browser test in both themes at desktop and phone
+  width. `@storybook/addon-mcp` serves an MCP endpoint from the dev server.
+- A Components section on the site: `/components` and a page per component with when to use it, live
+  examples on the dotted grid, props, the tokens it uses and a link to its stories; Markdown twins and
+  `llms.txt` entries included.
+- `docs/consumer-rules.md`: check `/components` before writing a new component.
+- `fixtures/consumer` and `scripts/check-consumer.sh`: a Next.js 16 app that installs the package by git
+  ref and builds with the components, with no consumer build configuration.
+
 ## [0.5.0] - 2026-11-28
 
 ### Added
