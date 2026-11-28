@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-28
+
 ### Added
 - The first components, starting Phase 2: `Card` (offset on or off), `Thumbnail`, `ThumbnailRow`,
   `ThumbnailList` and `Divider` (hairline or strong), exported from `holotekt-design-system/components`
