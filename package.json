@@ -1,6 +1,6 @@
 {
   "name": "holotekt-design-system",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "Design tokens, React components and documentation for the holotekt design system.",
   "license": "MIT",
   "private": false,

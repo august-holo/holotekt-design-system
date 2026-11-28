@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-28
+
 ### Added
 - `Button`, an atom: primary (`accent/default` fill, `text/on-accent` label) and secondary (`border/strong`
   outline, `text/primary` label), in default, hover, pressed, focus and disabled states. States change tone
