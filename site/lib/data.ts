@@ -187,7 +187,8 @@ export interface ComponentInfo {
   imports: string[];
   composes: string[];
 }
-export type LevelId = "atom" | "molecule" | "organism";
+/** The atomic levels, plus "layout" for the helpers, which are a group beside the levels rather than one of them. */
+export type LevelId = "atom" | "molecule" | "organism" | "layout";
 export interface Level {
   id: LevelId;
   name: string;

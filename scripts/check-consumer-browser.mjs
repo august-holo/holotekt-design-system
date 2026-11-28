@@ -40,7 +40,8 @@ const m = await page.evaluate(() => {
     cardPadding: card && cs(card.querySelector(".ht-card__surface") ?? card).paddingLeft,
     buttonPadding: button && cs(button).paddingLeft + " " + cs(button).paddingTop,
     rowPadding: row && cs(row).paddingLeft,
-    resetApplied: cs(document.body).margin === "0px" && cs(document.querySelector("main")).padding === "0px",
+    // The reset itself applies: an h2 has no user-agent margin left (the base is not loaded here).
+    resetApplied: cs(document.body).margin === "0px" && cs(document.querySelector("main h2")).margin === "0px",
   };
 });
 // Layout: at phone width the card's visible box (surface plus offset) stays inside its layout box with equal
@@ -67,6 +68,38 @@ const layout = await page.evaluate(() => {
     innerWidth,
   };
 });
+// Layout helpers at phone width: the container's side padding is the page margin (16), the stack's gap is
+// the named step, every grid item takes the full width, and the section heading is heading/2 whatever its level.
+const helpers = await page.evaluate(() => {
+  const cs = (el) => getComputedStyle(el);
+  const r = (el) => el.getBoundingClientRect();
+  const main = document.querySelector("main.ht-container");
+  const stack = document.querySelector(".fixture-stack");
+  const kids = [...stack.children];
+  const grid = document.querySelector(".fixture-grid");
+  const items = [...grid.children];
+  const heading = document.querySelector("#fixture-section .ht-section__heading");
+  // heading/2 steps down on phones, so compare with the token rather than a fixed px.
+  const probe = document.createElement("span");
+  probe.style.fontSize = "var(--ht-heading-2-font-size)";
+  document.body.append(probe);
+  const heading2Size = cs(probe).fontSize;
+  probe.remove();
+  return {
+    heading2Size,
+    containerPadding: cs(main).paddingLeft,
+    stackGap: r(kids[1]).top - r(kids[0]).bottom,
+    gridItemsFullWidth: items.every((i) => Math.abs(r(i).width - r(grid).width) < 0.5),
+    sectionPaddingTop: cs(document.querySelector("#fixture-section")).paddingTop,
+    headingTag: heading.tagName,
+    headingSize: cs(heading).fontSize,
+  };
+});
+if (helpers.containerPadding !== "16px") problems.push(`Container side padding is ${helpers.containerPadding} at phone width, expected 16px (layout/page/margin on phones)`);
+if (Math.abs(helpers.stackGap - 24) > 0.5) problems.push(`Stack gap="lg" measures ${helpers.stackGap}px, expected 24px`);
+if (!helpers.gridItemsFullWidth) problems.push("Grid items do not take the full width at phone width");
+if (helpers.sectionPaddingTop !== "48px") problems.push(`Section padding-top is ${helpers.sectionPaddingTop} at phone width, expected 48px (layout/section/gap on phones)`);
+if (helpers.headingTag !== "H3" || helpers.headingSize !== helpers.heading2Size) problems.push(`Section heading is ${helpers.headingTag} at ${helpers.headingSize}; expected H3 at ${helpers.heading2Size} (heading/2 at this width)`);
 if (Math.abs(layout.leftSpace - layout.rightSpace) > 0.5) problems.push(`card: space on the left is ${layout.leftSpace}px and on the right ${layout.rightSpace}px at phone width; expected equal`);
 if (!layout.visualInsideBox) problems.push("card: the offset is drawn outside the card's layout box");
 if (Math.abs(layout.gapOn - layout.gapOff) > 0.5) problems.push(`card: the gap under a card is ${layout.gapOn}px with the offset on and ${layout.gapOff}px with it off; expected equal`);
@@ -75,11 +108,11 @@ if (layout.scrollWidth > layout.innerWidth) problems.push(`the page scrolls side
 if (m.cardPadding !== "24px") problems.push(`Card padding is ${m.cardPadding}, expected 24px (inset/lg) with the reset present`);
 if (m.buttonPadding !== "24px 12px") problems.push(`Button padding is ${m.buttonPadding}, expected 24px 12px with the reset present`);
 if (m.rowPadding !== "16px") problems.push(`ThumbnailRow padding is ${m.rowPadding}, expected 16px with the reset present`);
-if (!m.resetApplied) problems.push("the reset itself did not apply (body margin or main padding is not 0)");
+if (!m.resetApplied) problems.push("the reset itself did not apply (body margin or h2 margin is not 0)");
 await browser.close();
 server.close();
 if (problems.length) {
   console.error(`✗ consumer fixture in the browser:\n  ${problems.join("\n  ")}`);
   process.exit(1);
 }
-console.log(`✓ consumer fixture in the browser: the reset layer comes first ("@layer ${firstLayer[1]};"), the system's padding survives it, the card reserves its offset (gap ${layout.gapOn}px on and off), the first thumbnail lines up with the heading, no sideways scroll at phone width`);
+console.log(`✓ consumer fixture in the browser: the reset layer comes first ("@layer ${firstLayer[1]};"), the system's padding survives it, the card reserves its offset (gap ${layout.gapOn}px on and off), the first thumbnail lines up with the heading, no sideways scroll at phone width; Container, Stack, Grid and Section measure as their tokens say`);

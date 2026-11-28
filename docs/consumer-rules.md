@@ -28,6 +28,10 @@ imported from `holotekt-design-system/tokens.css`.
   (a stylesheet holding only `@layer reset, tokens, base, components;`, imported in the root layout before any
   system stylesheet; a statement above `@import` lines in one file does not survive Next's bundler), so the system's spacing survives it.
   Put **overrides** outside any layer; they win. Never write into a layer the system owns.
+- Place things with the system's **layout helpers** (`Container`, `Stack`, `Cluster`, `Grid`, `Section`)
+  instead of writing margins: space comes from a parent's `gap`, in the named steps only. Which regions a
+  page has and how they reflow is this site's decision; a layout the helpers cannot express is a template
+  and lives here.
 - The system's components are organised by **atomic level**. Atom: uses no other component, tokens only.
   Molecule: a few atoms working as one unit. Organism: a self-contained section, built from molecules
   and atoms. Templates and pages are this site's own. **Build from below:** if the part you need does not

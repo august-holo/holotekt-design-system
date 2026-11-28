@@ -7,6 +7,21 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Added
+- Five layout helpers, a group called Layout beside the atomic levels: `Container` (page or reading width,
+  the page margin at the sides), `Stack` (a column with one gap: sm, md, lg or section), `Cluster` (a row
+  that wraps, with start, centre, end or between), `Grid` with `Grid.Item` (the system's columns, span per
+  item, full width on phones) and `Section` (the accent bar, a heading always in heading/2, then content,
+  with the section gap above). No look of their own, space from the parent's gap, only the named steps,
+  `as` for the element, logical properties. Any level may use them; they use only atoms and other helpers,
+  which the build checks, as it checks the grid's phone breakpoint against `layout.breakpoint.md`. One page
+  for the group at `/components/layout`, stories under `Layout/…`, and in the consumer fixture, measured
+  at phone width.
+
+### Changed
+- The docs site's shell and article template are built from the helpers; the margins it hand-wrote for
+  sections, the title block, the header and the footer are gone.
+
 ## [0.10.1] - 2026-11-28
 
 ### Fixed

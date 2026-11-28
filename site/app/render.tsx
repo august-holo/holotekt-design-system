@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Block, Cell, Page, Part } from "@/lib/pages";
 import { Live } from "./live";
+import { Section, Stack } from "../../src/components";
 import styles from "./render.module.css";
 
 // Storybook is a separate static app under /storybook/: a plain link, not a Next route.
@@ -278,16 +279,36 @@ function BlockView({ block }: { block: Block }) {
 export function Render({ page }: { page: Page }) {
   const foundation = page.template === "foundation";
   const component = page.template === "component";
+  // Blocks are grouped into sections at each h2: a Section carries the section gap above it and the
+  // heading, so no block needs a margin of its own.
+  const lead: Block[] = [];
+  const sections: { heading: Extract<Block, { kind: "h2" }>; blocks: Block[] }[] = [];
+  for (const b of page.blocks) {
+    if (b.kind === "h2") sections.push({ heading: b, blocks: [] });
+    else if (sections.length) sections[sections.length - 1].blocks.push(b);
+    else lead.push(b);
+  }
   return (
-    <article className={styles.article}>
-      <header className={styles.titleBlock}>
-        {foundation && <p className={`ht-ui-label ${styles.muted}`}>Foundations / {page.title}</p>}
-        {component && <p className={`ht-ui-label ${styles.muted}`}>Components / {page.level?.name ?? page.title}</p>}
-        <h1>{page.title}</h1>
-        {!foundation && page.template !== "bare" && <p className={`ht-reading-lede ${styles.secondary} ${styles.lede}`}>{page.description}</p>}
-      </header>
-      {page.blocks.map((b, i) => (
-        <BlockView key={i} block={b} />
+    <article>
+      <Stack gap="lg">
+        <Stack as="header" gap="md">
+          {foundation && <p className={`ht-ui-label ${styles.muted}`}>Foundations / {page.title}</p>}
+          {component && <p className={`ht-ui-label ${styles.muted}`}>Components / {page.level?.name ?? page.title}</p>}
+          <h1>{page.title}</h1>
+          {!foundation && page.template !== "bare" && <p className={`ht-reading-lede ${styles.secondary} ${styles.lede}`}>{page.description}</p>}
+        </Stack>
+        {lead.map((b, i) => (
+          <BlockView key={i} block={b} />
+        ))}
+      </Stack>
+      {sections.map((s, i) => (
+        <Section key={i} heading={s.heading.text} id={s.heading.id} bar={false}>
+          <Stack gap="lg">
+            {s.blocks.map((b, j) => (
+              <BlockView key={j} block={b} />
+            ))}
+          </Stack>
+        </Section>
       ))}
     </article>
   );

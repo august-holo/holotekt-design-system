@@ -230,4 +230,112 @@
   .ht-divider--strong {
     border-block-start: var(--ht-border-width-thick) solid var(--ht-color-border-strong);
   }
+
+  /* --- Layout helpers -------------------------------------------------------------------------- */
+  /* No look of their own: no colour, border, radius or shadow. Space comes from the parent's gap;
+     the options are the named steps, as data attributes. Logical properties throughout. */
+  .ht-container {
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: calc(var(--ht-layout-width-page) + 2 * var(--ht-layout-page-margin));
+    margin-inline: auto;
+    padding-inline: var(--ht-layout-page-margin);
+  }
+  .ht-container[data-width="reading"] {
+    max-inline-size: calc(var(--ht-layout-width-reading) + 2 * var(--ht-layout-page-margin));
+  }
+  .ht-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ht-gap-md);
+  }
+  .ht-stack[data-gap="sm"] {
+    gap: var(--ht-gap-sm);
+  }
+  .ht-stack[data-gap="lg"] {
+    gap: var(--ht-gap-lg);
+  }
+  .ht-stack[data-gap="section"] {
+    gap: var(--ht-layout-section-gap);
+  }
+  .ht-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--ht-gap-md);
+  }
+  .ht-cluster[data-gap="sm"] {
+    gap: var(--ht-gap-sm);
+  }
+  .ht-cluster[data-gap="lg"] {
+    gap: var(--ht-gap-lg);
+  }
+  .ht-cluster[data-align="centre"] {
+    justify-content: center;
+  }
+  .ht-cluster[data-align="end"] {
+    justify-content: flex-end;
+  }
+  .ht-cluster[data-align="between"] {
+    justify-content: space-between;
+  }
+  /* A helper rendered as a list is still just a container: no bullets, no indent. */
+  .ht-stack:is(ul, ol),
+  .ht-cluster:is(ul, ol),
+  .ht-grid:is(ul, ol) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .ht-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--ht-layout-grid-columns), minmax(0, 1fr));
+    gap: var(--ht-layout-grid-gutter);
+  }
+  .ht-grid__item {
+    min-inline-size: 0;
+    grid-column: span 12;
+  }
+  .ht-grid__item[data-span="1"] { grid-column: span 1; }
+  .ht-grid__item[data-span="2"] { grid-column: span 2; }
+  .ht-grid__item[data-span="3"] { grid-column: span 3; }
+  .ht-grid__item[data-span="4"] { grid-column: span 4; }
+  .ht-grid__item[data-span="5"] { grid-column: span 5; }
+  .ht-grid__item[data-span="6"] { grid-column: span 6; }
+  .ht-grid__item[data-span="7"] { grid-column: span 7; }
+  .ht-grid__item[data-span="8"] { grid-column: span 8; }
+  .ht-grid__item[data-span="9"] { grid-column: span 9; }
+  .ht-grid__item[data-span="10"] { grid-column: span 10; }
+  .ht-grid__item[data-span="11"] { grid-column: span 11; }
+  .ht-grid__item[data-span="12"] { grid-column: span 12; }
+  /* On phones every item takes the full width. 640 is layout/breakpoint/md; custom properties cannot be
+     used in a media query, so the literal is written here and the component build checks it against the token. */
+  @media (max-width: 640px) {
+    .ht-grid__item,
+    .ht-grid__item[data-span] {
+      grid-column: 1 / -1;
+    }
+  }
+  .ht-section {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--ht-gap-md);
+    padding-block-start: var(--ht-layout-section-gap);
+  }
+  .ht-section > .ht-accent-bar {
+    align-self: flex-start;
+  }
+  /* The heading is always heading/2; the level prop changes only the element. */
+  .ht-section__heading {
+    margin: 0;
+    color: var(--ht-color-text-primary);
+    font-family: var(--ht-heading-2-font-family);
+    font-size: var(--ht-heading-2-font-size);
+    font-weight: var(--ht-heading-2-font-weight);
+    line-height: var(--ht-heading-2-line-height);
+    letter-spacing: var(--ht-heading-2-letter-spacing);
+    text-transform: var(--ht-heading-2-text-transform);
+  }
 }

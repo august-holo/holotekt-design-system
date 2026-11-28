@@ -5,6 +5,7 @@ import Link from "next/link";
 import "./globals.css";
 import { REPO_URL, SITE_URL, version } from "@/lib/data";
 import { ThemeToggle } from "./theme-toggle";
+import { Cluster, Container, Stack } from "../../src/components";
 import { THEME_KEY } from "@/lib/theme";
 import styles from "./shell.module.css";
 
@@ -36,29 +37,31 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: headScript }} />
       </head>
       <body>
-        <div className={styles.page}>
-          <header className={styles.header}>
-            <Link href="/" className={`ht-ui-label ${styles.brand}`}>
-              holotekt design system <span className={`ht-ui-meta ${styles.version}`}>v{short}</span>
-            </Link>
-            <nav aria-label="Site">
-              <ul className={`ht-ui-small ${styles.nav}`}>
-                {NAV.map((n) => (
-                  <li key={n.href}>{n.href.startsWith("/") ? <Link href={n.href}>{n.text}</Link> : <a href={n.href}>{n.text}</a>}</li>
-                ))}
-                <li>
-                  <ThemeToggle />
-                </li>
-              </ul>
-            </nav>
-          </header>
-          <main className={styles.main}>{children}</main>
-          <footer className={`ht-ui-meta ${styles.footer}`}>
-            <a href={REPO_URL}>GitHub</a>
-            <Link href="/changelog">Changelog</Link>
-            <a href="https://augustinevontrapp.com">augustinevontrapp.com</a>
-          </footer>
-        </div>
+        <Container className={styles.page}>
+          <Stack gap="section" className={styles.column}>
+            <Cluster as="header" gap="lg" align="between" className={styles.header}>
+              <Link href="/" className={`ht-ui-label ${styles.brand}`}>
+                holotekt design system <span className={`ht-ui-meta ${styles.version}`}>v{short}</span>
+              </Link>
+              <nav aria-label="Site">
+                <Cluster as="ul" gap="lg" className={`ht-ui-small ${styles.nav}`}>
+                  {NAV.map((n) => (
+                    <li key={n.href}>{n.href.startsWith("/") ? <Link href={n.href}>{n.text}</Link> : <a href={n.href}>{n.text}</a>}</li>
+                  ))}
+                  <li>
+                    <ThemeToggle />
+                  </li>
+                </Cluster>
+              </nav>
+            </Cluster>
+            <main className={styles.main}>{children}</main>
+            <Cluster as="footer" gap="lg" className={`ht-ui-meta ${styles.footer}`}>
+              <a href={REPO_URL}>GitHub</a>
+              <Link href="/changelog">Changelog</Link>
+              <a href="https://augustinevontrapp.com">augustinevontrapp.com</a>
+            </Cluster>
+          </Stack>
+        </Container>
       </body>
     </html>
   );

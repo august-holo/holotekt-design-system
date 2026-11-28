@@ -52,7 +52,7 @@ export type Block =
   | { kind: "live"; example: LiveId; label: string; code: string }
   | { kind: "md"; markdown: string };
 
-export const LIVE_IDS = ["accent-bar", "accent-bar-heading", "button-states", "button-link", "card-offset-on", "card-offset-off", "thumbnail-list", "thumbnail-list-hover", "alignment-guide", "thumbnail-states", "thumbnail-row", "thumbnail-row-hover", "thumbnail-row-focus", "divider-hairline", "divider-strong"] as const;
+export const LIVE_IDS = ["layout-container", "layout-stack", "layout-cluster", "layout-grid", "layout-section", "accent-bar", "accent-bar-heading", "button-states", "button-link", "card-offset-on", "card-offset-off", "thumbnail-list", "thumbnail-list-hover", "alignment-guide", "thumbnail-states", "thumbnail-row", "thumbnail-row-hover", "thumbnail-row-focus", "divider-hairline", "divider-strong"] as const;
 export type LiveId = (typeof LIVE_IDS)[number];
 
 export interface Page {
@@ -651,7 +651,8 @@ const levelOf = (c: ComponentInfo): Level => {
 export const componentTitle = (slug: ComponentSlug) => componentBySlug(slug).title;
 const usedBy = (name: string) => componentData().components.filter((c) => c.madeOf.includes(name));
 const storyDocsId = (c: ComponentInfo) => `${levelOf(c).plural.toLowerCase()}-${c.title.toLowerCase().replace(/\s+/g, "-")}--docs`;
-const partLink = (c: ComponentInfo): Part => ({ text: c.title, href: `/components/${c.slug}` });
+/** A link to a component's page; the layout helpers share one page, with an anchor each. */
+const partLink = (c: ComponentInfo): Part => ({ text: c.title, href: c.level === "layout" ? `/components/layout#${c.slug}` : `/components/${c.slug}` });
 const joinParts = (items: Part[], last = " and "): Part[] => items.flatMap((p, i) => (i === 0 ? [p] : [{ text: i === items.length - 1 ? last : ", " }, p]));
 
 function propsTable(c: ComponentInfo): Block[] {
@@ -730,7 +731,8 @@ export function componentsIndexPage(): Page {
     const list = data.components.filter((c) => c.level === level.id);
     if (!list.length) continue;
     blocks.push({ kind: "h2", text: level.plural, id: level.plural.toLowerCase() }, { kind: "p", text: level.rule, muted: true });
-    blocks.push({ kind: "index", rows: list.map((c) => ({ title: c.title, line: line(c), href: `/components/${c.slug}` })) });
+    if (level.id === "layout") blocks.push({ kind: "p", text: "Five helpers on one page: building blocks that place things, not page layouts.", muted: true });
+    blocks.push({ kind: "index", rows: list.map((c) => ({ title: c.title, line: line(c), href: level.id === "layout" ? `/components/layout#${c.slug}` : `/components/${c.slug}` })) });
   }
   blocks.push({ kind: "p", text: data.above, muted: true });
   return {
@@ -740,6 +742,65 @@ export function componentsIndexPage(): Page {
     template: "bare",
     blocks,
   };
+}
+
+// --- layout helpers (one page for the group) --------------------------------------------------------
+
+const LAYOUT_HELPERS = ["Container", "Stack", "Cluster", "Grid", "Section"] as const;
+const LAYOUT_EXAMPLES: Record<(typeof LAYOUT_HELPERS)[number], Extract<Block, { kind: "live" }>> = {
+  Container: { kind: "live", example: "layout-container", label: "Page width (the default) and reading width; the tinted band is the content, the space either side is the page margin, which steps down on phones", code: `<Container>…</Container>\n<Container width="reading">…</Container>` },
+  Stack: { kind: "live", example: "layout-stack", label: "sm, md (default), lg and section gaps", code: `<Stack gap="lg">\n  <Card>…</Card>\n  <Card>…</Card>\n</Stack>` },
+  Cluster: { kind: "live", example: "layout-cluster", label: "A row of buttons from the start, and a brand with links set between", code: `<Cluster gap="lg" align="between">\n  <a href="/">holotekt</a>\n  <Cluster as="ul">…</Cluster>\n</Cluster>` },
+  Grid: { kind: "live", example: "layout-grid", label: "Nine and three, then three fours; narrow the window and every item takes the full width", code: `<Grid>\n  <Grid.Item span={9}>…</Grid.Item>\n  <Grid.Item span={3}>…</Grid.Item>\n</Grid>` },
+  Section: { kind: "live", example: "layout-section", label: "The accent bar, the heading, then the content; the section gap sits above it", code: `<Section heading="See my work">\n  <ThumbnailList>…</ThumbnailList>\n</Section>` },
+};
+
+export function layoutPage(): Page {
+  const data = tokenData();
+  const helpers = LAYOUT_HELPERS.map((n) => componentByName(n));
+  const level = levelOf(helpers[0]);
+  const page: Page = {
+    route: "/components/layout",
+    title: "Layout helpers",
+    description: "Five helpers that place things: Container, Stack, Cluster, Grid and Section. They have no look of their own. A page uses them instead of writing its own margins, so spacing stays consistent.",
+    template: "component",
+    level,
+    blocks: [],
+  };
+  page.blocks.push({ kind: "rows", headless: true, columns: ["What", "Value"], cells: [{ basis: LABEL, grow: 0 }, { basis: READING, grow: 1 }], rows: [
+    [{ text: "Group" }, { parts: [{ text: "Layout", href: "/components#layout" }, { text: `. ${level.rule}` }] }],
+    [{ text: "Made of" }, { parts: [{ text: "Nothing else, except " }, { text: "Section", href: "#section" }, { text: ", which is made of " }, { text: "Accent bar", href: "/components/accent-bar" }, { text: " and " }, { text: "Stack", href: "#stack" }] }],
+  ] });
+  page.blocks.push({ kind: "h2", text: "When to use it" });
+  page.blocks.push({ kind: "rows", columns: ["When you are…", "Use"], strongRule: true, cells: [{ basis: `calc(${READING} * 0.4)`, grow: 28 }, { basis: READING, grow: 72 }], rows: [
+    [{ text: "Placing a page's content at the system's width" }, { parts: [{ text: "Container", href: "#container" }] }],
+    [{ text: "Stacking things in a column" }, { parts: [{ text: "Stack", href: "#stack" }] }],
+    [{ text: "A row that wraps: navigation links, a row of buttons" }, { parts: [{ text: "Cluster", href: "#cluster" }] }],
+    [{ text: "Placing things on the column grid" }, { parts: [{ text: "Grid", href: "#grid" }] }],
+    [{ text: "Opening a major part of a page" }, { parts: [{ text: "Section", href: "#section" }] }],
+  ] });
+  page.blocks.push({ kind: "p", text: "These are building blocks, not page layouts. Which regions a page has, and how they reflow, is still each product's decision: if a layout needs more than these do, it is a template and belongs to the product." });
+  page.blocks.push({ kind: "h2", text: "Rules" }, { kind: "list", items: [
+    "No look of their own. No color, border, radius or shadow. If it needs a surface, put a Card inside.",
+    "Space comes from the parent's gap, never from margins on the children.",
+    "Only the named steps. There is no way to pass an arbitrary number.",
+    "Few options. If a layout needs something these cannot do, it is a template, and it belongs to the product.",
+    "Each takes the HTML element it should render as, so structure stays meaningful (a list, a nav, a section).",
+    "Decorations that sit outside a box, like the card offset, are reserved by the component that draws them. A helper never compensates for one.",
+    "They work with no base loaded, like every other component.",
+  ] });
+  for (const c of helpers) {
+    page.blocks.push({ kind: "h2", text: c.title, id: c.slug });
+    page.blocks.push({ kind: "p", text: c.description });
+    page.blocks.push(LAYOUT_EXAMPLES[c.name as (typeof LAYOUT_HELPERS)[number]]);
+    if (c.name === "Section") page.blocks.push({ kind: "p", text: "The level prop is for document structure and does not change the size: the heading is always heading/2. A smaller subsection heading is a heading inside a Stack, not a Section.", muted: true });
+    page.blocks.push({ kind: "h3", text: `${c.title} props` }, ...propsTable(c));
+    if (c.name === "Grid") { const item = componentData().components.find((x) => x.name === "Grid"); void item; page.blocks.push({ kind: "p", text: "Grid.Item takes span (1 to 12, default 12), as and className.", muted: true }); }
+    page.blocks.push({ kind: "h3", text: "Tokens it uses" }, ...tokensUsed(data, c));
+  }
+  page.blocks.push({ kind: "h2", text: "Import" }, ...importBlock(["Container", "Stack", "Cluster", "Grid", "Section"], `<Container>\n  <Section heading="See my work">\n    <Grid>\n      <Grid.Item span={8}>…</Grid.Item>\n      <Grid.Item span={4}>…</Grid.Item>\n    </Grid>\n  </Section>\n</Container>`));
+  page.blocks.push({ kind: "links", items: helpers.map((c) => ({ text: `${c.title} stories in Storybook →`, href: `/storybook/?path=/docs/${storyDocsId(c)}` })) });
+  return page;
 }
 
 // --- getting started ------------------------------------------------------------------------------
@@ -941,7 +1002,7 @@ export const accessibilityPage = (): Page => ({
 });
 
 export function allPages(): Page[] {
-  return [homePage(), gettingStartedPage(), foundationsIndexPage(), ...FOUNDATIONS.map(foundationPage), componentsIndexPage(), ...COMPONENT_PAGES.map(componentPage), decisionsPage(), ...decisions().map((d) => decisionPage(d.slug)!), changelogPage(), consumerRulesPage(), accessibilityPage()];
+  return [homePage(), gettingStartedPage(), foundationsIndexPage(), ...FOUNDATIONS.map(foundationPage), componentsIndexPage(), ...COMPONENT_PAGES.map(componentPage), layoutPage(), decisionsPage(), ...decisions().map((d) => decisionPage(d.slug)!), changelogPage(), consumerRulesPage(), accessibilityPage()];
 }
 
 export function markdownSegments(route: string): string[] {

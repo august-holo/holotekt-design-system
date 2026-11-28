@@ -20,6 +20,9 @@ test -f node_modules/holotekt-design-system/dist/fonts/arvo/arvo-latin-400-norma
 npm run -s build
 grep -q "ht-card ht-card--offset" out/index.html
 grep -q '<span class="ht-accent-bar" aria-hidden="true">' out/index.html
+grep -Eq '<main class="ht-container fixture-main" data-width="page">' out/index.html
+grep -Eq 'class="ht-grid__item" data-span="8"' out/index.html
+grep -Eq '<h3 class="ht-section__heading">A section</h3>' out/index.html
 grep -q "ht-thumbnail-row__title" out/index.html
 grep -Eq '<a[^>]*class="ht-thumbnail-row"[^>]*href="/one"' out/index.html
 grep -Eq '<a[^>]*class="ht-thumbnail"[^>]*href="/three"' out/index.html
@@ -29,4 +32,4 @@ grep -rq --include="*.css" -- "--ht-decoration-card-offset" out/_next
 grep -rq --include="*.css" -- "ht-page-grid" out/_next
 ! grep -rq --include="*.css" -- "ht-prose" out/_next
 node "$ROOT/scripts/check-consumer-browser.mjs"
-echo "✓ consumer fixture: installed holotekt-design-system@$REF by git, built a Next.js 16 static export with Button (as a button and as a Next Link), Card, Divider, ThumbnailList and ThumbnailRow and Thumbnail through Next Link with onClick, all.css bundled and base.css absent"
+echo "✓ consumer fixture: installed holotekt-design-system@$REF by git, built a Next.js 16 static export with Button (as a button and as a Next Link), Card, Divider, ThumbnailList and ThumbnailRow and Thumbnail through Next Link with onClick, the layout helpers rendered, all.css bundled and base.css absent"

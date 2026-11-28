@@ -8,7 +8,7 @@ import "./reset.css";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="ht-page-grid">
-      <body style={{ padding: "var(--ht-inset-lg)", color: "var(--ht-color-text-primary)", fontFamily: "var(--ht-ui-body-font-family)" }}>{children}</body>
+      <body style={{ color: "var(--ht-color-text-primary)", fontFamily: "var(--ht-ui-body-font-family)", paddingBlock: "var(--ht-inset-lg)" }}>{children}</body>
     </html>
   );
 }

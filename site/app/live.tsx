@@ -3,7 +3,8 @@
 // can describe each example without rendering it.
 import type { ReactNode } from "react";
 import type { LiveId } from "@/lib/pages";
-import { AccentBar, Button, Card, Divider, Thumbnail, ThumbnailList, ThumbnailRow } from "../../src/components";
+import { AccentBar, Button, Card, Cluster, Container, Divider, Grid, Section, Stack, Thumbnail, ThumbnailList, ThumbnailRow } from "../../src/components";
+import { Box } from "../../src/components/stories/box";
 import { SAMPLE_IMAGES, SAMPLE_ROWS } from "../../src/components/stories/samples";
 
 const cardWidth = { maxWidth: "calc(var(--ht-layout-width-reading) / 2)" };
@@ -32,6 +33,38 @@ const buttonRow = (kind: "primary" | "secondary") => (
 );
 
 export const LIVE: Record<LiveId, () => ReactNode> = {
+  "layout-container": () => (
+    <Stack gap="md">
+      <Container><Box>Page width</Box></Container>
+      <Container width="reading"><Box>Reading width</Box></Container>
+    </Stack>
+  ),
+  "layout-stack": () => (
+    <Grid>
+      {(["sm", "md", "lg", "section"] as const).map((gap) => (
+        <Grid.Item key={gap} span={3}>
+          <Stack gap={gap}><Box>{gap}</Box><Box>{gap}</Box><Box>{gap}</Box></Stack>
+        </Grid.Item>
+      ))}
+    </Grid>
+  ),
+  "layout-cluster": () => (
+    <Stack gap="lg">
+      <Cluster><Button>Open the map</Button><Button kind="secondary">Save a copy</Button><Button kind="secondary">Share</Button></Cluster>
+      <Cluster gap="lg" align="between"><span className="ht-ui-label">holotekt</span><Cluster as="ul" gap="lg"><li><a href="#work">Work</a></li><li><a href="#notes">Notes</a></li><li><a href="#about">About</a></li></Cluster></Cluster>
+    </Stack>
+  ),
+  "layout-grid": () => (
+    <Stack gap="lg">
+      <Grid><Grid.Item span={9}><Box>span 9</Box></Grid.Item><Grid.Item span={3}><Box>span 3</Box></Grid.Item></Grid>
+      <Grid><Grid.Item span={4}><Box>span 4</Box></Grid.Item><Grid.Item span={4}><Box>span 4</Box></Grid.Item><Grid.Item span={4}><Box>span 4</Box></Grid.Item></Grid>
+    </Stack>
+  ),
+  "layout-section": () => (
+    <Section heading="See my work" as="div" level={3}>
+      <ThumbnailList aria-label="Selected work, in a section">{rows()}</ThumbnailList>
+    </Section>
+  ),
   "accent-bar": () => <AccentBar />,
   "accent-bar-heading": () => (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--ht-gap-md)", alignItems: "flex-start" }}>

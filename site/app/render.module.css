@@ -4,22 +4,7 @@
 /* The page body. Only token variables, proportions and layout live here; no raw colour, size or
    spacing. Rows stack on narrow screens through intrinsic sizing, not a breakpoint. */
 @layer components {
-  .article {
-    display: flex;
-    flex-direction: column;
-    gap: var(--ht-gap-lg);
-  }
-  .article > h2 {
-    margin-top: calc(var(--ht-layout-section-gap) - var(--ht-gap-lg));
-  }
-  .titleBlock {
-    display: flex;
-    flex-direction: column;
-    gap: var(--ht-gap-md);
-  }
-  .titleBlock p {
-    margin: 0;
-  }
+  /* The article is Stacks and Sections from the package: no margins here. */
   .lede {
     max-width: var(--ht-layout-width-reading);
   }

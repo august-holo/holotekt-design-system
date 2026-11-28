@@ -29,9 +29,13 @@ h1 { font: var(--ht-heading-display-font-weight) var(--ht-heading-display-font-s
 ```tsx
 import { Button, Card, Divider, Thumbnail, ThumbnailList, ThumbnailRow } from "holotekt-design-system/components";
 
-<ThumbnailList aria-label="Work">
-  <ThumbnailRow href="/work/map" title="Mapping a port" summary="What the map shows." image="/images/map.png" />
-</ThumbnailList>
+<Container>
+  <Section heading="Work">
+    <ThumbnailList aria-label="Work">
+      <ThumbnailRow href="/work/map" title="Mapping a port" summary="What the map shows." image="/images/map.png" />
+    </ThumbnailList>
+  </Section>
+</Container>
 ```
 
 The components are React, compiled to plain ES modules with typed props; a Next.js 16 app installs

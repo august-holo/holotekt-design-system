@@ -3,22 +3,18 @@
 
 /* The page shell: header, main column, footer. Every value is a token variable. */
 @layer components {
+  /* The shell is Container, Stack and Cluster from the package; this file adds only what is the site's:
+     the full height, the block padding and the rules above the footer and below the header. */
   .page {
-    box-sizing: border-box;
-    max-width: calc(var(--ht-layout-width-page) + 2 * var(--ht-layout-page-margin));
     min-height: 100vh;
-    margin-inline: auto;
-    padding: var(--ht-space-500) var(--ht-layout-page-margin) var(--ht-space-700);
+    padding-block: var(--ht-space-500) var(--ht-space-700);
     display: flex;
     flex-direction: column;
-    gap: var(--ht-layout-section-gap);
+  }
+  .column {
+    flex: 1 0 auto;
   }
   .header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--ht-gap-md) var(--ht-gap-lg);
     padding-block: var(--ht-space-300);
     border-bottom: var(--ht-border-width-thin) solid var(--ht-color-border-divider);
   }
@@ -31,15 +27,6 @@
   }
   .version {
     color: var(--ht-color-text-muted);
-  }
-  .nav {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--ht-gap-lg);
-    margin: 0;
-    padding: 0;
-    list-style: none;
   }
   .nav a,
   .nav button {
@@ -59,9 +46,6 @@
     flex: 1 0 auto;
   }
   .footer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--ht-gap-lg);
     padding-block: var(--ht-space-400);
     border-top: var(--ht-border-width-thin) solid var(--ht-color-border-divider);
   }

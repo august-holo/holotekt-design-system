@@ -98,16 +98,19 @@ for (const file of files) {
   if (!reg) levelProblems.push(`${name} is not in src/components/levels.json`);
   else {
     if (rank[reg.level] === undefined) levelProblems.push(`${name}: unknown level "${reg.level}"`);
+    // Layout helpers are not a level: any level may use them, and they may use only atoms and other helpers.
+    const allowed = (user, used) => (used.level === "layout" ? true : user.level === "layout" ? used.level === "atom" : rank[used.level] < rank[user.level]);
+    const why = (user) => (user.level === "layout" ? "a layout helper may use only atoms and other helpers" : "a component may only use levels below its own, or a layout helper");
     for (const imp of imports) {
       const other = registry.components[imp];
       if (!other) { levelProblems.push(`${name} imports ${imp}, which is not in levels.json`); continue; }
-      if (rank[other.level] >= rank[reg.level]) levelProblems.push(`${name} (${reg.level}) imports ${imp} (${other.level}); a component may only use levels below its own`);
+      if (!allowed(reg, other)) levelProblems.push(`${name} (${reg.level}) imports ${imp} (${other.level}); ${why(reg)}`);
       if (!reg.madeOf.includes(imp)) levelProblems.push(`${name} imports ${imp}, but levels.json does not list it under madeOf`);
     }
     for (const part of reg.madeOf) {
       const other = registry.components[part];
       if (!other) levelProblems.push(`${name}: madeOf names ${part}, which is not in levels.json`);
-      else if (rank[other.level] >= rank[reg.level]) levelProblems.push(`${name} (${reg.level}) is made of ${part} (${other.level}); parts must be from a lower level`);
+      else if (!allowed(reg, other)) levelProblems.push(`${name} (${reg.level}) is made of ${part} (${other.level}); ${why(reg)}`);
     }
   }
   components.push({ name, file: `src/components/${file}`, description, props, extra, level: reg?.level, title: reg?.title, slug: reg?.slug, summary: reg?.summary, madeOf: reg?.madeOf ?? [], imports });
@@ -123,6 +126,11 @@ for (const c of components) {
   if (!m) levelProblems.push(`${c.name}.stories.tsx has no literal title; expected "${expected}"`);
   else if (m[1] !== expected) levelProblems.push(`${c.name}.stories.tsx title is "${m[1]}"; levels.json says "${expected}"`);
 }
+// A media query literal in the stylesheet must equal the breakpoint token it stands for.
+const md = tokenData.tokens.find((t) => t.path === "layout.breakpoint.md");
+for (const m of css.matchAll(/@media \(max-width: (\d+)px\)/g)) {
+  if (!md || Number(m[1]) !== Number(md.value)) levelProblems.push(`components.css uses @media (max-width: ${m[1]}px) but layout.breakpoint.md is ${md?.value}`);
+}
 if (levelProblems.length) {
   console.error(`✗ component levels:\n  ${levelProblems.join("\n  ")}`);
   process.exit(1);
@@ -130,6 +138,11 @@ if (levelProblems.length) {
 
 // 4. Tokens used, from the CSS, attributed to the component whose class is the selector's subject.
 const byClass = [
+  ["ht-container", "Container"],
+  ["ht-stack", "Stack"],
+  ["ht-cluster", "Cluster"],
+  ["ht-grid", "Grid"],
+  ["ht-section", "Section"],
   ["ht-accent-bar", "AccentBar"],
   ["ht-button", "Button"],
   ["ht-thumbnail-row", "ThumbnailRow"],
