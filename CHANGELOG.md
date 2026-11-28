@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-27
+
 ### Added
 - A [Getting started](https://designsystem.holotekt.com/getting-started) page: install by tag, every entry point
   in one table (`tokens.css` is variables only; the text-style classes are in `text-styles.css`), importing a
