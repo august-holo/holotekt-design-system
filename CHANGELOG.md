@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-11-28
+
 ### Fixed
 - `Card` reserves room for its own offset on the right and bottom, by `decoration/card-offset`, so its
   layout box and its visual box are the same: a gap under a card measures the same with the offset on
