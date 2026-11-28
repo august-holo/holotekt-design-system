@@ -52,7 +52,7 @@ export type Block =
   | { kind: "live"; example: LiveId; label: string; code: string }
   | { kind: "md"; markdown: string };
 
-export const LIVE_IDS = ["card-offset-on", "card-offset-off", "thumbnail-list", "thumbnail-list-hover", "thumbnail-states", "thumbnail-row", "thumbnail-row-hover", "thumbnail-row-focus", "divider-hairline", "divider-strong"] as const;
+export const LIVE_IDS = ["button-states", "button-link", "card-offset-on", "card-offset-off", "thumbnail-list", "thumbnail-list-hover", "thumbnail-states", "thumbnail-row", "thumbnail-row-hover", "thumbnail-row-focus", "divider-hairline", "divider-strong"] as const;
 export type LiveId = (typeof LIVE_IDS)[number];
 
 export interface Page {
@@ -498,13 +498,34 @@ export function homePage(): Page {
 // Levels, parts and summaries come from src/components/levels.json through dist/components.json;
 // the when-to-use rows, rules and examples mirror each component's Figma sheet.
 
-export const COMPONENT_PAGES = ["card", "divider", "thumbnail", "thumbnail-row", "thumbnail-list"] as const;
+export const COMPONENT_PAGES = ["button", "card", "divider", "thumbnail", "thumbnail-row", "thumbnail-list"] as const;
 export type ComponentSlug = (typeof COMPONENT_PAGES)[number];
 
 type WhenRow = { when: string; use: Part[] };
 type ComponentDoc = { when: WhenRow[]; rules: string[]; examples: Extract<Block, { kind: "live" }>[] };
 const ref = (name: string): Part => ({ token: name });
 const COMPONENT_DOCS: Record<ComponentSlug, ComponentDoc> = {
+  button: {
+    when: [
+      { when: "Offering the one most important action in a view", use: [ref("Button"), { text: ", primary" }] },
+      { when: "Offering any other action", use: [ref("Button"), { text: ", secondary" }] },
+      { when: "Linking to another page inside a sentence", use: [{ text: "A text link, not a button" }] },
+    ],
+    rules: [
+      "One primary button per view. Everything else is secondary.",
+      "States change tone only: hover lighter, pressed darker, following the color roles. No offset and no shadow on buttons.",
+      "Primary takes dark text on the accent fill, never white.",
+      "Secondary has the thick ink outline and no fill at rest.",
+      "Focus shows the focus ring: an outline 2px outside the button, so the button itself does not change.",
+      "Disabled buttons cannot be the only way to learn why something is unavailable. Say why nearby.",
+      "The label is a verb or a short verb phrase. One size for now.",
+      "A button that goes to another page is a link that looks like a button; one that does something is a button. Both look the same.",
+    ],
+    examples: [
+      { kind: "live", example: "button-states", label: "Primary and secondary, at rest, hovered, pressed, focused and disabled", code: `<Button>Open the map</Button>\n<Button kind="secondary">Save a copy</Button>\n<Button disabled>Open the map</Button>` },
+      { kind: "live", example: "button-link", label: "A link that looks like a button, with your router's link component", code: `import Link from "next/link";\n\n<Button href="/map" linkComponent={Link}>Open the map →</Button>` },
+    ],
+  },
   card: {
     when: [
       { when: "Setting a note, aside or summary apart from the page", use: [ref("Card"), { text: ", offset on" }] },

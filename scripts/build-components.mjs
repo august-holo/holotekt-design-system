@@ -38,11 +38,17 @@ const doc = (nameNode) => {
   const text = sym ? ts.displayPartsToString(sym.getDocumentationComment(checker)) : "";
   return text.replace(/\s+/g, " ").trim();
 };
-const literalMembers = (type) => {
+/** The own members of a props type: type literals, intersections of them, and local aliases of them. */
+const literalMembers = (type, sf) => {
   if (ts.isTypeLiteralNode(type)) return type.members;
-  if (ts.isIntersectionTypeNode(type)) return type.types.flatMap(literalMembers);
+  if (ts.isIntersectionTypeNode(type)) return type.types.flatMap((t) => literalMembers(t, sf));
+  if (ts.isTypeReferenceNode(type) && !type.typeArguments) {
+    const local = sf.statements.find((st) => ts.isTypeAliasDeclaration(st) && st.name.text === type.typeName.getText(sf));
+    if (local) return literalMembers(local.type, sf);
+  }
   return [];
 };
+const isLocalAlias = (type, sf) => ts.isTypeReferenceNode(type) && !type.typeArguments && sf.statements.some((st) => ts.isTypeAliasDeclaration(st) && st.name.text === type.typeName.getText(sf));
 const registry = JSON.parse(fs.readFileSync(path.join(SRC, "levels.json"), "utf8"));
 const rank = Object.fromEntries(registry.levels.map((l, i) => [l.id, i]));
 const levelProblems = [];
@@ -72,7 +78,7 @@ for (const file of files) {
     console.error(`✗ ${file}: no exported type ${name}Props`);
     process.exit(1);
   }
-  const props = literalMembers(propsType)
+  const props = literalMembers(propsType, sf)
     .filter((m) => ts.isPropertySignature(m) && m.type)
     .map((m) => {
       const propName = ts.isStringLiteral(m.name) ? m.name.text : m.name.getText(sf);
@@ -84,7 +90,7 @@ for (const file of files) {
       return { name: propName, type: m.type.getText(sf), required: !m.questionToken, default: defaults[propName], description };
     });
   // The rest of an intersection (e.g. the element's own attributes) is noted, not listed.
-  const extra = ts.isIntersectionTypeNode(propsType) ? propsType.types.filter((t) => !ts.isTypeLiteralNode(t)).map((t) => t.getText(sf)) : [];
+  const extra = ts.isIntersectionTypeNode(propsType) ? propsType.types.filter((t) => !ts.isTypeLiteralNode(t) && !isLocalAlias(t, sf)).map((t) => t.getText(sf)) : [];
   // Atomic level and import direction: a component may import only siblings from a lower level,
   // and only the ones levels.json says it is made of.
   const reg = registry.components[name];
@@ -124,6 +130,7 @@ if (levelProblems.length) {
 
 // 4. Tokens used, from the CSS, attributed to the component whose class is the selector's subject.
 const byClass = [
+  ["ht-button", "Button"],
   ["ht-thumbnail-row", "ThumbnailRow"],
   ["ht-thumbnail-list", "ThumbnailList"],
   ["ht-thumbnail", "Thumbnail"],

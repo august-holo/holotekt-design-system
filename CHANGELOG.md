@@ -7,6 +7,15 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Added
+- `Button`, an atom: primary (`accent/default` fill, `text/on-accent` label) and secondary (`border/strong`
+  outline, `text/primary` label), in default, hover, pressed, focus and disabled states. States change tone
+  only: no offset, no shadow. Renders a `button`, or a link that looks like a button when given `href`;
+  pass your router's link as `linkComponent` for client-side navigation. A disabled link keeps its role
+  but loses its href and tab stop. `/components/button`, stories under `Atoms/Button`, and the consumer
+  fixture renders it as a button and as a Next.js Link. Every label-on-fill pair was already in the
+  contrast list; `text/disabled` on `surface/disabled` is exempt by the role's description.
+
 ## [0.6.1] - 2026-11-28
 
 ### Changed

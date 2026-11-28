@@ -3,7 +3,7 @@
 // can describe each example without rendering it.
 import type { ReactNode } from "react";
 import type { LiveId } from "@/lib/pages";
-import { Card, Divider, Thumbnail, ThumbnailList, ThumbnailRow } from "../../src/components";
+import { Button, Card, Divider, Thumbnail, ThumbnailList, ThumbnailRow } from "../../src/components";
 import { SAMPLE_IMAGES, SAMPLE_ROWS } from "../../src/components/stories/samples";
 
 const cardWidth = { maxWidth: "calc(var(--ht-layout-width-reading) / 2)" };
@@ -17,7 +17,35 @@ const CardBody = () => (
 );
 const rows = (state?: "hover" | "focus", at = 1) => SAMPLE_ROWS.map((r, i) => <ThumbnailRow key={r.href} {...r} state={i === at ? state : undefined} />);
 
+const STATES = [undefined, "hover", "pressed", "focus"] as const;
+const buttonRow = (kind: "primary" | "secondary") => (
+  <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--ht-gap-lg)", alignItems: "center" }}>
+    {STATES.map((state) => (
+      <Button key={state ?? "default"} kind={kind} state={state}>
+        {state ? state[0].toUpperCase() + state.slice(1) : "Default"}
+      </Button>
+    ))}
+    <Button kind={kind} disabled>
+      Disabled
+    </Button>
+  </div>
+);
+
 export const LIVE: Record<LiveId, () => ReactNode> = {
+  "button-states": () => (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--ht-gap-lg)" }}>
+      {buttonRow("primary")}
+      {buttonRow("secondary")}
+    </div>
+  ),
+  "button-link": () => (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--ht-gap-lg)", alignItems: "center" }}>
+      <Button href="#map">Open the map →</Button>
+      <Button href="#map" kind="secondary" disabled>
+        Open the map →
+      </Button>
+    </div>
+  ),
   "card-offset-on": () => (
     <Card style={cardWidth}>
       <CardBody />

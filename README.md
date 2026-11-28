@@ -24,7 +24,7 @@ h1 { font: var(--ht-heading-display-font-weight) var(--ht-heading-display-font-s
 ```
 
 ```tsx
-import { Card, Divider, Thumbnail, ThumbnailList, ThumbnailRow } from "holotekt-design-system/components";
+import { Button, Card, Divider, Thumbnail, ThumbnailList, ThumbnailRow } from "holotekt-design-system/components";
 
 <ThumbnailList aria-label="Work">
   <ThumbnailRow href="/work/map" title="Mapping a port" summary="What the map shows." image="/images/map.png" />

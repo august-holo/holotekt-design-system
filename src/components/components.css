@@ -5,6 +5,72 @@
    The orange offset is a decoration, not elevation. On a card it is a flourish; on a thumbnail it
    is a hover animation. Depth is shown by surface tone only. */
 @layer components {
+  /* --- Button ---------------------------------------------------------------------------------- */
+  /* States change tone only: no offset, no shadow, no motion. The border is part of every state, in
+     the fill's own colour on a primary, so both kinds are the same box. */
+  .ht-button {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ht-gap-sm);
+    margin: 0;
+    padding: var(--ht-space-300) var(--ht-space-500);
+    border: var(--ht-border-width-thick) solid transparent;
+    border-radius: var(--ht-radius-sm);
+    background: transparent;
+    font-family: var(--ht-ui-button-font-family);
+    font-size: var(--ht-ui-button-font-size);
+    font-weight: var(--ht-ui-button-font-weight);
+    line-height: var(--ht-ui-button-line-height);
+    letter-spacing: var(--ht-ui-button-letter-spacing);
+    text-transform: var(--ht-ui-button-text-transform);
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    appearance: none;
+  }
+  .ht-button--primary {
+    background: var(--ht-color-accent-default);
+    border-color: var(--ht-color-accent-default);
+    color: var(--ht-color-text-on-accent);
+  }
+  .ht-button--primary:is(:hover, [data-ht-state="hover"]):not(:disabled, [aria-disabled="true"]) {
+    background: var(--ht-color-accent-hover);
+    border-color: var(--ht-color-accent-hover);
+  }
+  .ht-button--primary:is(:active, [data-ht-state="pressed"]):not(:disabled, [aria-disabled="true"]) {
+    background: var(--ht-color-accent-pressed);
+    border-color: var(--ht-color-accent-pressed);
+  }
+  .ht-button--primary:is(:disabled, [aria-disabled="true"]) {
+    background: var(--ht-color-surface-disabled);
+    border-color: var(--ht-color-surface-disabled);
+    color: var(--ht-color-text-disabled);
+  }
+  .ht-button--secondary {
+    border-color: var(--ht-color-border-strong);
+    color: var(--ht-color-text-primary);
+  }
+  .ht-button--secondary:is(:hover, [data-ht-state="hover"]):not(:disabled, [aria-disabled="true"]) {
+    background: var(--ht-color-surface-hover);
+  }
+  .ht-button--secondary:is(:active, [data-ht-state="pressed"]):not(:disabled, [aria-disabled="true"]) {
+    background: var(--ht-color-surface-pressed);
+  }
+  .ht-button--secondary:is(:disabled, [aria-disabled="true"]) {
+    border-color: var(--ht-color-border-disabled);
+    color: var(--ht-color-text-disabled);
+  }
+  /* The focus ring sits outside the button, so the button itself does not change. */
+  .ht-button:is(:focus-visible, [data-ht-state="focus"]) {
+    outline: var(--ht-border-width-thick) solid var(--ht-color-border-focus);
+    outline-offset: var(--ht-border-width-thick);
+  }
+  .ht-button:is(:disabled, [aria-disabled="true"]) {
+    cursor: not-allowed;
+  }
+
   /* --- Card ------------------------------------------------------------------------------------ */
   .ht-card {
     box-sizing: border-box;
