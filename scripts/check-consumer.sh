@@ -19,6 +19,7 @@ test -f node_modules/holotekt-design-system/dist/fonts.css
 test -f node_modules/holotekt-design-system/dist/fonts/arvo/arvo-latin-400-normal.woff2
 npm run -s build
 grep -q "ht-card ht-card--offset" out/index.html
+grep -q '<span class="ht-accent-bar" aria-hidden="true">' out/index.html
 grep -q "ht-thumbnail-row__title" out/index.html
 grep -Eq '<a[^>]*class="ht-thumbnail-row"[^>]*href="/one"' out/index.html
 grep -Eq '<a[^>]*class="ht-thumbnail"[^>]*href="/three"' out/index.html

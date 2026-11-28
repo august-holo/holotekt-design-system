@@ -130,6 +130,7 @@ if (levelProblems.length) {
 
 // 4. Tokens used, from the CSS, attributed to the component whose class is the selector's subject.
 const byClass = [
+  ["ht-accent-bar", "AccentBar"],
   ["ht-button", "Button"],
   ["ht-thumbnail-row", "ThumbnailRow"],
   ["ht-thumbnail-list", "ThumbnailList"],

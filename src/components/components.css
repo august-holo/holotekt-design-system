@@ -7,6 +7,16 @@
 @layer tokens, base, components;
 
 @layer components {
+  /* --- AccentBar ------------------------------------------------------------------------------- */
+  /* Decoration that opens a major section. Not a divider, not elevation; one size; square corners.
+     Space to the heading below (gap/md) belongs to the parent, as with every component. */
+  .ht-accent-bar {
+    display: block;
+    inline-size: var(--ht-space-700);
+    block-size: var(--ht-space-100);
+    background: var(--ht-color-accent-default);
+  }
+
   /* --- Button ---------------------------------------------------------------------------------- */
   /* States change tone only: no offset, no shadow, no motion. The border is part of every state, in
      the fill's own colour on a primary, so both kinds are the same box. */

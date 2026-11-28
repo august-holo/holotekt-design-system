@@ -22,6 +22,13 @@
   ],
   "above": "Templates (a page layout with no real content) and pages (a template with real content) are the two levels above. They belong to each product, not to this system.",
   "components": {
+    "AccentBar": {
+      "level": "atom",
+      "title": "Accent bar",
+      "slug": "accent-bar",
+      "madeOf": [],
+      "summary": "A short orange bar that opens a major section."
+    },
     "Button": {
       "level": "atom",
       "title": "Button",

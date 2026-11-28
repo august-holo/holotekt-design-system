@@ -7,6 +7,12 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Added
+- `AccentBar`, an atom: the short orange bar that opens a major section, `accent/default`, `space/700` by
+  `space/100`, square corners, hidden from assistive technology. It sits above the section heading,
+  `gap/md` away, left-aligned with it. Decoration, not a divider and not elevation; a few per page at
+  most. `/components/accent-bar`, stories under `Atoms/Accent bar`, and in the consumer fixture.
+
 ## [0.9.1] - 2026-11-28
 
 ### Fixed

@@ -3,7 +3,7 @@
 // can describe each example without rendering it.
 import type { ReactNode } from "react";
 import type { LiveId } from "@/lib/pages";
-import { Button, Card, Divider, Thumbnail, ThumbnailList, ThumbnailRow } from "../../src/components";
+import { AccentBar, Button, Card, Divider, Thumbnail, ThumbnailList, ThumbnailRow } from "../../src/components";
 import { SAMPLE_IMAGES, SAMPLE_ROWS } from "../../src/components/stories/samples";
 
 const cardWidth = { maxWidth: "calc(var(--ht-layout-width-reading) / 2)" };
@@ -32,6 +32,13 @@ const buttonRow = (kind: "primary" | "secondary") => (
 );
 
 export const LIVE: Record<LiveId, () => ReactNode> = {
+  "accent-bar": () => <AccentBar />,
+  "accent-bar-heading": () => (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--ht-gap-md)", alignItems: "flex-start" }}>
+      <AccentBar />
+      <h2 className="ht-heading-2">See my work</h2>
+    </div>
+  ),
   "button-states": () => (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--ht-gap-lg)" }}>
       {buttonRow("primary")}

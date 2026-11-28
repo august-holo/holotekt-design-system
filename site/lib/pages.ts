@@ -52,7 +52,7 @@ export type Block =
   | { kind: "live"; example: LiveId; label: string; code: string }
   | { kind: "md"; markdown: string };
 
-export const LIVE_IDS = ["button-states", "button-link", "card-offset-on", "card-offset-off", "thumbnail-list", "thumbnail-list-hover", "thumbnail-states", "thumbnail-row", "thumbnail-row-hover", "thumbnail-row-focus", "divider-hairline", "divider-strong"] as const;
+export const LIVE_IDS = ["accent-bar", "accent-bar-heading", "button-states", "button-link", "card-offset-on", "card-offset-off", "thumbnail-list", "thumbnail-list-hover", "thumbnail-states", "thumbnail-row", "thumbnail-row-hover", "thumbnail-row-focus", "divider-hairline", "divider-strong"] as const;
 export type LiveId = (typeof LIVE_IDS)[number];
 
 export interface Page {
@@ -506,13 +506,31 @@ export function homePage(): Page {
 // Levels, parts and summaries come from src/components/levels.json through dist/components.json;
 // the when-to-use rows, rules and examples mirror each component's Figma sheet.
 
-export const COMPONENT_PAGES = ["button", "card", "divider", "thumbnail", "thumbnail-row", "thumbnail-list"] as const;
+export const COMPONENT_PAGES = ["accent-bar", "button", "card", "divider", "thumbnail", "thumbnail-row", "thumbnail-list"] as const;
 export type ComponentSlug = (typeof COMPONENT_PAGES)[number];
 
 type WhenRow = { when: string; use: Part[] };
 type ComponentDoc = { when: WhenRow[]; rules: string[]; examples: Extract<Block, { kind: "live" }>[] };
 const ref = (name: string): Part => ({ token: name });
 const COMPONENT_DOCS: Record<ComponentSlug, ComponentDoc> = {
+  "accent-bar": {
+    when: [
+      { when: "Opening a major section of a page", use: [ref("AccentBar"), { text: ", above the section heading" }] },
+      { when: "Separating rows or regions", use: [{ text: "Divider", href: "/components/divider" }, { text: ", not this" }] },
+    ],
+    rules: [
+      "It marks where a major section begins. It always sits above a heading, gap/md away.",
+      "Decoration, not a divider: it does not separate things and never spans the width.",
+      "Decoration, not elevation.",
+      "Sparingly: a few per page at most. If every heading has one, none of them mean anything.",
+      "One size. Left-aligned with the heading it opens.",
+      "It carries no meaning for assistive technology; it is hidden from screen readers.",
+    ],
+    examples: [
+      { kind: "live", example: "accent-bar-heading", label: "Above a section heading, gap/md away, left-aligned with it", code: `<div style={{ display: "flex", flexDirection: "column", gap: "var(--ht-gap-md)", alignItems: "flex-start" }}>\n  <AccentBar />\n  <h2 className="ht-heading-2">See my work</h2>\n</div>` },
+      { kind: "live", example: "accent-bar", label: "On its own: accent/default, space/700 by space/100, square corners", code: `<AccentBar />` },
+    ],
+  },
   button: {
     when: [
       { when: "Offering the one most important action in a view", use: [ref("Button"), { text: ", primary" }] },
