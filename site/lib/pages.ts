@@ -374,6 +374,9 @@ function typographySamples(data: TokenData): Block[] {
     { kind: "rows", headless: true, columns: ["Family", "Specimen"], cells: [{ basis: LABEL, grow: 0 }, { basis: READING, grow: 1 }], rows: families.map((t) => { const role = t.path.split(".").pop()!; return [{ text: role, className: "ht-ui-label", muted: true }, { text: `${showValue(t.value)} — ${SPECIMEN}`, className: familyStyle[role] ?? "ht-ui-body" }]; }) },
     { kind: "h2", text: "Text styles" },
     { kind: "rows", headless: true, columns: ["Style", "Specimen"], cells: [{ basis: LABEL, grow: 0 }, { basis: READING, grow: 1 }], rows: styles.map((t) => [{ text: t.path.replace(".", "/"), className: "ht-ui-meta", muted: true }, { text: styleText[t.path] ?? (t.description ?? t.path), className: t.className }]) },
+    { kind: "h2", text: "Prose" },
+    { kind: "p", text: "base.css ships one class, .ht-prose. Inside it, ordinary h1 to h4, p, lists, blockquote and links take the heading and reading styles with their color roles and spacing from the scale, capped at the reading width. Outside it, headings are not touched. This is what it looks like:", muted: true },
+    { kind: "md", markdown: "## A heading inside prose\n\nA paragraph set in reading/body, the long-form face. It runs to the reading width and no further, with the paragraph gap from the scale. A [link inside text](/foundations/typography) keeps the surrounding style, takes text/link and is underlined.\n\n### A smaller heading\n\n- A list item, indented by space/500\n- Another, with the small gap between items\n\n> A quotation in text/secondary behind a divider rule." },
     { kind: "h3", text: "Links" },
     { kind: "list", items: [
       "Navigation links use ui/small.",
@@ -739,11 +742,36 @@ Install by **release tag** (\`#v${v}\` is the current one; the [changelog](/chan
 | \`holotekt-design-system/text-styles.css\` | One class per text style: \`.ht-heading-1\`, \`.ht-ui-label\`, \`.ht-voice-human\` and the rest. The six variables per style are in \`tokens.css\`; only the classes live here. | When you use the classes rather than the variables |
 | \`holotekt-design-system/utilities.css\` | \`.ht-page-grid\`, the dotted grid that is the default page background. | When a page sits on the grid (the default) |
 | \`holotekt-design-system/components.css\` | The styles of every component (\`.ht-button\`, \`.ht-card\` …), all values tokens. | With any component |
+| \`holotekt-design-system/all.css\` | The four stylesheets above in one import. A shortcut only; it does **not** include the base or the fonts. | When you want everything |
+| \`holotekt-design-system/base.css\` | **Optional** page defaults, in the \`base\` layer: the grid on \`html\`, \`text/primary\` and \`ui/body\` on \`body\`, underlined links in \`text/link\`, the focus ring, selection in \`accent/subtle\`, the hairline \`hr\`, and \`.ht-prose\` for ordinary article markup. Nothing else depends on it. | When you would otherwise write these yourself |
+| \`holotekt-design-system/fonts.css\` | **Optional:** the five families at the weights the text styles use, with the woff2 files and licences beside it. | When you want the fonts in one line |
 | \`holotekt-design-system/components\` | The React components, typed. | With any component |
 | \`holotekt-design-system\` | The tokens as a JavaScript object, typed. | Rarely: when a value is needed in code |
 | \`holotekt-design-system/tokens.json\`, \`/components.json\` | The resolved token data and the component manifest, also served at [/tokens.json](/tokens.json) and [/components.json](/components.json). | For tooling and agents |
 
-Each stylesheet is in the \`tokens\` or \`components\` cascade layer, so your own unlayered styles win when they need to.
+### Adopt as much as you like
+
+| Step | Import | You get |
+| --- | --- | --- |
+| 1. Tokens only | \`tokens.css\` | The variables. Everything else is yours. |
+| 2. Plus text styles | \`text-styles.css\` | The \`.ht-heading-1\`, \`.ht-ui-label\` classes. |
+| 3. Plus components | \`components.css\` and \`holotekt-design-system/components\` | The components. (\`all.css\` is steps 1 to 3 plus \`utilities.css\`.) |
+| 4. Plus the base | \`base.css\` | The page defaults, so you stop writing them. |
+| 5. Plus prose and fonts | \`class="ht-prose"\` on article markup, \`fonts.css\` | Articles styled from the heading and reading scales; the five families loaded. |
+
+A site can stop at any step. This site runs on step 5; the consumer fixture stops at 3; Storybook renders every component with step 1 and the component stylesheet only, which is the proof that nothing depends on the base.
+
+### The cascade layers
+
+Every package stylesheet opens with \`@layer tokens, base, components;\`, so the order holds whichever file you import first:
+
+| Layer | Holds | Beats |
+| --- | --- | --- |
+| (unlayered) | \`tokens.css\`: custom properties only, nothing to override. Your own CSS, when it is not in a layer. | every layer |
+| \`components\` | \`components.css\`, \`text-styles.css\`, \`utilities.css\` | \`base\` |
+| \`base\` | \`base.css\` | nothing |
+
+So a rule you write outside a layer overrides the base and the components without a specificity fight. If you put your own CSS in layers, declare them after \`components\`.
 
 ## Import a component
 
@@ -776,7 +804,7 @@ This is how the built CSS is written: the dark values apply under \`:root[data-t
 
 ## The page background
 
-\`utilities.css\` ships \`.ht-page-grid\`: \`surface/page\` with dots in \`surface/dot\` at the dot pitch. Put it on \`<html>\`, then set the text defaults on \`body\` yourself, because \`tokens.css\` does not:
+\`base.css\` puts the grid on \`html\` and the text defaults on \`body\` for you. Without the base: \`utilities.css\` ships \`.ht-page-grid\` (\`surface/page\` with dots in \`surface/dot\` at the dot pitch); put it on \`<html>\` and set the text defaults on \`body\` yourself, because \`tokens.css\` does not:
 
 \`\`\`css
 /* html carries class="ht-page-grid" */
@@ -791,13 +819,19 @@ Surfaces (\`surface/raised\`, \`surface/sunken\`, \`surface/overlay\`) are plain
 
 ## Fonts
 
-The package ships font **names and fallback stacks**, not files. Install the five @fontsource packages and import exactly these weights (the ones the text styles use); the family names in the @fontsource CSS match the first name in each token stack, which the build checks:
+One line loads the five families at the weights the text styles use (woff2, Latin subset, \`font-display: swap\`); the files and their licences ship in the package beside it, and your bundler emits them:
+
+\`\`\`tsx
+import "holotekt-design-system/fonts.css";
+\`\`\`
+
+Or load them your own way. The token stacks name the families \`${fonts.map((f) => f.family).join("\`, \`")}\`; from the @fontsource packages that is:
 
 \`\`\`tsx
 ${fontImports.join("\n")}
 \`\`\`
 
-Preloading: the @fontsource imports are enough for most pages. To preload, self-host the files as this site does (copy the woff2 files from the packages into \`public/fonts/\`, with their licences) and preload only the heading and interface faces at weight 400: ${fonts.filter((f) => ["font.family.heading", "font.family.sans"].includes(f.token)).map((f) => `\`${f.package?.split("/").pop()}-latin-400-normal.woff2\``).join(" and ")}. Licences: all five are OFL-1.1; the [Typography page](/foundations/typography) links each one.
+The family names in those packages match the first name in each token stack, which the build checks. Preloading is optional: if you do, preload only the heading and interface faces at weight 400 (${fonts.filter((f) => ["font.family.heading", "font.family.sans"].includes(f.token)).map((f) => `\`${f.package?.split("/").pop()}-latin-400-normal.woff2\``).join(" and ")}). Licences: all five are OFL-1.1; the [Typography page](/foundations/typography) links each one.
 
 ## Breakpoints in CSS
 
@@ -819,7 +853,7 @@ Paste the block from [Rules for consuming sites](/consumer-rules) into your \`AG
   return {
     route: "/getting-started",
     title: "Getting started",
-    description: "Install the package, import the right stylesheets and a component, choose a theme, set the page background, load the fonts and write breakpoints. Everything before the first import.",
+    description: "Install the package, import the right stylesheets and a component, choose a theme, set the page background, load the fonts and write breakpoints. The optional base, the adoption steps and the cascade layers. Everything before the first import.",
     blocks: [{ kind: "md", markdown: md.trim() }],
   };
 }

@@ -1,5 +1,8 @@
-/* The story canvas sits on the dotted grid like every page; the padding is a token. */
+/* The canvas: page colour (no grid, no base) and the padding token. Nothing a component relies on. */
 @layer tokens, base, components;
+html {
+  background: var(--ht-color-surface-page);
+}
 .sb-show-main.sb-main-padded {
   padding: var(--ht-inset-lg);
 }

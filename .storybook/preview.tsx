@@ -1,16 +1,16 @@
 import type { Decorator, Preview } from "@storybook/react-vite";
+// Deliberately not all.css and not base.css: the stories prove the components look right with the tokens,
+// their own stylesheet and the text-style classes alone. Fonts are assets, not defaults.
 import "../dist/tokens.css";
 import "../dist/text-styles.css";
-import "../dist/utilities.css";
-import "../site/app/fonts.css";
 import "../src/components/components.css";
+import "../dist/fonts.css";
 import "./preview.css";
 
 // The theme is a toolbar global and a story global; both themes are tested by the Vitest projects.
 const withTheme: Decorator = (Story, context) => {
   const theme = context.globals.theme === "dark" ? "dark" : "light";
   document.documentElement.setAttribute("data-theme", theme);
-  document.documentElement.classList.add("ht-page-grid");
   return <Story />;
 };
 

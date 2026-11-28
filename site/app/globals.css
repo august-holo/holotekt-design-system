@@ -1,11 +1,10 @@
 /* The cascade, declared once. Later layers win over earlier ones regardless of specificity:
-   tokens (generated variables) < base (element defaults bound to tokens) < components (CSS Modules
-   and the generated text-style classes). */
+   tokens (variables) < base (the package's optional page defaults) < components (the package's
+   classes and this site's CSS Modules). Every package stylesheet restates this line, so the order
+   holds whichever is imported first. */
 @layer tokens, base, components;
 
-@import "./fonts.css" layer(base);
-@import "../../dist/tokens.css" layer(tokens);
-@import "../../dist/text-styles.css";
-@import "../../dist/utilities.css";
-@import "../../src/components/components.css";
-@import "./bindings.css" layer(base);
+@import "../../dist/all.css";
+@import "../../dist/base.css";
+@import "../../dist/fonts.css";
+@import "./site.css" layer(base);

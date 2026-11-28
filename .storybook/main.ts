@@ -16,8 +16,6 @@ const config: StorybookConfig = {
   features: { componentsManifest: true },
   // Props and their doc comments for the docs tab and the manifest, read through the root tsconfig.json.
   typescript: { reactDocgen: "react-docgen-typescript", reactDocgenTypescriptOptions: { tsconfigPath: path.join(dirname, "..", "tsconfig.json"), shouldExtractLiteralValuesFromEnum: true, propFilter: (prop) => !prop.parent || !prop.parent.fileName.includes("node_modules") } },
-  // The site's self-hosted fonts, copied by scripts/copy-fonts.mjs before a build.
-  staticDirs: [{ from: "../site/public/fonts", to: "/fonts" }],
   core: { disableTelemetry: true },
 };
 export default config;

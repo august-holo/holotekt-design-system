@@ -7,6 +7,25 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Added
+- Three optional stylesheets, so a site does not rebuild the page defaults. `all.css` imports tokens, text
+  styles, utilities and components in one line (a shortcut; it includes neither of the next two). `base.css`
+  is the page defaults in the `base` layer, every value a token: the dotted grid on `html`; `text/primary`
+  and `ui/body` on `body`; underlined links in `text/link`; the focus ring; selection in `accent/subtle`; the
+  hairline `hr`; and one class, `.ht-prose`, inside which ordinary `h1` to `h4`, `p`, lists, `blockquote`
+  and links take the heading and reading styles with sensible spacing, capped at the reading width.
+  `fonts.css` loads the five families at the weights the text styles use, with the woff2 files and licences
+  shipped beside it; the @fontsource packages are now dependencies. Nothing in the package depends on the
+  base: Storybook renders every component with the tokens and the component stylesheet only, the consumer
+  fixture stops at `all.css`, and the docs site runs on all three.
+- Every package stylesheet opens with `@layer tokens, base, components;`, so the layer order holds
+  whichever file is imported first and a consumer's own unlayered CSS always wins. Getting started documents
+  the layers and the adoption steps; the Typography page shows `.ht-prose`.
+
+### Changed
+- The docs site dropped its hand-written element defaults and font faces in favour of `base.css` and
+  `fonts.css`, keeping only its own heading scale and table text.
+
 ## [0.8.0] - 2026-11-27
 
 ### Added

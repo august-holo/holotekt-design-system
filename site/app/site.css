@@ -1,33 +1,6 @@
-/* Element defaults bound to the published tokens: colour, type, spacing and shape. Nothing here is
-   decided by this site; it only says which token each element uses. */
-:root {
-  color-scheme: light dark;
-}
-/* The page sits on the dotted grid (.ht-page-grid from the package utilities, set on <html> in layout.tsx). */
-html {
-  background: var(--ht-color-surface-page, Canvas);
-  min-height: 100%;
-}
-body {
-  margin: 0;
-  color: var(--ht-color-text-primary, CanvasText);
-  font-family: var(--ht-ui-body-font-family, system-ui, sans-serif);
-  font-size: var(--ht-ui-body-font-size, 1rem);
-  font-weight: var(--ht-ui-body-font-weight, 400);
-  line-height: var(--ht-ui-body-line-height, 1.5);
-}
-a {
-  color: var(--ht-color-text-link, LinkText);
-}
-a:hover {
-  color: var(--ht-color-text-link-hover, var(--ht-color-text-link, LinkText));
-}
-:focus-visible {
-  outline: var(--ht-border-width-thick) solid var(--ht-color-border-focus, Highlight);
-  outline-offset: var(--ht-space-50);
-}
-
-/* Headings: the page title is heading/display, then heading/2 to heading/4 for the levels below. */
+/* What this site adds on top of the package's base.css: its own heading scale for the article template
+   (the page title is heading/display, then heading/2 to heading/4), interface text defaults for its tables,
+   and code. Everything is a token; nothing here is a page default a consumer would need. */
 h1,
 h2,
 h3,
@@ -64,7 +37,11 @@ h4 {
   font-weight: var(--ht-heading-4-font-weight);
   line-height: var(--ht-heading-4-line-height);
 }
-
+/* Navigation and footer links are not underlined; links in running text keep the base's underline. */
+nav a,
+footer a {
+  text-decoration: none;
+}
 /* Interface text: tables are ui/small, column headers are ui/label, quiet details are ui/meta. */
 table {
   font-size: var(--ht-ui-small-font-size);
@@ -98,7 +75,5 @@ ol:not([class]) li + li {
   margin-top: var(--ht-space-100);
 }
 hr {
-  border: 0;
-  border-top: var(--ht-border-width-thin) solid var(--ht-color-border-divider);
   margin: 0;
 }

@@ -13,6 +13,10 @@ npm install --no-audit --no-fund --loglevel=error
 npm install --no-audit --no-fund --loglevel=error --no-save "git+file://$ROOT#$REF"
 test -f node_modules/holotekt-design-system/dist/components/index.js
 test -f node_modules/holotekt-design-system/dist/components.css
+test -f node_modules/holotekt-design-system/dist/all.css
+test -f node_modules/holotekt-design-system/dist/base.css
+test -f node_modules/holotekt-design-system/dist/fonts.css
+test -f node_modules/holotekt-design-system/dist/fonts/arvo/arvo-latin-400-normal.woff2
 npm run -s build
 grep -q "ht-card ht-card--offset" out/index.html
 grep -q "ht-thumbnail-row__title" out/index.html
@@ -21,4 +25,6 @@ grep -Eq '<a[^>]*class="ht-thumbnail"[^>]*href="/three"' out/index.html
 grep -q '<button class="ht-button ht-button--primary" type="button"' out/index.html
 grep -Eq '<a[^>]*class="ht-button ht-button--secondary"[^>]*href="/two"' out/index.html
 grep -rq --include="*.css" -- "--ht-decoration-card-offset" out/_next
-echo "✓ consumer fixture: installed holotekt-design-system@$REF by git, built a Next.js 16 static export with Button (as a button and as a Next Link), Card, Divider, ThumbnailList and ThumbnailRow and Thumbnail through Next Link with onClick, components.css bundled"
+grep -rq --include="*.css" -- "ht-page-grid" out/_next
+! grep -rq --include="*.css" -- "ht-prose" out/_next
+echo "✓ consumer fixture: installed holotekt-design-system@$REF by git, built a Next.js 16 static export with Button (as a button and as a Next Link), Card, Divider, ThumbnailList and ThumbnailRow and Thumbnail through Next Link with onClick, all.css bundled and base.css absent"

@@ -4,6 +4,8 @@
    components layer, so a consumer's own unlayered styles win when they need to.
    The orange offset is a decoration, not elevation. On a card it is a flourish; on a thumbnail it
    is a hover animation. Depth is shown by surface tone only. */
+@layer tokens, base, components;
+
 @layer components {
   /* --- Button ---------------------------------------------------------------------------------- */
   /* States change tone only: no offset, no shadow, no motion. The border is part of every state, in

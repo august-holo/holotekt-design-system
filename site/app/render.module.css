@@ -359,6 +359,7 @@
     color: var(--ht-color-text-secondary);
     text-decoration: none;
   }
+  /* Markdown pages are .ht-prose from the base; the site only widens code blocks and tables to the page. */
   .prose {
     max-width: var(--ht-layout-width-reading);
   }

@@ -21,6 +21,11 @@ imported from `holotekt-design-system/tokens.css`.
   If one fits, import it from `holotekt-design-system/components` and its styles from
   `holotekt-design-system/components.css`. Do not restyle a system component from outside; if it does
   not fit, say so instead of forking it.
+- Import as much of the package as fits: `tokens.css` alone, `all.css` for tokens, text styles, utilities and
+  components, and the **optional** `base.css` (page defaults: grid, body text, links, focus, selection, `hr`,
+  `.ht-prose`) and `fonts.css`. Nothing in the package depends on the base. Every package stylesheet opens with
+  `@layer tokens, base, components;`, so a rule this site writes outside a layer overrides the base and the
+  components. Do not re-declare those layers in another order.
 - The system's components are organised by **atomic level**. Atom: uses no other component, tokens only.
   Molecule: a few atoms working as one unit. Organism: a self-contained section, built from molecules
   and atoms. Templates and pages are this site's own. **Build from below:** if the part you need does not

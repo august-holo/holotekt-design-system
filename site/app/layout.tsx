@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { preload } from "react-dom";
-// globals.css declares the cascade layers and imports the generated tokens, the fonts and the
-// element bindings. It is imported before any CSS Module so the layer order is met first.
+// globals.css declares the cascade layers and imports the package's all.css, base.css and fonts.css,
+// then this site's own additions. It is imported before any CSS Module so the layer order is met first.
 import "./globals.css";
 import { REPO_URL, SITE_URL, version } from "@/lib/data";
 import { ThemeToggle } from "./theme-toggle";
@@ -21,9 +20,6 @@ const headScript = `try{var t=localStorage.getItem(${JSON.stringify(THEME_KEY)})
 addEventListener("hashchange",function(){var d=location.hash&&document.querySelector(location.hash);if(d&&d.tagName==="DETAILS")d.open=true});
 addEventListener("DOMContentLoaded",function(){var d=location.hash&&document.querySelector(location.hash);if(d&&d.tagName==="DETAILS"){d.open=true;d.scrollIntoView()}});`;
 
-// Only the heading and interface faces are preloaded; the others load on first use.
-const PRELOAD_FONTS = ["/fonts/arvo/arvo-latin-400-normal.woff2", "/fonts/space-grotesk/space-grotesk-latin-400-normal.woff2"];
-
 const NAV = [
   { text: "Foundations", href: "/foundations" },
   { text: "Components", href: "/components" },
@@ -34,9 +30,8 @@ const NAV = [
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const v = version();
   const short = v.split(".").slice(0, 2).join(".");
-  for (const href of PRELOAD_FONTS) preload(href, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   return (
-    <html lang="en" className="ht-page-grid" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: headScript }} />
       </head>

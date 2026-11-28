@@ -9,6 +9,11 @@ import StyleDictionary from "style-dictionary";
 import { ROOT, PREFIX, BASES, DEFAULT_MODE, loadTokens, checkTokens, resolvedJson, listModeFiles, cssName, cssValue, className, typographyProps, parseJson, modeMedia, alphaOf } from "./lib/tokens.mjs";
 import { MODE_CSS } from "./lib/modes.mjs";
 
+// Every stylesheet in the package opens with the same layer order, so the order holds whichever file a
+// consumer imports first: base (page defaults) sits below components, and the consumer's own unlayered
+// CSS beats both. tokens.css stays unlayered: custom properties only, nothing to override.
+const LAYERS = "@layer tokens, base, components;";
+
 const data = loadTokens();
 const checked = checkTokens(data);
 if (checked.errors.length) {
@@ -160,7 +165,7 @@ if (styles.length) {
       return `  /* ${t.description ?? t.path} */\n  .${className(t.path)} {\n${body}\n  }`;
     })
     .join("\n\n");
-  fs.writeFileSync(path.join(dist, "text-styles.css"), `/**\n * Do not edit directly, this file was auto-generated.\n * One class per text style; every value comes from tokens.css.\n */\n\n@layer components {\n${classes}\n}\n`);
+  fs.writeFileSync(path.join(dist, "text-styles.css"), `/**\n * Do not edit directly, this file was auto-generated.\n * One class per text style; every value comes from tokens.css.\n */\n\n${LAYERS}\n\n@layer components {\n${classes}\n}\n`);
 }
 
 // Utilities: ready-made classes built from tokens, so consumers do not rebuild them.
@@ -172,15 +177,49 @@ if (grid) {
   const r = DOT_DIAMETER_PX / 2;
   fs.writeFileSync(
     path.join(dist, "utilities.css"),
-    `/**\n * Do not edit directly, this file was auto-generated.\n * Ready-made classes built from the tokens.\n */\n\n@layer components {\n` +
+    `/**\n * Do not edit directly, this file was auto-generated.\n * Ready-made classes built from the tokens.\n */\n\n${LAYERS}\n\n@layer components {\n` +
       `  /* The default page background: surface/page with dots in surface/dot at the grid's dot pitch.\n     Decoration, not elevation; surfaces are plain fills and cover the dots. */\n` +
       `  .ht-page-grid {\n    background-color: var(--ht-color-surface-page);\n    background-image: radial-gradient(circle, var(--ht-color-surface-dot) ${r}px, transparent ${r + 0.25}px);\n` +
       `    background-size: var(--ht-layout-grid-dot-pitch) var(--ht-layout-grid-dot-pitch);\n    background-position: calc(var(--ht-layout-grid-dot-pitch) / 2) calc(var(--ht-layout-grid-dot-pitch) / 2);\n  }\n}\n`,
   );
 }
 
+// The grid declarations, shared by .ht-page-grid and the base's html rule.
+const gridDecls = grid
+  ? `background-color: var(--ht-color-surface-page);\n  background-image: radial-gradient(circle, var(--ht-color-surface-dot) ${DOT_DIAMETER_PX / 2}px, transparent ${DOT_DIAMETER_PX / 2 + 0.25}px);\n  background-size: var(--ht-layout-grid-dot-pitch) var(--ht-layout-grid-dot-pitch);\n  background-position: calc(var(--ht-layout-grid-dot-pitch) / 2) calc(var(--ht-layout-grid-dot-pitch) / 2);`
+  : `background-color: var(--ht-color-surface-page);`;
+
+// base.css: optional page defaults in the base layer, every value a token. Opt-in; nothing in the
+// package depends on it; a consumer's own rules win without a specificity fight.
+const style = (name) => `font-family: var(--ht-${name}-font-family);\n  font-size: var(--ht-${name}-font-size);\n  font-weight: var(--ht-${name}-font-weight);\n  line-height: var(--ht-${name}-line-height);\n  letter-spacing: var(--ht-${name}-letter-spacing);\n  text-transform: var(--ht-${name}-text-transform);`;
+const has = (p) => data.byPath.has(p);
+const base = [];
+base.push(`/**\n * Do not edit directly, this file was auto-generated.\n * Optional page defaults, in the base layer: the grid on html, text on body, links, focus, selection, hr,\n * and .ht-prose for ordinary article markup. Nothing else in the package depends on this file, and any\n * rule a site writes outside a layer overrides it.\n */\n\n${LAYERS}\n\n@layer base {`);
+base.push(`  :root {\n    color-scheme: light dark;\n  }`);
+base.push(`  html {\n    ${gridDecls.replace(/\n  /g, "\n    ")}\n    min-height: 100%;\n  }`);
+if (has("ui.body")) base.push(`  body {\n    margin: 0;\n    color: var(--ht-color-text-primary);\n    ${style("ui-body").replace(/\n  /g, "\n    ")}\n  }`);
+if (has("color.text.link")) base.push(`  a {\n    color: var(--ht-color-text-link);\n    text-decoration: underline;\n  }\n  a:hover {\n    color: var(--ht-color-text-link-hover, var(--ht-color-text-link));\n  }`);
+if (has("color.border.focus")) base.push(`  :focus-visible {\n    outline: var(--ht-border-width-thick) solid var(--ht-color-border-focus);\n    outline-offset: var(--ht-space-50);\n  }`);
+if (has("color.accent.subtle")) base.push(`  ::selection {\n    background: var(--ht-color-accent-subtle);\n    color: var(--ht-color-text-primary);\n  }`);
+if (has("color.border.divider")) base.push(`  hr {\n    border: 0;\n    border-top: var(--ht-border-width-thin) solid var(--ht-color-border-divider);\n    margin: var(--ht-space-600) 0;\n  }`);
+if (has("heading.1") && has("reading.body")) {
+  base.push(`  /* Ordinary article markup. Outside .ht-prose, headings and paragraphs are not touched. */`);
+  base.push(`  .ht-prose {\n    max-width: var(--ht-layout-width-reading);\n    color: var(--ht-color-text-primary);\n  }`);
+  for (const n of [1, 2, 3, 4]) if (has(`heading.${n}`)) base.push(`  .ht-prose h${n} {\n    ${style(`heading-${n}`).replace(/\n  /g, "\n    ")}\n    margin: var(--ht-space-600) 0 var(--ht-space-300);\n  }`);
+  base.push(`  .ht-prose :is(h1, h2, h3, h4):first-child {\n    margin-top: 0;\n  }`);
+  base.push(`  .ht-prose :is(p, ul, ol, blockquote) {\n    ${style("reading-body").replace(/\n  /g, "\n    ")}\n    margin: 0 0 var(--ht-space-400);\n  }`);
+  base.push(`  .ht-prose :is(ul, ol) {\n    padding-left: var(--ht-space-500);\n  }\n  .ht-prose li + li {\n    margin-top: var(--ht-space-100);\n  }`);
+  base.push(`  .ht-prose blockquote {\n    color: var(--ht-color-text-secondary);\n    border-left: var(--ht-border-width-thick) solid var(--ht-color-border-divider);\n    padding-left: var(--ht-space-400);\n  }`);
+  base.push(`  .ht-prose :is(h1, h2, h3, h4, p, ul, ol, blockquote):last-child {\n    margin-bottom: 0;\n  }`);
+}
+base.push("}");
+fs.writeFileSync(path.join(dist, "base.css"), base.join("\n") + "\n");
+
+// all.css: the four stylesheets in one import. A shortcut only; base.css and fonts.css stay opt-in.
+fs.writeFileSync(path.join(dist, "all.css"), `/**\n * Do not edit directly, this file was auto-generated.\n * Tokens, text styles, utilities and components in one import. base.css and fonts.css are separate, by choice.\n */\n\n${LAYERS}\n\n@import "./tokens.css";\n@import "./text-styles.css";\n@import "./utilities.css";\n@import "./components.css";\n`);
+
 const { version } = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
 fs.writeFileSync(path.join(dist, "tokens.json"), JSON.stringify(resolvedJson(data, checked, { version }), null, 2) + "\n");
 
 const modesNote = data.modeNames.length ? `, modes: ${DEFAULT_MODE} + ${data.modeNames.join(", ")}` : "";
-console.log(`✓ built dist/tokens.css${styles.length ? ", text-styles.css" : ""}${grid ? ", utilities.css" : ""}, tokens.js, tokens.d.ts, tokens.json (${data.list.length} tokens${modesNote}, v${version})`);
+console.log(`✓ built dist/tokens.css${styles.length ? ", text-styles.css" : ""}${grid ? ", utilities.css" : ""}, base.css, all.css, tokens.js, tokens.d.ts, tokens.json (${data.list.length} tokens${modesNote}, v${version})`);

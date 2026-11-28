@@ -266,7 +266,7 @@ function BlockView({ block }: { block: Block }) {
       );
     case "md":
       return (
-        <div className={styles.prose}>
+        <div className={`ht-prose ${styles.prose}`}>
           <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ h2: ({ children }) => <h2 id={slug(textOf(children))}>{children}</h2>, h3: ({ children }) => <h3 id={slug(textOf(children))}>{children}</h3> }}>
             {block.markdown}
           </ReactMarkdown>

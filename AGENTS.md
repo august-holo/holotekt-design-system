@@ -66,6 +66,12 @@ and is not committed. Read it at the start of a session and follow its instructi
   `ui.label`): `fontFamily` and `fontSize` are aliases, `fontWeight`, `lineHeight`, `letterSpacing` and
   `textTransform` are plain values. It becomes six variables (`--ht-heading-1-font-size` …) and one class
   (`.ht-heading-1`) in `dist/text-styles.css`.
+- `dist/all.css` imports tokens, text styles, utilities and components; `dist/base.css` is the optional page
+  defaults in the `base` layer (grid on `html`, body text, links, focus, selection, `hr`, `.ht-prose`), generated
+  by `scripts/build-tokens.mjs` from tokens only; `dist/fonts.css` and `dist/fonts/` come from
+  `scripts/build-fonts.mjs` and the @fontsource dependencies. Opt-in: `all.css` includes neither. Nothing in the
+  package may depend on the base: Storybook renders the components without it on purpose. Every package
+  stylesheet opens with `@layer tokens, base, components;` so the order holds whichever is imported first.
 - `dist/utilities.css` holds ready-made classes built from tokens by `scripts/build-tokens.mjs`. Today that is
   `.ht-page-grid`: `surface/page` with dots in `surface/dot` at `layout/grid/dot-pitch`, the default page
   background. It is decoration, not elevation; surfaces are plain fills and cover the dots. Dot colour and
@@ -95,10 +101,11 @@ and is not committed. Read it at the start of a session and follow its instructi
   and atoms. Templates and pages belong to each product, not here. A component may import only siblings from a
   lower level, and only the ones `levels.json` lists under `madeOf`; the component build fails otherwise. Build
   from below: if the part you need does not exist, add the atom first.
-- The site is set entirely in its own tokens (`site/app/bindings.css` for element defaults, CSS Modules for the
-  rest): colour, type, spacing, radius and borders. Rows wrap on narrow screens through flex bases taken from the
-  width tokens, not media queries. No shadows. Fonts are self-hosted from `@fontsource` packages, copied into
-  `site/public/fonts/` by `scripts/copy-fonts.mjs`; the token package ships names and stacks, not files.
+- The site runs on the package's `all.css`, `base.css` and `fonts.css`, plus `site/app/site.css` for what is its
+  own (the article heading scale, table text, code) and CSS Modules for the rest: colour, type, spacing, radius
+  and borders, all tokens. Rows wrap on narrow screens through flex bases taken from the
+  width tokens, not media queries. No shadows. Fonts load through `dist/fonts.css`;
+  `scripts/copy-fonts.mjs` copies `dist/fonts/` into `site/public/fonts/` so the licence links resolve.
 
 ## Rules
 
