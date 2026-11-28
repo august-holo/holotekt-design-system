@@ -16,5 +16,5 @@ test -f node_modules/holotekt-design-system/dist/components.css
 npm run -s build
 grep -q "ht-card ht-card--offset" out/index.html
 grep -q "ht-thumbnail-row__title" out/index.html
-grep -rq -- "--ht-decoration-card-offset" out/_next/static/css
+grep -rq --include="*.css" -- "--ht-decoration-card-offset" out/_next
 echo "✓ consumer fixture: installed holotekt-design-system@$REF by git, built a Next.js 16 static export with Card, Divider and ThumbnailList, components.css bundled"

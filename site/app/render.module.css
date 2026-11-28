@@ -237,6 +237,14 @@
     width: 100%;
   }
   /* A live component example: the component on the page itself, at its own size. */
+  /* Code blocks in prose (the import examples) scroll sideways on phones instead of widening the page. */
+  .prose pre {
+    max-width: 100%;
+    overflow-x: auto;
+    padding: var(--ht-inset-md);
+    background: var(--ht-color-surface-sunken);
+    border-radius: var(--ht-radius-sm);
+  }
   .live {
     width: 100%;
     display: flex;
