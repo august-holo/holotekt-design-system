@@ -7,6 +7,20 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Fixed
+- Getting started now says where a consumer's reset goes: in the consumer's own layer, declared ahead of
+  the system's (a stylesheet holding only `@layer reset, tokens, base, components;`, imported in the root layout before
+  any system stylesheet), so the system's spacing survives it. Overrides stay unlayered. The consumer
+  fixture proves the pattern through Next.js: the built CSS keeps `reset` first and a Card, a Button and
+  a row keep their padding. A statement above `@import` lines in a single file does not survive Next's
+  bundler, which inlines the imports ahead of it; the page says so. The page no longer says
+  to declare your layers after `components`.
+- The entry-point table says what `base.css` leaves out (`box-sizing`, element margins outside
+  `.ht-prose`), which files carry the layer statement (`tokens.css` and `fonts.css` do not and need
+  not), and that a bundler emits the font files itself.
+- The Button's description says `onClick`, the other handlers and the rest of a button's attributes pass
+  through when `href` is set.
+
 ## [0.9.0] - 2026-11-28
 
 ### Added

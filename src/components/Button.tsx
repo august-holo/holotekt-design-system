@@ -28,7 +28,9 @@ export type ButtonProps = ButtonOwnProps & Omit<ComponentPropsWithoutRef<"button
 /**
  * The main way to act. Primary for the one most important action in a view, secondary for any other.
  * States change tone only: no offset, no shadow. A button that goes to another page is a link that
- * looks like a button; one that does something is a button. Both look the same.
+ * looks like a button; one that does something is a button. Both look the same. onClick, the other
+ * handlers, aria attributes and the rest of a button's attributes pass through in both forms, also when
+ * href is set.
  */
 export function Button({ kind = "primary", children, href, linkComponent: LinkComponent = "a", disabled = false, type = "button", target, rel, state, className, ...rest }: ButtonProps) {
   const cls = ["ht-button", `ht-button--${kind}`, className ?? ""].filter(Boolean).join(" ");

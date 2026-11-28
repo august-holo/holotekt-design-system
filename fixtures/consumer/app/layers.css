@@ -1,0 +1,3 @@
+/* Imported first in the root layout, before any system stylesheet: the consumer's layer comes ahead of
+   the system's, so the system's spacing wins over the reset. Only this statement lives here. */
+@layer reset, tokens, base, components;

@@ -743,8 +743,8 @@ Install by **release tag** (\`#v${v}\` is the current one; the [changelog](/chan
 | \`holotekt-design-system/utilities.css\` | \`.ht-page-grid\`, the dotted grid that is the default page background. | When a page sits on the grid (the default) |
 | \`holotekt-design-system/components.css\` | The styles of every component (\`.ht-button\`, \`.ht-card\` …), all values tokens. | With any component |
 | \`holotekt-design-system/all.css\` | The four stylesheets above in one import. A shortcut only; it does **not** include the base or the fonts. | When you want everything |
-| \`holotekt-design-system/base.css\` | **Optional** page defaults, in the \`base\` layer: the grid on \`html\`, \`text/primary\` and \`ui/body\` on \`body\`, underlined links in \`text/link\`, the focus ring, selection in \`accent/subtle\`, the hairline \`hr\`, and \`.ht-prose\` for ordinary article markup. Nothing else depends on it. | When you would otherwise write these yourself |
-| \`holotekt-design-system/fonts.css\` | **Optional:** the five families at the weights the text styles use, with the woff2 files and licences beside it. | When you want the fonts in one line |
+| \`holotekt-design-system/base.css\` | **Optional** page defaults, in the \`base\` layer: the grid on \`html\`, \`text/primary\` and \`ui/body\` on \`body\`, underlined links in \`text/link\`, the focus ring, selection in \`accent/subtle\`, the hairline \`hr\`, and \`.ht-prose\` for ordinary article markup. Nothing else depends on it. **It leaves out** \`box-sizing\` and every element margin outside \`.ht-prose\`: a site still brings its own reset, in its own layer (see the cascade layers below). | When you would otherwise write these yourself |
+| \`holotekt-design-system/fonts.css\` | **Optional:** the five families at the weights the text styles use, with the woff2 files and licences beside it in the package. Your bundler emits the files under its own hashed paths (Next.js does); nothing is copied to \`public/\`. | When you want the fonts in one line |
 | \`holotekt-design-system/components\` | The React components, typed. | With any component |
 | \`holotekt-design-system\` | The tokens as a JavaScript object, typed. | Rarely: when a value is needed in code |
 | \`holotekt-design-system/tokens.json\`, \`/components.json\` | The resolved token data and the component manifest, also served at [/tokens.json](/tokens.json) and [/components.json](/components.json). | For tooling and agents |
@@ -763,15 +763,29 @@ A site can stop at any step. This site runs on step 5; the consumer fixture stop
 
 ### The cascade layers
 
-Every package stylesheet opens with \`@layer tokens, base, components;\`, so the order holds whichever file you import first:
+\`components.css\`, \`text-styles.css\`, \`utilities.css\`, \`all.css\` and \`base.css\` each open with \`@layer tokens, base, components;\`, so the order holds whichever of them you import first. \`tokens.css\` (custom properties) and \`fonts.css\` (font faces) carry no layer statement and need none. A bundler may minify the statement; the order it establishes is the same.
 
 | Layer | Holds | Beats |
 | --- | --- | --- |
 | (unlayered) | \`tokens.css\`: custom properties only, nothing to override. Your own CSS, when it is not in a layer. | every layer |
-| \`components\` | \`components.css\`, \`text-styles.css\`, \`utilities.css\` | \`base\` |
-| \`base\` | \`base.css\` | nothing |
+| \`components\` | \`components.css\`, \`text-styles.css\`, \`utilities.css\` | \`base\` and your layers declared before it |
+| \`base\` | \`base.css\` | your layers declared before it |
 
-So a rule you write outside a layer overrides the base and the components without a specificity fight. If you put your own CSS in layers, declare them after \`components\`.
+Two patterns follow, and they go in different places:
+
+**Your reset goes in a layer of your own, declared first.** Left unlayered, a reset such as \`* { margin: 0; padding: 0 }\` beats the base and wipes the \`.ht-prose\` spacing and the components' padding. Declare your layer ahead of the system's and put the reset there; the system's layers then win over it, as they should. The order is fixed by the first \`@layer\` statement the browser meets, so the statement has to be loaded **before any system stylesheet**. In Next.js that means import order in the root layout, one file per step:
+
+\`\`\`tsx
+// app/layout.tsx
+import "./layers.css";                    // only: @layer reset, tokens, base, components;
+import "holotekt-design-system/all.css";
+import "holotekt-design-system/base.css";
+import "./reset.css";                     // @layer reset { *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 } }
+\`\`\`
+
+Do not rely on a single \`global.css\` that puts the statement above \`@import\` lines: the CSS specification allows that, but Next's bundler inlines the imported files ahead of the statement, the system's order is met first, and \`reset\` lands last, where it wins. The consumer fixture checks the working pattern through Next.js: the built CSS keeps \`reset\` first, and a Card, a Button and a row keep their padding with the reset present.
+
+**Your overrides stay unlayered** (or in a layer declared after \`components\`), so they win over the base and the components without a specificity fight. You never need to write into a layer the system owns.
 
 ## Import a component
 
@@ -831,7 +845,7 @@ Or load them your own way. The token stacks name the families \`${fonts.map((f) 
 ${fontImports.join("\n")}
 \`\`\`
 
-The family names in those packages match the first name in each token stack, which the build checks. Preloading is optional: if you do, preload only the heading and interface faces at weight 400 (${fonts.filter((f) => ["font.family.heading", "font.family.sans"].includes(f.token)).map((f) => `\`${f.package?.split("/").pop()}-latin-400-normal.woff2\``).join(" and ")}). Licences: all five are OFL-1.1; the [Typography page](/foundations/typography) links each one.
+The family names in those packages match the first name in each token stack, which the build checks. The files are emitted by your bundler under its own hashed paths (Next.js does this for a \`url()\` inside an imported stylesheet); nothing is copied to \`public/\`. Preloading is optional: if you do, preload only the heading and interface faces at weight 400 (${fonts.filter((f) => ["font.family.heading", "font.family.sans"].includes(f.token)).map((f) => `\`${f.package?.split("/").pop()}-latin-400-normal.woff2\``).join(" and ")}). Licences: all five are OFL-1.1; the [Typography page](/foundations/typography) links each one.
 
 ## Breakpoints in CSS
 

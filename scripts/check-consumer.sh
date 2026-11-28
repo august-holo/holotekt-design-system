@@ -27,4 +27,5 @@ grep -Eq '<a[^>]*class="ht-button ht-button--secondary"[^>]*href="/two"' out/ind
 grep -rq --include="*.css" -- "--ht-decoration-card-offset" out/_next
 grep -rq --include="*.css" -- "ht-page-grid" out/_next
 ! grep -rq --include="*.css" -- "ht-prose" out/_next
+node "$ROOT/scripts/check-consumer-browser.mjs"
 echo "✓ consumer fixture: installed holotekt-design-system@$REF by git, built a Next.js 16 static export with Button (as a button and as a Next Link), Card, Divider, ThumbnailList and ThumbnailRow and Thumbnail through Next Link with onClick, all.css bundled and base.css absent"

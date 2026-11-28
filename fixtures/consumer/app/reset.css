@@ -1,0 +1,10 @@
+/* The fixture's own reset, in its own layer. */
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+}
