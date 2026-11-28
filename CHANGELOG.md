@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-27
+
 ### Added
 - `ThumbnailRow` and `Thumbnail` (when it is a link) take `linkComponent` and `onClick`, with the same
   names and behaviour as on `Button`: pass your router's link for client-side navigation and a handler to
