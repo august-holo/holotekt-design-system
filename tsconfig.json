@@ -1,0 +1,22 @@
+{
+  // The package components. The docs site has its own config in site/; this one is at the root
+  // because Storybook's docgen and manifest look for the project's tsconfig.json from the working
+  // directory, and it is what `npm run components:build` compiles.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "declaration": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "rootDir": "src/components",
+    "outDir": "dist/components",
+    "types": []
+  },
+  "include": ["src/components/**/*.ts", "src/components/**/*.tsx"],
+  "exclude": ["src/components/**/*.stories.tsx", "src/components/stories/**"]
+}

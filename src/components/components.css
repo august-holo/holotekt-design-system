@@ -1,0 +1,138 @@
+/* Styles for the components in this folder. Every value is a token (var(--ht-…)); the only
+   non-token values are the proportions below and the hover duration, which lives in one place
+   until there is a motion foundation. Classes are prefixed ht- and the rules sit in the
+   components layer, so a consumer's own unlayered styles win when they need to.
+   The orange offset is a decoration, not elevation. On a card it is a flourish; on a thumbnail it
+   is a hover animation. Depth is shown by surface tone only. */
+@layer components {
+  /* --- Card ------------------------------------------------------------------------------------ */
+  .ht-card {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ht-gap-sm);
+    padding: var(--ht-inset-lg);
+    background: var(--ht-color-surface-raised);
+    color: var(--ht-color-text-primary);
+    border: var(--ht-border-width-thin) solid var(--ht-color-border-subtle);
+    border-radius: var(--ht-radius-sm);
+  }
+  .ht-card--offset {
+    border-color: var(--ht-color-border-strong);
+    /* A hard offset: no blur, no spread. The one named exception to "no shadows". */
+    box-shadow: var(--ht-decoration-card-offset) var(--ht-decoration-card-offset) 0 0 var(--ht-color-accent-default);
+  }
+
+  /* --- Thumbnail ------------------------------------------------------------------------------- */
+  .ht-thumbnail {
+    --_ht-hover-duration: 150ms; /* the portfolio's timing; the one place it is written */
+    --ht-thumbnail-size: calc(var(--ht-space-900) + var(--ht-space-700)); /* 144px */
+    box-sizing: border-box;
+    display: block;
+    flex: none;
+    inline-size: var(--ht-thumbnail-size);
+    block-size: var(--ht-thumbnail-size);
+    overflow: hidden;
+    background: var(--ht-color-surface-sunken);
+    border-radius: var(--ht-radius-sm);
+    /* The border is drawn inside so the size does not change; at rest both parts are invisible. */
+    box-shadow:
+      inset 0 0 0 0 var(--ht-color-border-strong),
+      0 0 0 0 var(--ht-color-accent-default);
+    transition: box-shadow var(--_ht-hover-duration) ease-out;
+    text-decoration: none;
+    color: inherit;
+  }
+  .ht-thumbnail__img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+  .ht-thumbnail:is(:hover, [data-ht-state="hover"]),
+  .ht-thumbnail-row:is(:hover, [data-ht-state="hover"]) .ht-thumbnail {
+    box-shadow:
+      inset 0 0 0 var(--ht-border-width-thick) var(--ht-color-border-strong),
+      var(--ht-decoration-card-offset) var(--ht-decoration-card-offset) 0 0 var(--ht-color-accent-default);
+  }
+  /* A thumbnail that is a link on its own shows focus on itself. */
+  a.ht-thumbnail:is(:focus-visible, [data-ht-state="focus"]) {
+    outline: none;
+    box-shadow: inset 0 0 0 var(--ht-border-width-thick) var(--ht-color-border-focus);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ht-thumbnail {
+      transition: none;
+    }
+  }
+
+  /* --- ThumbnailRow ---------------------------------------------------------------------------- */
+  .ht-thumbnail-row {
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--ht-gap-lg);
+    padding: var(--ht-space-500) var(--ht-space-400);
+    color: var(--ht-color-text-primary);
+    text-decoration: none;
+    background: transparent;
+  }
+  .ht-thumbnail-row:is(:hover, [data-ht-state="hover"]) {
+    background: var(--ht-color-surface-hover);
+  }
+  .ht-thumbnail-row:is(:focus-visible, [data-ht-state="focus"]) {
+    outline: var(--ht-border-width-thick) solid var(--ht-color-border-focus);
+    outline-offset: calc(-1 * var(--ht-border-width-thick));
+  }
+  .ht-thumbnail-row__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ht-gap-sm);
+    /* Text drops below the image when the row is narrower than about half the reading width. */
+    flex: 1 1 calc(var(--ht-layout-width-reading) / 2);
+    min-inline-size: 0;
+  }
+  .ht-thumbnail-row__title {
+    font-family: var(--ht-heading-3-font-family);
+    font-size: var(--ht-heading-3-font-size);
+    font-weight: var(--ht-heading-3-font-weight);
+    line-height: var(--ht-heading-3-line-height);
+    letter-spacing: var(--ht-heading-3-letter-spacing);
+    text-transform: var(--ht-heading-3-text-transform);
+    color: var(--ht-color-text-primary);
+  }
+  .ht-thumbnail-row__summary {
+    font-family: var(--ht-ui-body-font-family);
+    font-size: var(--ht-ui-body-font-size);
+    font-weight: var(--ht-ui-body-font-weight);
+    line-height: var(--ht-ui-body-line-height);
+    letter-spacing: var(--ht-ui-body-letter-spacing);
+    text-transform: var(--ht-ui-body-text-transform);
+    color: var(--ht-color-text-secondary);
+  }
+
+  /* --- ThumbnailList --------------------------------------------------------------------------- */
+  .ht-thumbnail-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .ht-thumbnail-list__item {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* --- Divider --------------------------------------------------------------------------------- */
+  .ht-divider {
+    box-sizing: border-box;
+    block-size: 0;
+    margin: 0;
+    border: 0;
+    border-block-start: var(--ht-border-width-thin) solid var(--ht-color-border-divider);
+  }
+  .ht-divider--strong {
+    border-block-start: var(--ht-border-width-thick) solid var(--ht-color-border-strong);
+  }
+}

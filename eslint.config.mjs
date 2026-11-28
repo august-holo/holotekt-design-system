@@ -7,5 +7,7 @@ export default defineConfig([
   ...nextTs,
   // The Next.js app lives in site/, not at the repo root.
   { settings: { next: { rootDir: "site/" } } },
-  globalIgnores(["site/.next/**", "site/out/**", "dist/**", "node_modules/**", "next-env.d.ts", "site/next-env.d.ts"]),
+  // The package components cannot use next/image: they ship to any React app.
+  { files: ["src/components/**"], rules: { "@next/next/no-img-element": "off" } },
+  globalIgnores(["site/.next/**", "site/out/**", "site/public/storybook/**", "dist/**", "node_modules/**", "next-env.d.ts", "site/next-env.d.ts"]),
 ]);
