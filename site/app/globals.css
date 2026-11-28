@@ -7,4 +7,5 @@
 @import "../../dist/tokens.css" layer(tokens);
 @import "../../dist/text-styles.css";
 @import "../../dist/utilities.css";
+@import "../../src/components/components.css";
 @import "./bindings.css" layer(base);

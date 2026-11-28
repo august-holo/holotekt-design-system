@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   changelog,
+  componentData,
   consumerRules,
   decisions,
   REPO_URL,
@@ -16,6 +17,7 @@ import {
   SITE_URL,
   tokenData,
   version,
+  type ComponentInfo,
   type Token,
   type TokenData,
 } from "./data";
@@ -45,15 +47,20 @@ export type Block =
   | { kind: "index"; rows: { title: string; line: string; href: string }[] }
   | { kind: "details"; id: string; summary: string; blocks: Block[] }
   | { kind: "pager"; prev?: { text: string; href: string }; next?: { text: string; href: string } }
+  /** A real component rendered by app/live.tsx; the code is what a consumer writes for it. */
+  | { kind: "live"; example: LiveId; label: string; code: string }
   | { kind: "md"; markdown: string };
+
+export const LIVE_IDS = ["card-offset-on", "card-offset-off", "thumbnail-list", "thumbnail-list-hover", "thumbnail-list-focus", "thumbnail-states", "divider-hairline", "divider-strong"] as const;
+export type LiveId = (typeof LIVE_IDS)[number];
 
 export interface Page {
   route: string;
   title: string;
   description: string;
   blocks: Block[];
-  /** "foundation": eyebrow above the title, no lede. "bare": title only. Default: title and lede. */
-  template?: "foundation" | "bare" | "plain";
+  /** "foundation": eyebrow above the title, no lede. "component": eyebrow and lede. "bare": title only. Default: title and lede. */
+  template?: "foundation" | "component" | "bare" | "plain";
 }
 
 // --- foundations --------------------------------------------------------------------------------
@@ -477,19 +484,159 @@ export function homePage(): Page {
     title: "Holotekt Design System",
     description: "A design system for systemic designers.",
     blocks: [
-      { kind: "links", big: true, items: [{ text: "Foundations →", href: "/foundations" }, { text: "Set up from the README →", href: `${REPO_URL}#readme` }] },
+      { kind: "links", big: true, items: [{ text: "Foundations →", href: "/foundations" }, { text: "Components →", href: "/components" }, { text: "Set up from the README →", href: `${REPO_URL}#readme` }] },
       { kind: "h3", text: "See it in the wild" },
       { kind: "tiles", items: ["Coming soon", "Coming soon"] },
     ],
   };
 }
 
-export const componentsPage = (): Page => ({
-  route: "/components",
-  title: "Components",
-  description: "React components built on the tokens.",
-  blocks: [{ kind: "p", text: "Not published yet. Components arrive with the components session, documented in Storybook under this site." }],
+// --- components -----------------------------------------------------------------------------------
+
+export const COMPONENT_PAGES = ["card", "thumbnail-list", "divider"] as const;
+export type ComponentSlug = (typeof COMPONENT_PAGES)[number];
+
+type WhenRow = { when: string; use: Part[] };
+const COMPONENT_INFO: Record<ComponentSlug, { title: string; description: string; components: string[]; story: string; when: WhenRow[]; rules: string[]; examples: Extract<Block, { kind: "live" }>[] }> = {
+  card: {
+    title: "Card",
+    description: "A static raised surface for a note, aside or summary.",
+    components: ["Card"],
+    story: "card",
+    when: [
+      { when: "Setting a note, aside or summary apart from the page", use: [{ token: "Card" }, { text: ", offset on" }] },
+      { when: "Grouping content on a plain raised surface", use: [{ token: "Card" }, { text: ", offset off" }] },
+    ],
+    rules: [
+      "The orange offset is decoration, not elevation. It does not mean the card is on top.",
+      "Depth still comes from the surface tone: a card is surface/raised.",
+      "No paper texture.",
+      "A card is not a link. For something clickable, use a Thumbnail row or a button.",
+      "Use the offset sparingly: a few per page.",
+    ],
+    examples: [
+      { kind: "live", example: "card-offset-on", label: "Offset on, the default: border/strong and the hard orange offset", code: `<Card>\n  <span className="ht-ui-label">Label</span>\n  <span className="ht-voice-human">A note in a person’s own words sits here.</span>\n</Card>` },
+      { kind: "live", example: "card-offset-off", label: "Offset off: a plain raised surface with border/subtle", code: `<Card offset={false}>…</Card>` },
+    ],
+  },
+  "thumbnail-list": {
+    title: "Thumbnail list",
+    description: "An image that links to a piece of work, the row it sits in, and the list of rows.",
+    components: ["ThumbnailList", "ThumbnailRow", "Thumbnail"],
+    story: "thumbnaillist",
+    when: [
+      { when: "Listing a few pieces of work to open", use: [{ token: "ThumbnailList" }, { text: " of " }, { token: "ThumbnailRow" }, { text: "s" }] },
+      { when: "Showing one image that links somewhere", use: [{ token: "Thumbnail" }, { text: " with an href" }] },
+    ],
+    rules: [
+      "The thumbnail is the image itself. The list is plain rows on the page with hairline dividers, not cards.",
+      "At rest: no border. The image sits on surface/sunken.",
+      "On hover: the ink border (border/strong, thick) and the orange offset arrive together, as a short animation of about 150ms. The row takes surface/hover.",
+      "The offset is decoration and motion. The tones are the elevation system. Neither replaces the other.",
+      "Keyboard focus: a thick border/focus ring around the row. The offset is not a focus indicator.",
+      "Reduced motion: the hover state appears without animating.",
+      "No tags or pills. No index numbers.",
+    ],
+    examples: [
+      { kind: "live", example: "thumbnail-list", label: "Three rows at rest, with hairline dividers; hover a row to see it react", code: `<ThumbnailList aria-label="Selected work">\n  <ThumbnailRow href="/work/evidence" title="Building an evidence-based design foundation" summary="Define the personas, map the journey…" image="/images/evidence.png" />\n  <ThumbnailRow href="/work/tactical" title="Solving tactical UI/UX problems" summary="…" image="/images/tactical.png" />\n</ThumbnailList>` },
+      { kind: "live", example: "thumbnail-list-hover", label: "The middle row hovered: surface/hover on the row, border and offset on its thumbnail", code: `<ThumbnailRow … state="hover" />  // docs only; the real state comes from :hover` },
+      { kind: "live", example: "thumbnail-list-focus", label: "The middle row with keyboard focus: border/focus, thick, around the row", code: `<ThumbnailRow … state="focus" />  // docs only; the real state comes from :focus-visible` },
+      { kind: "live", example: "thumbnail-states", label: "A thumbnail on its own: at rest, hovered, focused as a link, and empty", code: `<Thumbnail src="/images/evidence.png" alt="…" href="/work/evidence" />` },
+    ],
+  },
+  divider: {
+    title: "Divider",
+    description: "A rule that separates content.",
+    components: ["Divider"],
+    story: "divider",
+    when: [
+      { when: "Separating rows inside a surface or list", use: [{ token: "Divider" }, { text: ", hairline" }] },
+      { when: "Closing a header or opening a footer", use: [{ token: "Divider" }, { text: ", strong" }] },
+    ],
+    rules: ["A divider separates; it does not decorate. If spacing alone does the job, use spacing.", "Hairline between rows. Strong only at the edges of a page region."],
+    examples: [
+      { kind: "live", example: "divider-hairline", label: "Hairline: border/divider at border/width/thin", code: `<Divider />` },
+      { kind: "live", example: "divider-strong", label: "Strong: border/strong at border/width/thick", code: `<Divider weight="strong" />` },
+    ],
+  },
+};
+export const componentTitle = (slug: ComponentSlug) => COMPONENT_INFO[slug].title;
+const componentInfo = (name: string): ComponentInfo => {
+  const c = componentData().components.find((x) => x.name === name);
+  if (!c) throw new Error(`dist/components.json has no component ${name}; run npm run components:build`);
+  return c;
+};
+
+function propsTable(c: ComponentInfo): Block[] {
+  const blocks: Block[] = [
+    {
+      kind: "rows",
+      columns: ["Prop", "Type", "Default", "Description"],
+      cells: [{ basis: LABEL, grow: 0 }, { basis: `calc(${READING} * 0.3)`, grow: 0 }, { basis: "var(--ht-space-800)", grow: 0 }, { basis: `calc(${READING} * 0.5)`, grow: 1 }],
+      rows: c.props.map((p) => [code(p.name + (p.required ? "" : "?")), code(p.type), p.default ? code(p.default) : { text: p.required ? "required" : "", muted: true }, { text: p.description, muted: true }]),
+    },
+  ];
+  if (c.extra.length) blocks.push({ kind: "p", text: `Also accepts ${c.extra.map((e) => e.replace(/^Omit<ComponentPropsWithoutRef<"(\w+)">.*$/, "the attributes of a $1")).join(", ")}.`, muted: true });
+  return blocks;
+}
+
+/** The tokens a page's components use, each checked against the token set like the scenario tables. */
+function tokensUsed(data: TokenData, names: string[]): Block {
+  const paths = [...new Set(names.flatMap((n) => componentInfo(n).tokens))].sort();
+  const rows: Cell[][] = paths.map((p) => {
+    const t = data.tokens.find((x) => x.path === p);
+    if (!t) throw new Error(`component token ${p} is not in dist/tokens.json`);
+    const useds = names.filter((n) => componentInfo(n).tokens.includes(p));
+    return [code(t.path), { text: t.description ?? (t.type === "typography" ? "Text style" : ""), muted: true }, { text: names.length > 1 ? useds.join(", ") : "", muted: true }];
+  });
+  return { kind: "rows", headless: true, columns: ["Token", "Description", "Used by"], cells: [{ basis: `calc(${READING} * 0.35)`, grow: 0 }, { basis: READING, grow: 1 }, { basis: LABEL, grow: 0 }], rows };
+}
+
+const importBlock = (names: string[], example: string): Block => ({
+  kind: "md",
+  markdown: ["```tsx", `import { ${names.join(", ")} } from "holotekt-design-system/components";`, `import "holotekt-design-system/tokens.css";`, `import "holotekt-design-system/components.css";`, "", example, "```"].join("\n"),
 });
+
+export function componentPage(slug: ComponentSlug): Page {
+  const info = COMPONENT_INFO[slug];
+  const data = tokenData();
+  const page: Page = { route: `/components/${slug}`, title: info.title, description: info.description, template: "component", blocks: [] };
+  const i = COMPONENT_PAGES.indexOf(slug);
+  const prev = i > 0 ? COMPONENT_PAGES[i - 1] : undefined;
+  const next = i < COMPONENT_PAGES.length - 1 ? COMPONENT_PAGES[i + 1] : undefined;
+  page.blocks.push({ kind: "h2", text: "When to use it" });
+  page.blocks.push({ kind: "rows", columns: ["When you are…", "Use"], strongRule: true, cells: [{ basis: `calc(${READING} * 0.4)`, grow: 28 }, { basis: READING, grow: 72 }], rows: info.when.map((r) => [{ text: r.when }, { parts: r.use }]) });
+  page.blocks.push({ kind: "h2", text: "Live examples" }, { kind: "p", text: "The real components, on the default page background, in the site's current theme.", muted: true }, ...info.examples);
+  page.blocks.push({ kind: "h2", text: "Rules" }, { kind: "list", items: info.rules });
+  page.blocks.push({ kind: "h2", text: "Props" });
+  for (const name of info.components) {
+    const c = componentInfo(name);
+    if (info.components.length > 1) page.blocks.push({ kind: "h3", text: name });
+    page.blocks.push({ kind: "p", text: c.description }, ...propsTable(c));
+  }
+  page.blocks.push({ kind: "h2", text: "Tokens it uses" }, { kind: "p", text: "Only existing tokens. If a component needs a value that is not a token, the token comes first. The build fails on a variable that is not a published token.", muted: true }, tokensUsed(data, info.components));
+  page.blocks.push({ kind: "h2", text: "Import" }, importBlock(info.components, info.examples[0].code));
+  page.blocks.push({ kind: "links", items: [{ text: `${info.title} stories in Storybook →`, href: `/storybook/?path=/docs/${info.story}--docs`, note: "every state, both themes, accessibility checks" }] });
+  page.blocks.push({ kind: "pager", prev: prev && { text: `← ${componentTitle(prev)}`, href: `/components/${prev}` }, next: next && { text: `${componentTitle(next)} →`, href: `/components/${next}` } });
+  return page;
+}
+
+export function componentsIndexPage(): Page {
+  const line = (slug: ComponentSlug) => {
+    const info = COMPONENT_INFO[slug];
+    const cs = info.components.map(componentInfo);
+    const props = cs.reduce((n, c) => n + c.props.length, 0);
+    const tokens = new Set(cs.flatMap((c) => c.tokens)).size;
+    return `${info.description} ${cs.map((c) => c.name).join(", ")}: ${props} props, ${tokens} tokens.`;
+  };
+  return {
+    route: "/components",
+    title: "Components",
+    description: "React components built on the tokens: a card, a thumbnail with its row and list, and a divider. Import them from holotekt-design-system/components.",
+    template: "bare",
+    blocks: [{ kind: "index", rows: COMPONENT_PAGES.map((slug) => ({ title: componentTitle(slug), line: line(slug), href: `/components/${slug}` })) }],
+  };
+}
 
 export function decisionsPage(): Page {
   const list = decisions();
@@ -533,7 +680,7 @@ export const accessibilityPage = (): Page => ({
 });
 
 export function allPages(): Page[] {
-  return [homePage(), foundationsIndexPage(), ...FOUNDATIONS.map(foundationPage), componentsPage(), decisionsPage(), ...decisions().map((d) => decisionPage(d.slug)!), changelogPage(), consumerRulesPage(), accessibilityPage()];
+  return [homePage(), foundationsIndexPage(), ...FOUNDATIONS.map(foundationPage), componentsIndexPage(), ...COMPONENT_PAGES.map(componentPage), decisionsPage(), ...decisions().map((d) => decisionPage(d.slug)!), changelogPage(), consumerRulesPage(), accessibilityPage()];
 }
 
 export function markdownSegments(route: string): string[] {
@@ -612,6 +759,9 @@ function blockMarkdown(b: Block, out: string[]) {
     case "pager":
       out.push([b.prev && `[${b.prev.text}](${abs(b.prev.href)})`, b.next && `[${b.next.text}](${abs(b.next.href)})`].filter(Boolean).join(" · "), "");
       break;
+    case "live":
+      out.push(`*Example: ${b.label}.*`, "", "```tsx", b.code, "```", "");
+      break;
     case "md":
       out.push(b.markdown, "");
       break;
@@ -639,14 +789,19 @@ export function llmsTxt(): string {
     "## Foundations",
     ...pages.filter((p) => p.route.startsWith("/foundations")).map(line),
     "",
+    "## Components",
+    ...pages.filter((p) => p.route.startsWith("/components")).map(line),
+    `- [Storybook](${SITE_URL}/storybook/): every component state in both themes, with accessibility checks. Its component manifest is at ${SITE_URL}/storybook/manifests/components.json.`,
+    "",
     "## Docs",
-    ...pages.filter((p) => !p.route.startsWith("/foundations") && !p.route.startsWith("/decisions/")).map(line),
+    ...pages.filter((p) => !p.route.startsWith("/foundations") && !p.route.startsWith("/components") && !p.route.startsWith("/decisions/")).map(line),
     "",
     "## Decisions",
     ...pages.filter((p) => p.route.startsWith("/decisions/")).map(line),
     "",
     "## Data",
     `- [tokens.json](${SITE_URL}/tokens.json): every token resolved, with CSS variable name, alias target, description, and the contrast ratio of each allowed pair.`,
+    `- [components.json](${SITE_URL}/components.json): every component with its description, props (type, default, doc comment) and the tokens its CSS uses.`,
     `- [Repository](${REPO_URL}): source, changelog and the token JSON files.`,
     "",
   ].join("\n");

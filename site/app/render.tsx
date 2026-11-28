@@ -5,10 +5,12 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Block, Cell, Page, Part } from "@/lib/pages";
+import { Live } from "./live";
 import styles from "./render.module.css";
 
+// Storybook is a separate static app under /storybook/: a plain link, not a Next route.
 const A = ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) =>
-  href.startsWith("/") ? (
+  href.startsWith("/") && !href.startsWith("/storybook") ? (
     <Link href={href} className={className}>
       {children}
     </Link>
@@ -244,6 +246,17 @@ function BlockView({ block }: { block: Block }) {
           <span>{block.next && <Link href={block.next.href}>{block.next.text}</Link>}</span>
         </nav>
       );
+    case "live":
+      return (
+        <figure className={styles.figure}>
+          <div className={styles.live}>
+            <Live id={block.example} />
+          </div>
+          <figcaption>
+            <span className="ht-ui-small">{block.label}</span>
+          </figcaption>
+        </figure>
+      );
     case "md":
       return (
         <div className={styles.prose}>
@@ -255,10 +268,12 @@ function BlockView({ block }: { block: Block }) {
 
 export function Render({ page }: { page: Page }) {
   const foundation = page.template === "foundation";
+  const component = page.template === "component";
   return (
     <article className={styles.article}>
       <header className={styles.titleBlock}>
         {foundation && <p className={`ht-ui-label ${styles.muted}`}>Foundations / {page.title}</p>}
+        {component && <p className={`ht-ui-label ${styles.muted}`}>Components / {page.title}</p>}
         <h1>{page.title}</h1>
         {!foundation && page.template !== "bare" && <p className={`ht-reading-lede ${styles.secondary} ${styles.lede}`}>{page.description}</p>}
       </header>

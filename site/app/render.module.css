@@ -236,6 +236,13 @@
   .pageGridSample {
     width: 100%;
   }
+  /* A live component example: the component on the page itself, at its own size. */
+  .live {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
   .demoCard .innerHead {
     font-family: var(--ht-heading-3-font-family);
     font-size: var(--ht-heading-3-font-size);

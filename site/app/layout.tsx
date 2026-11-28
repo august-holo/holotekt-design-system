@@ -26,6 +26,7 @@ const PRELOAD_FONTS = ["/fonts/arvo/arvo-latin-400-normal.woff2", "/fonts/space-
 
 const NAV = [
   { text: "Foundations", href: "/foundations" },
+  { text: "Components", href: "/components" },
   { text: "Changelog", href: "/changelog" },
   { text: "GitHub", href: REPO_URL },
 ];

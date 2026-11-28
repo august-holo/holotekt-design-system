@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // After the site is built and the twins are placed: every internal link in the HTML resolves to a
 // file in site/out, every page has its Markdown twin, every link in llms.txt resolves, and
-// tokens.json is valid JSON. Fails the build otherwise.
+// tokens.json and components.json are valid JSON. Fails the build otherwise.
 import fs from "node:fs";
 import path from "node:path";
 import { ROOT } from "./lib/tokens.mjs";
@@ -27,8 +27,9 @@ const fileFor = (p) => {
 
 const walk = (dir) =>
   fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]));
+// Storybook's own pages under storybook/ are a separate app: linked to, not checked for twins or links.
 const htmlPages = walk(out)
-  .filter((f) => f.endsWith(".html") && !f.includes(`${path.sep}_next${path.sep}`))
+  .filter((f) => f.endsWith(".html") && !f.includes(`${path.sep}_next${path.sep}`) && !path.relative(out, f).startsWith(`storybook${path.sep}`))
   .map((f) => path.relative(out, f))
   .filter((f) => !["404.html", "_not-found.html"].includes(f));
 
@@ -66,10 +67,21 @@ else {
     problems.push(`tokens.json is not valid JSON: ${e.message}`);
   }
 }
+if (!exists("components.json")) problems.push("components.json is missing");
+else {
+  try {
+    const c = JSON.parse(fs.readFileSync(path.join(out, "components.json"), "utf8"));
+    if (!Array.isArray(c.components) || !c.components.length) problems.push("components.json has no components");
+  } catch (e) {
+    problems.push(`components.json is not valid JSON: ${e.message}`);
+  }
+}
+if (!exists("storybook/index.html")) problems.push("storybook/index.html is missing; run `npm run storybook:build` before the site build");
+if (!exists("storybook/manifests/components.json")) problems.push("storybook/manifests/components.json is missing (the componentsManifest feature)");
 
 if (problems.length) {
   console.error(`✗ ${problems.length} link problem${problems.length === 1 ? "" : "s"}:`);
   for (const p of problems) console.error(`  - ${p}`);
   process.exit(1);
 }
-console.log(`✓ links: ${links} internal links across ${htmlPages.length} pages resolve; every page has a Markdown twin; llms.txt and tokens.json are good`);
+console.log(`✓ links: ${links} internal links across ${htmlPages.length} pages resolve; every page has a Markdown twin; llms.txt, tokens.json, components.json and Storybook are good`);

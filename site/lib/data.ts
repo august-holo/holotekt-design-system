@@ -158,3 +158,41 @@ export function luminance(hex: string): number {
   };
   return 0.2126 * chan(0) + 0.7152 * chan(1) + 0.0722 * chan(2);
 }
+
+// --- components (dist/components.json, written by scripts/build-components.mjs) -------------------
+
+export interface ComponentProp {
+  name: string;
+  type: string;
+  required: boolean;
+  default?: string;
+  description: string;
+}
+export interface ComponentInfo {
+  name: string;
+  file: string;
+  description: string;
+  props: ComponentProp[];
+  /** Other types in the props intersection, e.g. the element's own attributes. */
+  extra: string[];
+  /** Token paths the component's CSS uses. */
+  tokens: string[];
+  classes: string[];
+  composes: string[];
+}
+export interface ComponentData {
+  name: string;
+  version: string;
+  generatedAt: string;
+  entry: string;
+  stylesheet: string;
+  components: ComponentInfo[];
+}
+
+export function componentData(): ComponentData {
+  const file = path.join(ROOT, "dist", "components.json");
+  if (!fs.existsSync(file)) {
+    throw new Error("dist/components.json is missing. Run `npm run components:build` first (npm run dev and npm run check do this for you).");
+  }
+  return JSON.parse(fs.readFileSync(file, "utf8")) as ComponentData;
+}
