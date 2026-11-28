@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-28
+
 ### Added
 - `color/surface/dot`, the dots of the dotted grid (`orange/200` in light, `orange/800` in dark, provisional),
   exempt from contrast pairs because it is never behind text on its own; and `decoration/card-offset` (6px),
