@@ -35,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const short = v.split(".").slice(0, 2).join(".");
   for (const href of PRELOAD_FONTS) preload(href, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="ht-page-grid" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: headScript }} />
       </head>

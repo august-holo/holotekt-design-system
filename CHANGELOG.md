@@ -7,6 +7,17 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Added
+- `color/surface/dot`, the dots of the dotted grid (`orange/200` in light, `orange/800` in dark, provisional),
+  exempt from contrast pairs because it is never behind text on its own; and `decoration/card-offset` (6px),
+  the size of the hard orange offset on cards, which is decoration, not elevation.
+- `utilities.css` in the package with `.ht-page-grid`: `surface/page` with dots in `surface/dot` at
+  `layout/grid/dot-pitch`, the default page background. No options for dot colour or density.
+
+### Changed
+- The docs site sits on the dotted grid in both themes. The Color page has a "Default page background"
+  section with a live sample, the three tokens and the rules, and a scenario row for it.
+
 ## [0.4.1] - 2026-11-27
 
 ### Changed

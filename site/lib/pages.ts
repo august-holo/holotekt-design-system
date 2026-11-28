@@ -307,6 +307,40 @@ function colorSamples(data: TokenData): Block[] {
     },
     { kind: "h2", text: "Raw values" },
     ...[...groups].map(([name, list]) => ({ kind: "ramp", name: name.split(".").pop()!, steps: rampSteps(list) }) as Block),
+    ...pageBackgroundSection(data),
+  ];
+}
+
+/** The dotted grid as the default page background (B-055), mirroring the Figma section. */
+function pageBackgroundSection(data: TokenData): Block[] {
+  const dot = data.tokens.find((t) => t.path === "color.surface.dot");
+  const pitch = data.tokens.find((t) => t.path === "layout.grid.dot-pitch");
+  const pageTok = data.tokens.find((t) => t.path === "color.surface.page");
+  if (!dot || !pitch || !pageTok) return [];
+  const aliasIn = (t: Token, m: string) => (m === "default" ? t.alias : (t.modes?.[m]?.alias ?? t.alias)) ?? "";
+  const short = (p: string) => p.replace("color.", "").replace(".", "/");
+  const modes = data.colorModes;
+  const label = (m: string) => (modeLabel(m, data.modes) || "default").toLowerCase();
+  const perMode = (t: Token) => modes.map((m) => `${short(aliasIn(t, m))} in ${label(m)}`).join(", ");
+  return [
+    { kind: "h2", text: "Default page background" },
+    { kind: "p", text: "Every page in the system sits on the dotted grid by default. It is surface/page with dots in surface/dot, spaced at layout/grid/dot-pitch. It is part of the look, not a layer of depth. The package ships it as the .ht-page-grid class." },
+    { kind: "sample", label: ".ht-page-grid: surface/page with dots in surface/dot at the dot pitch, with a raised surface and text on it", className: "ht-page-grid pageGridSample", style: { padding: "var(--ht-inset-lg)", display: "flex", gap: "var(--ht-gap-lg)", alignItems: "flex-start", border: "var(--ht-border-width-thin) solid var(--ht-color-border-divider)" }, inner: [
+      { className: "ht-ui-body", style: { flex: "1 1 0" }, text: "Text may sit directly on the grid; contrast is measured against surface/page." },
+      { style: { flex: "1 1 0", background: "var(--ht-color-surface-raised)", borderRadius: "var(--ht-radius-sm)", padding: "var(--ht-inset-lg)" }, className: "ht-ui-body", text: "A raised surface is a plain fill and covers the dots." },
+    ] },
+    { kind: "rows", headless: true, columns: ["What", "Token", "Value"], cells: [{ basis: LABEL, grow: 0 }, { basis: `calc(${READING} * 0.35)`, grow: 0 }, { basis: READING, grow: 1 }], rows: [
+      [{ text: "Background" }, code(pageTok.path), { text: perMode(pageTok), muted: true }],
+      [{ text: "Dot colour" }, code(dot.path), { text: `${perMode(dot)}. Provisional.`, muted: true }],
+      [{ text: "Dot spacing" }, code(pitch.path), { text: `${showSize(pitch.value)}, the same as the grid gutter`, muted: true }],
+    ] },
+    { kind: "list", items: [
+      "Default: a page uses the dotted grid unless there is a reason not to.",
+      "Decoration, not elevation. The dots do not mean a surface is higher or lower.",
+      "Contrast is measured against surface/page. The dots are faint enough that text can sit on them directly.",
+      "Surfaces (raised, sunken, overlay) are plain fills and cover the dots.",
+      "To be decided: whether dot colour and density can vary, and by how much. Today each has one value.",
+    ] },
   ];
 }
 

@@ -233,6 +233,9 @@
   .demo {
     width: 100%;
   }
+  .pageGridSample {
+    width: 100%;
+  }
   .demoCard .innerHead {
     font-family: var(--ht-heading-3-font-family);
     font-size: var(--ht-heading-3-font-size);

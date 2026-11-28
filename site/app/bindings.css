@@ -3,12 +3,13 @@
 :root {
   color-scheme: light dark;
 }
+/* The page sits on the dotted grid (.ht-page-grid from the package utilities, set on <html> in layout.tsx). */
 html {
   background: var(--ht-color-surface-page, Canvas);
+  min-height: 100%;
 }
 body {
   margin: 0;
-  background: var(--ht-color-surface-page, Canvas);
   color: var(--ht-color-text-primary, CanvasText);
   font-family: var(--ht-ui-body-font-family, system-ui, sans-serif);
   font-size: var(--ht-ui-body-font-size, 1rem);
