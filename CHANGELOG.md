@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-11-28
+
 ### Changed
 - Components are organised by atomic level everywhere, matching Figma: atoms (`Card`, `Divider`, `Thumbnail`),
   molecules (`ThumbnailRow`), organisms (`ThumbnailList`). The level and parts of each component live once in
