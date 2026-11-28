@@ -7,6 +7,18 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Fixed
+- `Card` reserves room for its own offset on the right and bottom, by `decoration/card-offset`, so its
+  layout box and its visual box are the same: a gap under a card measures the same with the offset on
+  and off, and on a phone the offset no longer pokes into the page margin. With the offset off nothing is
+  reserved. **Markup change:** the content now lives in an inner `.ht-card__surface`, present with the
+  offset on or off; `className`, `as` and the attributes apply to the outer `.ht-card`. A site that styled
+  `.ht-card` children directly should look at `.ht-card__surface` instead.
+- `ThumbnailList` extends into the side margin by the rows' side padding (`space/400`), so row content
+  lines up with a heading above the list and the hover tone spreads outward.
+- A story and a live example show a card and a list under a heading with a guide line; the consumer
+  fixture measures both in Chromium at phone width.
+
 ## [0.10.0] - 2026-11-28
 
 ### Added

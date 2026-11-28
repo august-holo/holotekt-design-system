@@ -43,6 +43,35 @@ const m = await page.evaluate(() => {
     resetApplied: cs(document.body).margin === "0px" && cs(document.querySelector("main")).padding === "0px",
   };
 });
+// Layout: at phone width the card's visible box (surface plus offset) stays inside its layout box with equal
+// space on both sides; the gap under a card is the same with the offset on and off; the first thumbnail
+// lines up with the heading above the list; nothing scrolls sideways.
+const layout = await page.evaluate(() => {
+  const r = (el) => el.getBoundingClientRect();
+  const main = r(document.querySelector("main"));
+  const on = document.querySelector("#card-on"), off = document.querySelector("#card-off");
+  const onSurface = on.querySelector(".ht-card__surface");
+  const offsetPx = parseFloat(getComputedStyle(onSurface).boxShadow.match(/(\d+(?:\.\d+)?)px/)?.[1] ?? "0");
+  const gapUnder = (card) => r(card.nextElementSibling).top - r(card).bottom;
+  const heading = document.querySelector("main h2");
+  const thumb = document.querySelector(".ht-thumbnail-row .ht-thumbnail");
+  return {
+    leftSpace: r(on).left - main.left,
+    rightSpace: main.right - (r(onSurface).right + offsetPx),
+    visualInsideBox: r(onSurface).right + offsetPx <= r(on).right + 0.5 && r(onSurface).bottom + offsetPx <= r(on).bottom + 0.5,
+    gapOn: gapUnder(on),
+    gapOff: gapUnder(off),
+    thumbLeft: r(thumb).left,
+    headingLeft: r(heading).left,
+    scrollWidth: document.scrollingElement.scrollWidth,
+    innerWidth,
+  };
+});
+if (Math.abs(layout.leftSpace - layout.rightSpace) > 0.5) problems.push(`card: space on the left is ${layout.leftSpace}px and on the right ${layout.rightSpace}px at phone width; expected equal`);
+if (!layout.visualInsideBox) problems.push("card: the offset is drawn outside the card's layout box");
+if (Math.abs(layout.gapOn - layout.gapOff) > 0.5) problems.push(`card: the gap under a card is ${layout.gapOn}px with the offset on and ${layout.gapOff}px with it off; expected equal`);
+if (Math.abs(layout.thumbLeft - layout.headingLeft) > 0.5) problems.push(`list: the first thumbnail starts at ${layout.thumbLeft}px but the heading at ${layout.headingLeft}px`);
+if (layout.scrollWidth > layout.innerWidth) problems.push(`the page scrolls sideways at phone width (${layout.scrollWidth} > ${layout.innerWidth})`);
 if (m.cardPadding !== "24px") problems.push(`Card padding is ${m.cardPadding}, expected 24px (inset/lg) with the reset present`);
 if (m.buttonPadding !== "24px 12px") problems.push(`Button padding is ${m.buttonPadding}, expected 24px 12px with the reset present`);
 if (m.rowPadding !== "16px") problems.push(`ThumbnailRow padding is ${m.rowPadding}, expected 16px with the reset present`);
@@ -53,4 +82,4 @@ if (problems.length) {
   console.error(`✗ consumer fixture in the browser:\n  ${problems.join("\n  ")}`);
   process.exit(1);
 }
-console.log(`✓ consumer fixture in the browser: the reset layer comes first ("@layer ${firstLayer[1]};") and the system's padding survives it`);
+console.log(`✓ consumer fixture in the browser: the reset layer comes first ("@layer ${firstLayer[1]};"), the system's padding survives it, the card reserves its offset (gap ${layout.gapOn}px on and off), the first thumbnail lines up with the heading, no sideways scroll at phone width`);

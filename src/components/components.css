@@ -84,7 +84,19 @@
   }
 
   /* --- Card ------------------------------------------------------------------------------------ */
+  /* The outer box reserves room for the offset (right and bottom, by decoration/card-offset) so the
+     layout box and the visual box are the same; a consumer never adds the offset to a gap. The surface
+     inside carries the tone, the border and, with the offset on, the hard shadow. */
   .ht-card {
+    box-sizing: border-box;
+    display: block;
+    padding: 0;
+  }
+  .ht-card--offset {
+    padding-inline-end: var(--ht-decoration-card-offset);
+    padding-block-end: var(--ht-decoration-card-offset);
+  }
+  .ht-card__surface {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -98,7 +110,7 @@
     border: var(--ht-border-width-thin) solid transparent;
     border-radius: var(--ht-radius-sm);
   }
-  .ht-card--offset {
+  .ht-card--offset .ht-card__surface {
     border-color: var(--ht-color-border-strong);
     /* A hard offset: no blur, no spread. The one named exception to "no shadows". */
     box-shadow: var(--ht-decoration-card-offset) var(--ht-decoration-card-offset) 0 0 var(--ht-color-accent-default);
@@ -194,9 +206,12 @@
   }
 
   /* --- ThumbnailList --------------------------------------------------------------------------- */
+  /* The list extends into the side margin by the row's side padding, so row content lines up with what is
+     around it and the hover tone spreads outward. The rows keep their padding. */
   .ht-thumbnail-list {
     list-style: none;
     margin: 0;
+    margin-inline: calc(-1 * var(--ht-space-400));
     padding: 0;
   }
   .ht-thumbnail-list__item {

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { Card } from "./Card";
 import { ThumbnailList } from "./ThumbnailList";
 import { ThumbnailRow } from "./ThumbnailRow";
 import { SAMPLE_ROWS } from "./stories/samples";
@@ -34,3 +35,19 @@ export const RowFocus: Story = {
 };
 /** At phone width the text drops below the image. */
 export const Phone: Story = { globals: { viewport: { value: "phone", isRotated: false } } };
+
+/** Under a heading with a guide line: the card's layout box includes its offset, and the first thumbnail lines up with the heading. */
+export const UnderAHeading: Story = {
+  render: () => (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--ht-space-600)", position: "relative" }}>
+      <span aria-hidden="true" style={{ position: "absolute", inset: "0 auto 0 0", borderLeft: "var(--ht-border-width-thin) dashed var(--ht-color-border-focus)" }} />
+      <h2 className="ht-heading-2" style={{ margin: 0, color: "var(--ht-color-text-primary)" }}>
+        A heading on the left edge
+      </h2>
+      <Card style={{ maxWidth: "calc(var(--ht-layout-width-reading) / 2)" }}>
+        <span className="ht-ui-body">The dashed line is the content edge. The orange offset stays inside the card&apos;s own box, so the gap below it is the real gap.</span>
+      </Card>
+      <ThumbnailList aria-label="Selected work">{SAMPLE_ROWS.map((r) => <ThumbnailRow key={r.href} {...r} />)}</ThumbnailList>
+    </div>
+  ),
+};

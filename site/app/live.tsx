@@ -65,6 +65,16 @@ export const LIVE: Record<LiveId, () => ReactNode> = {
   ),
   "thumbnail-list": () => <ThumbnailList aria-label="Selected work">{rows()}</ThumbnailList>,
   "thumbnail-list-hover": () => <ThumbnailList aria-label="Selected work, one row hovered">{rows("hover")}</ThumbnailList>,
+  "alignment-guide": () => (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--ht-space-600)", position: "relative" }}>
+      <span aria-hidden="true" style={{ position: "absolute", inset: "0 auto 0 0", borderLeft: "var(--ht-border-width-thin) dashed var(--ht-color-border-focus)" }} />
+      <h2 style={{ margin: 0 }}>Selected work</h2>
+      <Card style={cardWidth}>
+        <CardBody />
+      </Card>
+      <ThumbnailList aria-label="Selected work, aligned">{rows()}</ThumbnailList>
+    </div>
+  ),
   "thumbnail-row": () => <ThumbnailRow {...SAMPLE_ROWS[0]} />,
   "thumbnail-row-hover": () => <ThumbnailRow {...SAMPLE_ROWS[0]} state="hover" />,
   "thumbnail-row-focus": () => <ThumbnailRow {...SAMPLE_ROWS[0]} state="focus" />,

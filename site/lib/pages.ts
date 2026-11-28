@@ -52,7 +52,7 @@ export type Block =
   | { kind: "live"; example: LiveId; label: string; code: string }
   | { kind: "md"; markdown: string };
 
-export const LIVE_IDS = ["accent-bar", "accent-bar-heading", "button-states", "button-link", "card-offset-on", "card-offset-off", "thumbnail-list", "thumbnail-list-hover", "thumbnail-states", "thumbnail-row", "thumbnail-row-hover", "thumbnail-row-focus", "divider-hairline", "divider-strong"] as const;
+export const LIVE_IDS = ["accent-bar", "accent-bar-heading", "button-states", "button-link", "card-offset-on", "card-offset-off", "thumbnail-list", "thumbnail-list-hover", "alignment-guide", "thumbnail-states", "thumbnail-row", "thumbnail-row-hover", "thumbnail-row-focus", "divider-hairline", "divider-strong"] as const;
 export type LiveId = (typeof LIVE_IDS)[number];
 
 export interface Page {
@@ -563,10 +563,13 @@ const COMPONENT_DOCS: Record<ComponentSlug, ComponentDoc> = {
       "No paper texture.",
       "A card is not a link. For something clickable, use a Thumbnail row or a button.",
       "Use the offset sparingly: a few per page.",
+      "The card reserves room for its own offset on the right and bottom, so its layout box and its visual box are the same. Never add the offset to a gap. With the offset off, nothing is reserved.",
+      "The content lives in an inner .ht-card__surface, present with the offset on or off; className and the attributes go on the outer element.",
     ],
     examples: [
       { kind: "live", example: "card-offset-on", label: "Offset on, the default: border/strong and the hard orange offset", code: `<Card>\n  <span className="ht-ui-label">Label</span>\n  <span className="ht-voice-human">A note in a person’s own words sits here.</span>\n</Card>` },
       { kind: "live", example: "card-offset-off", label: "Offset off: a plain raised surface, no border, depth by tone alone", code: `<Card offset={false}>…</Card>` },
+      { kind: "live", example: "alignment-guide", label: "Under a heading, with a guide line on the content edge: the offset stays inside the card's box, and the list's first thumbnail lines up with the heading", code: `<h2>Selected work</h2>\n<Card>…</Card>\n<ThumbnailList>…</ThumbnailList>` },
     ],
   },
   divider: {
@@ -616,10 +619,16 @@ const COMPONENT_DOCS: Record<ComponentSlug, ComponentDoc> = {
   },
   "thumbnail-list": {
     when: [{ when: "Listing a few pieces of work to open", use: [ref("ThumbnailList"), { text: " of " }, { text: "Thumbnail rows", href: "/components/thumbnail-row" }] }],
-    rules: ["Rows separated by hairline dividers.", "Sits directly on the page. Not a set of cards.", "For a short list, not a feed."],
+    rules: [
+      "Rows separated by hairline dividers.",
+      "Sits directly on the page. Not a set of cards.",
+      "For a short list, not a feed.",
+      "The list extends into the side margin by the rows' side padding (space/400), so row content lines up with the heading above it and the hover tone spreads outward. Give it a parent with at least that much margin on phones.",
+    ],
     examples: [
       { kind: "live", example: "thumbnail-list", label: "Three rows with hairline dividers; hover a row to see it react", code: `<ThumbnailList aria-label="Selected work">\n  <ThumbnailRow href="/work/evidence" title="Building an evidence-based design foundation" summary="…" image="/images/evidence.png" />\n  <ThumbnailRow href="/work/tactical" title="Solving tactical UI/UX problems" summary="…" image="/images/tactical.png" />\n</ThumbnailList>` },
       { kind: "live", example: "thumbnail-list-hover", label: "The middle row hovered", code: `<ThumbnailRow … state="hover" />  // docs only` },
+      { kind: "live", example: "alignment-guide", label: "Under a heading, with a guide line on the content edge: the first thumbnail lines up with the heading and the hover tone reaches into the margin", code: `<h2>Selected work</h2>\n<Card>…</Card>\n<ThumbnailList>…</ThumbnailList>` },
     ],
   },
 };

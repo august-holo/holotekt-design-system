@@ -31,5 +31,15 @@ type Story = StoryObj<typeof meta>;
 export const OffsetOn: Story = { args: { offset: true } };
 /** A plain raised surface: no border, no offset. Depth by tone alone. */
 export const OffsetOff: Story = { args: { offset: false } };
+/** Two cards in a column with one gap: the gap under a card measures the same with the offset on and off, because the card reserves its offset. */
+export const ReservesItsOffset: Story = {
+  render: (args) => (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--ht-space-600)", maxWidth: "calc(var(--ht-layout-width-reading) / 2)" }}>
+      <Card {...args} offset />
+      <Card {...args} offset={false} />
+      <Card {...args} offset />
+    </div>
+  ),
+};
 /** Rendered as an aside, for content set apart from the main text. */
 export const AsAside: Story = { args: { as: "aside", offset: true } };
