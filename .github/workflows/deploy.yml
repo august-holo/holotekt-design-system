@@ -35,4 +35,6 @@ jobs:
         with:
           role-to-assume: ${{ env.DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
+      # The Storybook tests run every story in a real Chromium (npm run storybook:test, inside the check).
+      - run: npx playwright install --with-deps chromium
       - run: scripts/deploy.sh

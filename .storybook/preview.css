@@ -1,0 +1,10 @@
+/* The story canvas sits on the dotted grid like every page; the padding is a token. */
+@layer tokens, base, components;
+.sb-show-main.sb-main-padded {
+  padding: var(--ht-inset-lg);
+}
+body {
+  margin: 0;
+  color: var(--ht-color-text-primary);
+  font-family: var(--ht-ui-body-font-family);
+}

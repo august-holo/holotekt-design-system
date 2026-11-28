@@ -22,4 +22,6 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # The Storybook tests run every story in a real Chromium (npm run storybook:test).
+      - run: npx playwright install --with-deps chromium
       - run: npm run check
