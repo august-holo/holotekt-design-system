@@ -7,6 +7,8 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-28
+
 ### Added
 - Three optional stylesheets, so a site does not rebuild the page defaults. `all.css` imports tokens, text
   styles, utilities and components in one line (a shortcut; it includes neither of the next two). `base.css`
