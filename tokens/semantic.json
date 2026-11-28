@@ -87,6 +87,11 @@
         "$type": "color",
         "$value": "#19181580",
         "$description": "Dimmed backdrop behind dialogs. Neutral 950 at 50% in light, 70% in dark."
+      },
+      "dot": {
+        "$type": "color",
+        "$value": "{color.orange.200}",
+        "$description": "Dots of the dotted grid on the page background. Decoration only: never behind text on its own. Provisional values."
       }
     },
     "border": {

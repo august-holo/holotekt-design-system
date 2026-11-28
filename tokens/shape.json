@@ -52,5 +52,15 @@
         "$description": "Strong outlines and the focus ring."
       }
     }
+  },
+  "decoration": {
+    "card-offset": {
+      "$type": "dimension",
+      "$value": {
+        "value": 6,
+        "unit": "px"
+      },
+      "$description": "Size of the hard orange offset on cards. A decoration, not elevation."
+    }
   }
 }

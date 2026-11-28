@@ -20,7 +20,8 @@
     },
     "./tokens.css": "./dist/tokens.css",
     "./tokens.json": "./dist/tokens.json",
-    "./text-styles.css": "./dist/text-styles.css"
+    "./text-styles.css": "./dist/text-styles.css",
+    "./utilities.css": "./dist/utilities.css"
   },
   "scripts": {
     "tokens:check": "node scripts/check-tokens.mjs",

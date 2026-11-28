@@ -17,6 +17,7 @@ npm i github:august-holo/holotekt-design-system#v0.0.1
 ```css
 @import "holotekt-design-system/tokens.css";        /* every token as a CSS variable, light and dark, desktop and mobile */
 @import "holotekt-design-system/text-styles.css";   /* optional: one class per text style, .ht-heading-1 … */
+@import "holotekt-design-system/utilities.css";     /* optional: .ht-page-grid, the dotted grid that is the default page background */
 .page { background: var(--ht-color-surface-page); color: var(--ht-color-text-primary); }
 h1 { font: var(--ht-heading-display-font-weight) var(--ht-heading-display-font-size) / var(--ht-heading-display-line-height) var(--ht-heading-display-font-family); }
 ```
@@ -34,7 +35,7 @@ page at the page's address plus `.md`, and `/tokens.json`.
 |---|---|
 | `tokens/` | `primitives.json`, `semantic.json`, `typography.json`, `breakpoint.json`, `spacing.json`, `shape.json` and their `<base>.<mode>.json` files (DTCG format); `contrast-pairs.json`, `contrast-exempt.json` and `font-stacks.json` by hand |
 | `scripts/` | build, check, diff, release, deploy; `scripts/figma/` holds the read-only Figma script |
-| `dist/` | build output, gitignored: `tokens.css`, `text-styles.css`, `tokens.js`, `tokens.d.ts`, `tokens.json`, plus `tokens.<mode>.js` per mode |
+| `dist/` | build output, gitignored: `tokens.css`, `text-styles.css`, `utilities.css`, `tokens.js`, `tokens.d.ts`, `tokens.json`, plus `tokens.<mode>.js` per mode |
 | `site/` | the docs site, Next.js static export, generated from `dist/tokens.json` |
 | `content/decisions/` | public decision notes, one markdown file each |
 | `.claude/skills/publish-tokens/` | the one-command publish from Figma, for Claude Code |

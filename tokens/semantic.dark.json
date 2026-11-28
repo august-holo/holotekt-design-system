@@ -70,6 +70,10 @@
       "scrim": {
         "$type": "color",
         "$value": "#191815B2"
+      },
+      "dot": {
+        "$type": "color",
+        "$value": "{color.orange.800}"
       }
     },
     "border": {

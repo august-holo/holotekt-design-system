@@ -51,6 +51,10 @@ and is not committed. Read it at the start of a session and follow its instructi
   `ui.label`): `fontFamily` and `fontSize` are aliases, `fontWeight`, `lineHeight`, `letterSpacing` and
   `textTransform` are plain values. It becomes six variables (`--ht-heading-1-font-size` …) and one class
   (`.ht-heading-1`) in `dist/text-styles.css`.
+- `dist/utilities.css` holds ready-made classes built from tokens by `scripts/build-tokens.mjs`. Today that is
+  `.ht-page-grid`: `surface/page` with dots in `surface/dot` at `layout/grid/dot-pitch`, the default page
+  background. It is decoration, not elevation; surfaces are plain fills and cover the dots. Dot colour and
+  density have one value each (no options).
 
 ## Styling the docs site and, later, the components
 

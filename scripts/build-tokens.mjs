@@ -163,8 +163,24 @@ if (styles.length) {
   fs.writeFileSync(path.join(dist, "text-styles.css"), `/**\n * Do not edit directly, this file was auto-generated.\n * One class per text style; every value comes from tokens.css.\n */\n\n@layer components {\n${classes}\n}\n`);
 }
 
+// Utilities: ready-made classes built from tokens, so consumers do not rebuild them.
+// The dotted grid is the default page background (B-055). Its dot diameter has no token yet; it
+// is the one constant here, kept in one place.
+const DOT_DIAMETER_PX = 2.5;
+const grid = data.byPath.get("color.surface.dot") && data.byPath.get("layout.grid.dot-pitch");
+if (grid) {
+  const r = DOT_DIAMETER_PX / 2;
+  fs.writeFileSync(
+    path.join(dist, "utilities.css"),
+    `/**\n * Do not edit directly, this file was auto-generated.\n * Ready-made classes built from the tokens.\n */\n\n@layer components {\n` +
+      `  /* The default page background: surface/page with dots in surface/dot at the grid's dot pitch.\n     Decoration, not elevation; surfaces are plain fills and cover the dots. */\n` +
+      `  .ht-page-grid {\n    background-color: var(--ht-color-surface-page);\n    background-image: radial-gradient(circle, var(--ht-color-surface-dot) ${r}px, transparent ${r + 0.25}px);\n` +
+      `    background-size: var(--ht-layout-grid-dot-pitch) var(--ht-layout-grid-dot-pitch);\n    background-position: calc(var(--ht-layout-grid-dot-pitch) / 2) calc(var(--ht-layout-grid-dot-pitch) / 2);\n  }\n}\n`,
+  );
+}
+
 const { version } = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
 fs.writeFileSync(path.join(dist, "tokens.json"), JSON.stringify(resolvedJson(data, checked, { version }), null, 2) + "\n");
 
 const modesNote = data.modeNames.length ? `, modes: ${DEFAULT_MODE} + ${data.modeNames.join(", ")}` : "";
-console.log(`✓ built dist/tokens.css${styles.length ? ", text-styles.css" : ""}, tokens.js, tokens.d.ts, tokens.json (${data.list.length} tokens${modesNote}, v${version})`);
+console.log(`✓ built dist/tokens.css${styles.length ? ", text-styles.css" : ""}${grid ? ", utilities.css" : ""}, tokens.js, tokens.d.ts, tokens.json (${data.list.length} tokens${modesNote}, v${version})`);

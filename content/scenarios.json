@@ -1,39 +1,421 @@
 {
   "_comment": "Scenario tables for the foundation pages. A Use cell is a list of parts: plain text, or a token named as in Figma (color/ prefix optional). scripts/check-scenarios.mjs fails the build if a named token does not exist.",
   "color": [
-    { "when": "Setting long text to read", "use": [{ "token": "text/primary" }, { "text": " on " }, { "token": "surface/page" }, { "text": " or " }, { "token": "surface/raised" }] },
-    { "when": "Adding supporting or quiet text", "use": [{ "token": "text/secondary" }, { "text": ", " }, { "token": "text/muted" }] },
-    { "when": "Marking a link", "use": [{ "token": "text/link" }, { "text": ", " }, { "token": "text/link-hover" }] },
-    { "when": "Inviting an action", "use": [{ "token": "accent/default" }, { "text": " with " }, { "token": "text/on-accent" }] },
-    { "when": "Showing the status of an agent or task", "use": [{ "token": "status/working" }, { "text": ", " }, { "token": "status/done" }, { "text": ", " }, { "token": "status/caution" }, { "text": ", " }, { "token": "status/failed" }] },
-    { "when": "Layering a page, a card and a menu", "use": [{ "token": "surface/sunken" }, { "text": ", " }, { "token": "surface/page" }, { "text": ", " }, { "token": "surface/raised" }, { "text": ", " }, { "token": "surface/overlay" }] },
-    { "when": "Showing hover, pressed, focus or disabled", "use": [{ "token": "surface/hover" }, { "text": ", " }, { "token": "surface/pressed" }, { "text": ", " }, { "token": "border/focus" }, { "text": ", the " }, { "token": "text/disabled", "label": "disabled" }, { "text": " roles" }] }
+    {
+      "when": "Setting long text to read",
+      "use": [
+        {
+          "token": "text/primary"
+        },
+        {
+          "text": " on "
+        },
+        {
+          "token": "surface/page"
+        },
+        {
+          "text": " or "
+        },
+        {
+          "token": "surface/raised"
+        }
+      ]
+    },
+    {
+      "when": "Adding supporting or quiet text",
+      "use": [
+        {
+          "token": "text/secondary"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "text/muted"
+        }
+      ]
+    },
+    {
+      "when": "Marking a link",
+      "use": [
+        {
+          "token": "text/link"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "text/link-hover"
+        }
+      ]
+    },
+    {
+      "when": "Inviting an action",
+      "use": [
+        {
+          "token": "accent/default"
+        },
+        {
+          "text": " with "
+        },
+        {
+          "token": "text/on-accent"
+        }
+      ]
+    },
+    {
+      "when": "Showing the status of an agent or task",
+      "use": [
+        {
+          "token": "status/working"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "status/done"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "status/caution"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "status/failed"
+        }
+      ]
+    },
+    {
+      "when": "Layering a page, a card and a menu",
+      "use": [
+        {
+          "token": "surface/sunken"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "surface/page"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "surface/raised"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "surface/overlay"
+        }
+      ]
+    },
+    {
+      "when": "Showing hover, pressed, focus or disabled",
+      "use": [
+        {
+          "token": "surface/hover"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "surface/pressed"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "border/focus"
+        },
+        {
+          "text": ", the "
+        },
+        {
+          "token": "text/disabled",
+          "label": "disabled"
+        },
+        {
+          "text": " roles"
+        }
+      ]
+    },
+    {
+      "when": "Setting the page background",
+      "use": [
+        {
+          "token": "surface/page"
+        },
+        {
+          "text": " with "
+        },
+        {
+          "token": "surface/dot"
+        }
+      ]
+    }
   ],
   "typography": [
-    { "when": "Titling a page or section", "use": [{ "token": "heading/display" }, { "text": ", " }, { "token": "heading/1" }, { "text": " to " }, { "token": "heading/4" }] },
-    { "when": "Setting long-form reading", "use": [{ "token": "reading/lede" }, { "text": ", " }, { "token": "reading/body" }] },
-    { "when": "Writing interface text", "use": [{ "token": "ui/body" }, { "text": ", " }, { "token": "ui/small" }, { "text": ", " }, { "token": "ui/meta" }] },
-    { "when": "Labelling and buttons", "use": [{ "token": "ui/label" }, { "text": ", " }, { "token": "ui/button" }] },
-    { "when": "Letting an agent or the system speak", "use": [{ "token": "voice/machine" }] },
-    { "when": "Letting a person speak", "use": [{ "token": "voice/human" }] },
-    { "when": "Fitting a small screen", "use": [{ "text": "The mobile mode" }] }
+    {
+      "when": "Titling a page or section",
+      "use": [
+        {
+          "token": "heading/display"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "heading/1"
+        },
+        {
+          "text": " to "
+        },
+        {
+          "token": "heading/4"
+        }
+      ]
+    },
+    {
+      "when": "Setting long-form reading",
+      "use": [
+        {
+          "token": "reading/lede"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "reading/body"
+        }
+      ]
+    },
+    {
+      "when": "Writing interface text",
+      "use": [
+        {
+          "token": "ui/body"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "ui/small"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "ui/meta"
+        }
+      ]
+    },
+    {
+      "when": "Labelling and buttons",
+      "use": [
+        {
+          "token": "ui/label"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "ui/button"
+        }
+      ]
+    },
+    {
+      "when": "Letting an agent or the system speak",
+      "use": [
+        {
+          "token": "voice/machine"
+        }
+      ]
+    },
+    {
+      "when": "Letting a person speak",
+      "use": [
+        {
+          "token": "voice/human"
+        }
+      ]
+    },
+    {
+      "when": "Fitting a small screen",
+      "use": [
+        {
+          "text": "The mobile mode"
+        }
+      ]
+    }
   ],
   "spacing": [
-    { "when": "Padding inside a component", "use": [{ "token": "inset/sm" }, { "text": ", " }, { "token": "inset/md" }, { "text": ", " }, { "token": "inset/lg" }] },
-    { "when": "Spacing related items", "use": [{ "token": "gap/sm" }, { "text": ", " }, { "token": "gap/md" }, { "text": ", " }, { "token": "gap/lg" }] },
-    { "when": "Separating page sections", "use": [{ "token": "layout/section/gap" }] },
-    { "when": "Keeping content off the screen edge", "use": [{ "token": "layout/page/margin" }] },
-    { "when": "Setting a comfortable reading column", "use": [{ "token": "layout/width/reading" }] },
-    { "when": "Capping the page width", "use": [{ "token": "layout/width/page" }] },
-    { "when": "Aligning to the dotted grid", "use": [{ "token": "layout/grid/dot-pitch" }] }
+    {
+      "when": "Padding inside a component",
+      "use": [
+        {
+          "token": "inset/sm"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "inset/md"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "inset/lg"
+        }
+      ]
+    },
+    {
+      "when": "Spacing related items",
+      "use": [
+        {
+          "token": "gap/sm"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "gap/md"
+        },
+        {
+          "text": ", "
+        },
+        {
+          "token": "gap/lg"
+        }
+      ]
+    },
+    {
+      "when": "Separating page sections",
+      "use": [
+        {
+          "token": "layout/section/gap"
+        }
+      ]
+    },
+    {
+      "when": "Keeping content off the screen edge",
+      "use": [
+        {
+          "token": "layout/page/margin"
+        }
+      ]
+    },
+    {
+      "when": "Setting a comfortable reading column",
+      "use": [
+        {
+          "token": "layout/width/reading"
+        }
+      ]
+    },
+    {
+      "when": "Capping the page width",
+      "use": [
+        {
+          "token": "layout/width/page"
+        }
+      ]
+    },
+    {
+      "when": "Aligning to the dotted grid",
+      "use": [
+        {
+          "token": "layout/grid/dot-pitch"
+        }
+      ]
+    }
   ],
   "shape": [
-    { "when": "Resting a card on the page", "use": [{ "token": "surface/raised" }] },
-    { "when": "Setting a well or thumbnail into it", "use": [{ "token": "surface/sunken" }] },
-    { "when": "Putting a menu or dialog over content", "use": [{ "token": "surface/overlay" }, { "text": " with a thin " }, { "token": "border/strong" }] },
-    { "when": "Asking for attention with a dialog", "use": [{ "token": "surface/scrim" }, { "text": " behind it" }] },
-    { "when": "Showing keyboard focus", "use": [{ "text": "A thick " }, { "token": "border/focus" }] },
-    { "when": "Separating rows or outlining quietly", "use": [{ "text": "A thin " }, { "token": "border/divider" }, { "text": " or " }, { "token": "border/subtle" }] },
-    { "when": "Rounding corners", "use": [{ "token": "radius/sm" }, { "text": " by default" }] }
+    {
+      "when": "Resting a card on the page",
+      "use": [
+        {
+          "token": "surface/raised"
+        }
+      ]
+    },
+    {
+      "when": "Setting a well or thumbnail into it",
+      "use": [
+        {
+          "token": "surface/sunken"
+        }
+      ]
+    },
+    {
+      "when": "Putting a menu or dialog over content",
+      "use": [
+        {
+          "token": "surface/overlay"
+        },
+        {
+          "text": " with a thin "
+        },
+        {
+          "token": "border/strong"
+        }
+      ]
+    },
+    {
+      "when": "Asking for attention with a dialog",
+      "use": [
+        {
+          "token": "surface/scrim"
+        },
+        {
+          "text": " behind it"
+        }
+      ]
+    },
+    {
+      "when": "Showing keyboard focus",
+      "use": [
+        {
+          "text": "A thick "
+        },
+        {
+          "token": "border/focus"
+        }
+      ]
+    },
+    {
+      "when": "Separating rows or outlining quietly",
+      "use": [
+        {
+          "text": "A thin "
+        },
+        {
+          "token": "border/divider"
+        },
+        {
+          "text": " or "
+        },
+        {
+          "token": "border/subtle"
+        }
+      ]
+    },
+    {
+      "when": "Rounding corners",
+      "use": [
+        {
+          "token": "radius/sm"
+        },
+        {
+          "text": " by default"
+        }
+      ]
+    }
   ]
 }

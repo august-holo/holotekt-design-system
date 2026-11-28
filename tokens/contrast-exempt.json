@@ -2,5 +2,9 @@
   {
     "token": "color.surface.scrim",
     "reason": "A dimming backdrop behind dialogs. Text is never set on it."
+  },
+  {
+    "token": "color.surface.dot",
+    "reason": "Dots of the page background. Decoration; text contrast is measured against surface/page."
   }
 ]
