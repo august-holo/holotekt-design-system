@@ -7,6 +7,16 @@ and edited by hand; everything else is written by hand.
 
 ## [Unreleased]
 
+### Added
+- `ThumbnailRow` and `Thumbnail` (when it is a link) take `linkComponent` and `onClick`, with the same
+  names and behaviour as on `Button`: pass your router's link for client-side navigation and a handler to
+  track the click. Proved in the consumer fixture with Next's `Link`. No meta or tag slot: the system
+  avoids pills on rows.
+
+### Changed
+- `Card` without the offset has no border: a plain raised surface, depth by tone alone, as the Shape
+  page says. The border box is kept transparent so both variants are the same size.
+
 ## [0.7.1] - 2026-11-27
 
 ### Added

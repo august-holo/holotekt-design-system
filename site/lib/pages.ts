@@ -545,7 +545,7 @@ const COMPONENT_DOCS: Record<ComponentSlug, ComponentDoc> = {
     ],
     examples: [
       { kind: "live", example: "card-offset-on", label: "Offset on, the default: border/strong and the hard orange offset", code: `<Card>\n  <span className="ht-ui-label">Label</span>\n  <span className="ht-voice-human">A note in a person’s own words sits here.</span>\n</Card>` },
-      { kind: "live", example: "card-offset-off", label: "Offset off: a plain raised surface with border/subtle", code: `<Card offset={false}>…</Card>` },
+      { kind: "live", example: "card-offset-off", label: "Offset off: a plain raised surface, no border, depth by tone alone", code: `<Card offset={false}>…</Card>` },
     ],
   },
   divider: {
@@ -576,6 +576,7 @@ const COMPONENT_DOCS: Record<ComponentSlug, ComponentDoc> = {
   "thumbnail-row": {
     when: [
       { when: "Linking to one piece of work with a picture and a line of text", use: [ref("ThumbnailRow")] },
+      { when: "Navigating client-side, or tracking the click", use: [ref("ThumbnailRow"), { text: " with linkComponent and onClick, as on " }, { text: "Button", href: "/components/button" }] },
       { when: "Listing several", use: [{ text: "Thumbnail list", href: "/components/thumbnail-list" }, { text: ", which is built from this" }] },
     ],
     rules: [
@@ -587,7 +588,7 @@ const COMPONENT_DOCS: Record<ComponentSlug, ComponentDoc> = {
       "No tags, pills or index numbers.",
     ],
     examples: [
-      { kind: "live", example: "thumbnail-row", label: "At rest, directly on the page", code: `<ThumbnailRow href="/work/evidence" title="Building an evidence-based design foundation" summary="Define the personas, map the journey…" image="/images/evidence.png" />` },
+      { kind: "live", example: "thumbnail-row", label: "At rest, directly on the page", code: `import Link from "next/link";\n\n<ThumbnailRow href="/work/evidence" linkComponent={Link} onClick={() => track("case_study_clicked")} title="Building an evidence-based design foundation" summary="Define the personas, map the journey…" image="/images/evidence.png" />` },
       { kind: "live", example: "thumbnail-row-hover", label: "Hovered: surface/hover on the row, border and offset on its thumbnail", code: `<ThumbnailRow … state="hover" />  // docs only; the real state comes from :hover` },
       { kind: "live", example: "thumbnail-row-focus", label: "Keyboard focus: border/focus, thick, around the row", code: `<ThumbnailRow … state="focus" />  // docs only; the real state comes from :focus-visible` },
     ],

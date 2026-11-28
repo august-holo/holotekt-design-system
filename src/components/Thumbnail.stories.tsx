@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { fn } from "storybook/test";
+import { RouterLink } from "./stories/router-link";
 import { Thumbnail } from "./Thumbnail";
 import { SAMPLE_IMAGES } from "./stories/samples";
 
@@ -26,6 +28,8 @@ export const Hover: Story = { parameters: { pseudo: { hover: true } } };
 export const HoverForced: Story = { args: { state: "hover" } };
 /** As a link on its own: keyboard focus shows border/focus on the thumbnail. */
 export const LinkFocus: Story = { args: { href: "#piece", state: "focus" } };
+/** As a link through a router's link component, with a click handler for tracking. */
+export const WithRouterLink: Story = { args: { href: "#piece", linkComponent: RouterLink, onClick: fn() } };
 /** No image yet: the sunken surface shows until one loads. */
 export const Empty: Story = { args: { src: undefined, alt: undefined } };
 /** A larger size, any CSS length. */

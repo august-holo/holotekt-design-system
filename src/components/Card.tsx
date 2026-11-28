@@ -1,7 +1,7 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 export type CardProps = {
-  /** The hard orange offset, on by default. It is decoration, not elevation: it does not mean the card is on top. */
+  /** The hard orange offset with its ink border, on by default. It is decoration, not elevation: it does not mean the card is on top. Off: a plain raised surface, no border. */
   offset?: boolean;
   /** The element to render. Default "div"; use "aside" for an aside, "section" for a titled group. */
   as?: "div" | "aside" | "section" | "article";

@@ -81,7 +81,9 @@
     padding: var(--ht-inset-lg);
     background: var(--ht-color-surface-raised);
     color: var(--ht-color-text-primary);
-    border: var(--ht-border-width-thin) solid var(--ht-color-border-subtle);
+    /* No border: a raised surface sits on the page by tone alone. The border box is kept (transparent)
+       so a card is the same size with and without the offset. */
+    border: var(--ht-border-width-thin) solid transparent;
     border-radius: var(--ht-radius-sm);
   }
   .ht-card--offset {

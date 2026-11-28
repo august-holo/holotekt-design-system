@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { fn } from "storybook/test";
+import { RouterLink } from "./stories/router-link";
 import { ThumbnailRow } from "./ThumbnailRow";
 import { SAMPLE_ROWS } from "./stories/samples";
 
@@ -26,5 +28,7 @@ export const Hover: Story = { parameters: { pseudo: { hover: true } } };
 export const Focus: Story = { args: { state: "focus" } };
 /** Without a summary. */
 export const TitleOnly: Story = { args: { summary: undefined } };
+/** With a router's link component and a click handler for tracking: the row is still one link. Click it and see the Actions panel. */
+export const WithRouterLink: Story = { args: { linkComponent: RouterLink, onClick: fn() } };
 /** Without an image: the sunken surface stands in. */
 export const NoImage: Story = { args: { image: undefined } };

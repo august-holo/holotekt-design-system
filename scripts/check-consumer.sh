@@ -16,7 +16,9 @@ test -f node_modules/holotekt-design-system/dist/components.css
 npm run -s build
 grep -q "ht-card ht-card--offset" out/index.html
 grep -q "ht-thumbnail-row__title" out/index.html
+grep -Eq '<a[^>]*class="ht-thumbnail-row"[^>]*href="/one"' out/index.html
+grep -Eq '<a[^>]*class="ht-thumbnail"[^>]*href="/three"' out/index.html
 grep -q '<button class="ht-button ht-button--primary" type="button"' out/index.html
 grep -Eq '<a[^>]*class="ht-button ht-button--secondary"[^>]*href="/two"' out/index.html
 grep -rq --include="*.css" -- "--ht-decoration-card-offset" out/_next
-echo "✓ consumer fixture: installed holotekt-design-system@$REF by git, built a Next.js 16 static export with Button (as a button and as a Next Link), Card, Divider and ThumbnailList, components.css bundled"
+echo "✓ consumer fixture: installed holotekt-design-system@$REF by git, built a Next.js 16 static export with Button (as a button and as a Next Link), Card, Divider, ThumbnailList and ThumbnailRow and Thumbnail through Next Link with onClick, components.css bundled"

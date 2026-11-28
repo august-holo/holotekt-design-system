@@ -29,7 +29,7 @@ type Story = StoryObj<typeof meta>;
 
 /** The default: border/strong and the hard orange offset. */
 export const OffsetOn: Story = { args: { offset: true } };
-/** A plain raised surface with border/subtle and no offset. */
+/** A plain raised surface: no border, no offset. Depth by tone alone. */
 export const OffsetOff: Story = { args: { offset: false } };
 /** Rendered as an aside, for content set apart from the main text. */
 export const AsAside: Story = { args: { as: "aside", offset: true } };

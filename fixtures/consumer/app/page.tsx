@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Button, Card, Divider, ThumbnailList, ThumbnailRow } from "holotekt-design-system/components";
+import { Button, Card, Divider } from "holotekt-design-system/components";
+import { Rows } from "./rows";
 
 export default function Page() {
   return (
@@ -12,10 +13,7 @@ export default function Page() {
         Go to two →
       </Button>
       <Divider weight="strong" />
-      <ThumbnailList aria-label="Work">
-        <ThumbnailRow href="/one" title="One piece of work" summary="Its summary." />
-        <ThumbnailRow href="/two" title="Another" />
-      </ThumbnailList>
+      <Rows />
     </main>
   );
 }
